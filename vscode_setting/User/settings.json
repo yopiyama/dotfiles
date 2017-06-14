@@ -1,0 +1,71 @@
+// Place your settings in this file to overwrite the default settings
+{
+	"files.encoding": "utf8",
+	"editor.renderWhitespace": "all",
+	"editor.insertSpaces": false,
+	"files.trimTrailingWhitespace": true,
+	"files.autoGuessEncoding": true,
+	"workbench.welcome.enabled": false,
+	"editor.minimap.enabled": true,
+	"editor.dragAndDrop":true,
+	"editor.renderLineHighlight": "all",
+	"editor.renderIndentGuides": true,
+	"window.openFilesInNewWindow": "off",
+	"window.title": "${rootPath}/${activeEditorShort}",
+	"extensions.autoUpdate": true,
+	"editor.wordWrap": "on",
+	"editor.renderControlCharacters": true,
+	"editor.cursorBlinking": "smooth",
+	"window.reopenFolders": "all",
+
+	"python.pythonPath": "python3",
+	"python.linting.enabled": false,
+	// "python.linting.flake8Enabled": true,
+	// "python.linting.pylintEnabled": false,
+	// "python.linting.pep8Enabled": false,
+
+
+	"codic.ACCESS_TOKEN": "OGqFdvvYofCcHf9KFL1tVoVggN2P7x69S",
+	"workbench.colorTheme": "Monokai",
+	"markdown.extension.preview.autoShowPreviewToSide": true,
+	"runner.languageMap": {
+		"c"      : "~/sh/clang.sh",
+		"cpp"    : "~/sh/cpp.sh",
+		"csharp" : "~/sh/csharp.sh",
+		"latex"    : "~/sh/tex.sh"
+	},
+	"workbench.iconTheme": "material-icon-theme",
+	"material-icon-theme.showUpdateMessage": false,
+
+	"vim.hlsearch": true,
+	"workbench.sideBar.location": "left",
+
+	"latex-workshop.chktex.enabled": true,
+	"latex-workshop.latex.toolchain": [{
+	    "command": "ptex2pdf",
+	    "args": [
+	        "-l",
+	        "-ot",
+	        "-kanji=utf8 -synctex=1",
+	        "%DOC%"
+	    ]
+	}],
+
+
+	"colorize.languages":[
+		"javascript",
+		"css",
+		"sass",
+		"scss",
+		"less",
+		"postcss",
+		"sss",
+		"stylus",
+		"xml",
+		"svg",
+		"html"
+	],
+	"vim.disableAnnoyingNeovimMessage": true,
+
+	  "clock.dateFormat": "dd/mm/yy HH:MM:ss"
+}
