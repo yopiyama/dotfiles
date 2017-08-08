@@ -1,22 +1,48 @@
 // Place your settings in this file to overwrite the default settings
 {
+	// デフォルトのエンコーディング
 	"files.encoding": "utf8",
+	// 半角スペースを全て表示
 	"editor.renderWhitespace": "all",
-	"editor.insertSpaces": false,
-	"files.trimTrailingWhitespace": true,
-	"files.autoGuessEncoding": true,
-	"workbench.welcome.enabled": false,
-	"editor.minimap.enabled": true,
-	"editor.dragAndDrop":true,
+	// 選択している行をハイライト
 	"editor.renderLineHighlight": "all",
+	// インデントを見えるようにする
 	"editor.renderIndentGuides": true,
-	"window.openFilesInNewWindow": "off",
-	"window.title": "${rootPath}/${activeEditorShort}",
-	"extensions.autoUpdate": true,
+
+	// インデントをタブにする
+	"editor.insertSpaces": false,
+	// 左上にミニマップを表示
+	"editor.minimap.enabled": true,
+	// 選択した部分をドラッグ&ドロップで移動可能に
+	"editor.dragAndDrop":true,
+	// 文字の折り返し機能をONに
 	"editor.wordWrap": "on",
+	// 制御文字が見えるようになる．(^H みたいなの)
 	"editor.renderControlCharacters": true,
-	"editor.cursorBlinking": "smooth",
-	"window.reopenFolders": "all",
+	// 選択しているところに出るバーが点滅しなくなる．
+	"editor.cursorBlinking": "solid",
+
+	// 保存時に行末にある無駄なスペースを全て削除
+	"files.trimTrailingWhitespace": true,
+	// ファイルを開いた時にエンコーディングを自動で合わせてくれる
+	"files.autoGuessEncoding": true,
+	// 新しいファイルを同じウィンドウで開く
+	"window.openFilesInNewWindow": "off",
+	// タイトルバーに編集中のファイルのパスを表示
+	"window.title": "${rootPath}/${activeEditorShort}",
+
+	"window.restoreWindows": "all",
+	// vscodeを終了した時に開いていたファイルを次の起動時に全て開く
+	"extensions.autoUpdate": true,
+
+	// カラーテーマをMonokaiに
+	"workbench.colorTheme": "Monokai",
+	// アイコンのテーマをmaterial-icon-themeに(要extension)
+	"workbench.iconTheme": "material-icon-theme",
+	// サイドバーを左に表示
+	"workbench.sideBar.location": "left",
+	// 起動時に無名のファイルを開く
+	"workbench.startupEditor": "newUntitledFile",
 
 	"python.pythonPath": "python3",
 	"python.linting.enabled": false,
@@ -24,48 +50,56 @@
 	// "python.linting.pylintEnabled": false,
 	// "python.linting.pep8Enabled": false,
 
-
 	"codic.ACCESS_TOKEN": "OGqFdvvYofCcHf9KFL1tVoVggN2P7x69S",
-	"workbench.colorTheme": "Monokai",
+
 	"markdown.extension.preview.autoShowPreviewToSide": true,
+
 	"runner.languageMap": {
 		"c"      : "~/sh/clang.sh",
 		"cpp"    : "~/sh/cpp.sh",
-		"csharp" : "~/sh/csharp.sh",
-		"latex"    : "~/sh/tex.sh"
+		"latex"  : "~/sh/tex.sh"
 	},
-	"workbench.iconTheme": "material-icon-theme",
+
 	"material-icon-theme.showUpdateMessage": false,
 
 	"vim.hlsearch": true,
-	"workbench.sideBar.location": "left",
+	"vim.disableAnnoyingNeovimMessage": true,
+	"vim.useSystemClipboard": true,
+
 
 	"latex-workshop.chktex.enabled": true,
 	"latex-workshop.latex.toolchain": [{
-	    "command": "ptex2pdf",
-	    "args": [
-	        "-l",
-	        "-ot",
-	        "-kanji=utf8 -synctex=1",
-	        "%DOC%"
-	    ]
+		"command": "ptex2pdf",
+		"args": [
+			"-l",
+			"-ot",
+			"-kanji=utf8 -synctex=1",
+			"%DOC%"
+			]
 	}],
-
-
-	"colorize.languages":[
-		"javascript",
-		"css",
-		"sass",
-		"scss",
-		"less",
-		"postcss",
-		"sss",
-		"stylus",
-		"xml",
-		"svg",
-		"html"
+	"latex-workshop.latex.clean.enabled": false,
+	"latex-workshop.latex.clean.fileTypes": [
+		"*.aux",
+		"*.bbl",
+		"*.blg",
+		"*.idx",
+		"*.ind",
+		"*.lof",
+		"*.lot",
+		"*.out",
+		"*.toc",
+		"*.acn",
+		"*.acr",
+		"*.alg",
+		"*.glg",
+		"*.glo",
+		"*.gls",
+		"*.ist",
+		"*.fls",
+//		"*.log",
+		"*.fdb_latexmk",
+		"*.synctex.gz"
 	],
-	"vim.disableAnnoyingNeovimMessage": true,
 
-	  "clock.dateFormat": "dd/mm/yy HH:MM:ss"
+	"clock.dateFormat": "dd/mm/yy HH:MM:ss"
 }
