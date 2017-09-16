@@ -57,15 +57,54 @@
 	"runner.languageMap": {
 		"c"      : "~/sh/clang.sh",
 		"cpp"    : "~/sh/cpp.sh",
-		"latex"  : "~/sh/tex.sh"
+		"latex"  : "~/sh/tex.sh",
+		"python" : "~/sh/python.sh"
 	},
+	"runner.shebangMap": {
+		"^#!\\s*/usr/bin/env python": "python"
+	},
+
 
 	"material-icon-theme.showUpdateMessage": false,
 
 	"vim.hlsearch": true,
 	"vim.disableAnnoyingNeovimMessage": true,
 	"vim.useSystemClipboard": true,
+	"vim.insertModeKeyBindings": [
+		{
+			"before":[],
+			"after":[]
 
+		}
+	],
+	"vim.otherModesKeyBindings": [
+		{
+			"before":["j"],
+			"after":["g","j"]
+		},
+		{
+			"before":["k"],
+			"after":["g","k"]
+		},
+		{
+			"before":["<DOWN>"],
+			"after":["g","j"]
+		},
+		{
+			"before":["<UP>"],
+			"after":["g","k"]
+		}
+	],
+	"vim.mouseSelectionGoesIntoVisualMode": false,
+	"vim.statusBarColorControl": true,
+	"vim.statusBarColors" : {
+		"normal": "#005f5f",
+		"insert": "#5f0000",
+		"visual": "#5f00af",
+		"visualline": "#005f87",
+		"visualblock": "#86592d",
+		"replace": "#000000"
+	},
 
 	"latex-workshop.chktex.enabled": true,
 	"latex-workshop.latex.toolchain": [{
@@ -101,5 +140,10 @@
 		"*.synctex.gz"
 	],
 
-	"clock.dateFormat": "dd/mm/yy HH:MM:ss"
+	"clock.dateFormat": "dd/mm/yy HH:MM:ss",
+	"workbench.colorCustomizations": {
+		"statusBar.background": "#005f5f",
+		"statusBar.noFolderBackground": "#005f5f",
+		"statusBar.debuggingBackground": "#005f5f"
+	}
 }
