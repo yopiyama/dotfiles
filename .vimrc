@@ -1,3 +1,4 @@
+set encoding=utf-8
 set autoread
 set hidden
 set showcmd
@@ -29,6 +30,15 @@ nnoremap k gk
 nnoremap <Down> gj
 nnoremap <Up>   gk
 
+"方向キーの無効化
+"noremap <Up> <Nop>
+"noremap <Down> <Nop>
+"noremap <Left> <Nop>
+"noremap <Right> <Nop>
+"inoremap <Up> <Nop>
+"inoremap <Down> <Nop>
+"inoremap <Left> <Nop>
+"inoremap <Right> <Nop>
 
 " モードによってカーソルの形状を変える．
 if has('vim_starting')
