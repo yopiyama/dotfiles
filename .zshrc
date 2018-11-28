@@ -27,6 +27,9 @@ autoload -U compinit; compinit
 # コマンドミスを修正ss
 setopt correct
 
+# 大文字小文字区別しない？
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+
 # プロンプトの設定
 autoload -U promptinit; promptinit
 prompt pure
