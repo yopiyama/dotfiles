@@ -1,16 +1,37 @@
 export ZPLUG_HOME=/usr/local/opt/zplug
 source $ZPLUG_HOME/init.zsh
 
-export LANG=ja_JP.UTF-8
+# Plugin - zplug
+zplug "zsh-users/zsh-autosuggestions"
+zplug "zsh-users/zsh-completions"
+zplug "zsh-users/zsh-syntax-highlighting"
+zplug "zsh-users/zsh-history-substring-search"
+zplug "chrissicool/zsh-256color"
+zplug "peco/peco", as:command, from:gh-r
+zplug "mollifier/anyframe"
 
-autoload -U promptinit; promptinit
-prompt pure
+if ! zplug check --verbose; then
+  printf "Install? [y/N]: "
+  if read -q; then
+    echo; zplug install
+  fi
+fi
+
+zplug load
+
+export LANG=ja_JP.UTF-8
 
 # 自動保管
 autoload -U compinit; compinit
 
-# コマンドミスを修正
+# コマンドミスを修正ss
 setopt correct
+
+# プロンプトの設定
+autoload -U promptinit; promptinit
+prompt pure
+
+
 
 # cdコマンドを省略して、ディレクトリ名のみの入力で移動
 setopt auto_cd
@@ -45,22 +66,25 @@ alias ls='ls -ilGF'
 # export PATH=${PYENV_ROOT}/bin:$PATH
 eval "$(pyenv init -)"
 
+zstyle ":anyframe:selector:" use peco
 
-# Plugin - zplug
-zplug "zsh-users/zsh-autosuggestions"
-zplug "zsh-users/zsh-completions"
-zplug "zsh-users/zsh-syntax-highlighting"
-zplug "zsh-users/zsh-history-substring-search"
-zplug "chrissicool/zsh-256color"
 
-if ! zplug check --verbose; then
-  printf "Install? [y/N]: "
-  if read -q; then
-    echo; zplug install
-  fi
-fi
+# C-eでcd履歴検索後移動
+autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
+add-zsh-hook chpwd chpwd_recent_dirs
+zstyle ':completion:*' recent-dirs-insert both
+zstyle ':chpwd:*' recent-dirs-max 500
+zstyle ':chpwd:*' recent-dirs-default true
+zstyle ':chpwd:*' recent-dirs-file "$HOME/.zsh/.cache/chpwd-recent-dirs"
+zstyle ':chpwd:*' recent-dirs-pushd true
+bindkey '^E' anyframe-widget-cdr
 
-zplug load
+# C-rでコマンド履歴検索後実行
+bindkey '^R' anyframe-widget-execute-history
+
+# C-fでファイル名検索，挿入
+bindkey '^F' anyframe-widget-insert-filename
+
 
 if [ ~/.zshrc -nt ~/.zshrc.zwc ]; then
   zcompile ~/.zshrc

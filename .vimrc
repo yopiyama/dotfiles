@@ -2,7 +2,7 @@ set encoding=utf-8
 set autoread
 set hidden
 set showcmd
-
+set showmode
 set number
 set title
 set ambiwidth=double
@@ -31,14 +31,18 @@ nnoremap <Down> gj
 nnoremap <Up>   gk
 
 "方向キーの無効化
-"noremap <Up> <Nop>
-"noremap <Down> <Nop>
-"noremap <Left> <Nop>
-"noremap <Right> <Nop>
-"inoremap <Up> <Nop>
-"inoremap <Down> <Nop>
-"inoremap <Left> <Nop>
-"inoremap <Right> <Nop>
+noremap <Up> <Nop>
+noremap <Down> <Nop>
+noremap <Left> <Nop>
+noremap <Right> <Nop>
+inoremap <Up> <Nop>
+inoremap <Down> <Nop>
+inoremap <Left> <Nop>
+inoremap <Right> <Nop>
+
+imap { {}<LEFT>
+imap [ []<LEFT>
+imap ( ()<LEFT>
 
 " モードによってカーソルの形状を変える．
 if has('vim_starting')
@@ -129,11 +133,6 @@ nnoremap sB :<C-u>Unite buffer -buffer-name=file<CR>
 "call submode#map('bufmove', 'n', '', '+', '<C-w>+')
 "call submode#map('bufmove', 'n', '', '-', '<C-w>-')
 
-
-"色つけれる時はつける
-if has("syntax")
-	syntax on
-endif
 
 "不可視文字を可視化するやつ
 set list
@@ -230,8 +229,6 @@ if has('syntax')
 endif
 
 
-
-
 "拡張子がpyの時normal modeで (shift + m) を押すとpython filenameで実行
 autocmd BufNewFile,BufRead *.py nnoremap <S-M> :!python %
 
@@ -241,3 +238,43 @@ autocmd BufNewFile,BufRead *.tex nnoremap <S-M> :!~/Dropbox/Apps/sh/tex.sh %
 
 "Color Schemeをmolokaiに
 colorscheme molokai
+
+" プラグインが実際にインストールされるディレクトリ
+let s:dein_dir = expand('~/.vim/dein')
+" dein.vim 本体
+let s:dein_repo_dir = s:dein_dir . '/repos/github.com/Shougo/dein.vim'
+
+" dein.vim がなければ github から落としてくる
+if &runtimepath !~# '/dein.vim'
+  if !isdirectory(s:dein_repo_dir)
+    execute '!git clone https://github.com/Shougo/dein.vim' s:dein_repo_dir
+  endif
+  execute 'set runtimepath^=' . fnamemodify(s:dein_repo_dir, ':p')
+endif
+
+" 設定開始
+if dein#load_state(s:dein_dir)
+  call dein#begin(s:dein_dir)
+
+  " プラグインリストを収めた TOML ファイル
+  let s:toml_dir = expand('~/.vim/dein')
+  " 起動時に読み込むプラグイン群
+  call dein#load_toml(s:toml_dir . '/dein.toml', {'lazy': 0})
+  " 遅延読み込みしたいプラグイン群
+  call dein#load_toml(s:toml_dir . '/dein_lazy.toml', {'lazy': 1})
+
+  " 設定終了
+  call dein#end()
+  call dein#save_state()
+endif
+
+" もし、未インストールものものがあったらインストール
+if dein#check_install()
+  call dein#install()
+endif
+
+
+"色つけれる時はつける
+if has("syntax")
+	syntax on
+endif
