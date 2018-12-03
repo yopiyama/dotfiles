@@ -1,7 +1,12 @@
+filetype off
+
 " プラグインが実際にインストールされるディレクトリ
 let s:dein_dir = expand('~/.vim/dein')
 " dein.vim 本体
 let s:dein_repo_dir = s:dein_dir . '/repos/github.com/Shougo/dein.vim'
+
+" python (pyenv)
+let g:python3_host_prog = $PYENV_ROOT . '/shims/python3'
 
 " dein.vim がなければ github から落としてくる
 if &runtimepath !~# '/dein.vim'
@@ -39,7 +44,6 @@ if dein#check_install()
 endif
 
 
-let g:python3_host_prog = $PYENV_ROOT . '/shims/python3.6'
 
 "utf-8に設定
 set fenc=utf-8

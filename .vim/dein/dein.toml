@@ -21,12 +21,6 @@ repo = 'roxma/nvim-yarp'
 repo = 'roxma/vim-hug-neovim-rpc'
 
 
-
-[[plugins]]
-repo = 'lambdalisue/vim-pyenv'
-depends = ['davidhalter/jedi-vim']
-filetypes = ['python']
-
 [[plugins]]
 repo = 'Shougo/neco-syntax'
 
@@ -36,3 +30,21 @@ repo = 'ujihisa/neco-look'
 [[plugins]]
 repo = 'Shougo/neosnippet-snippets'
 
+[[plugins]]
+repo = 'w0rp/ale'
+hook_add = '''
+	"w0rp/aleの設定
+	let g:ale_sign_error = 'X'
+	let g:ale_sign_warning = '!'
+	let g:ale_linters = {
+	\	 'javascript': ['eslint'],
+	\	 'python': ['pylint'],
+	\	 'c': ['gcc'],
+	\	 'cpp': ['gcc'],
+	\	 'Java': ['javac'],
+	\}
+	" Only run linters named in ale_linters settings.
+	let g:ale_linters_explicit = 1
+	"常にale表示
+	let g:ale_sign_column_always = 1
+'''
