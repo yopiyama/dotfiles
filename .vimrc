@@ -294,6 +294,14 @@ autocmd BufNewFile,BufRead *.py nnoremap <S-M> :!python %
 "拡張子がtexの時normal modeで (shift + m) を押すとtexのコンパイルスクリプトを実行
 autocmd BufNewFile,BufRead *.tex nnoremap <S-M> :!~/Dropbox/Apps/sh/tex.sh %
 
+" 隠しファイルをデフォルトで表示させる
+let NERDTreeShowHidden = 1
+
+" デフォルトでツリーを表示させる
+autocmd VimEnter * execute 'NERDTree'
+
+"他のバッファをすべて閉じた時にNERDTreeが開いていたらNERDTreeも一緒に閉じる。
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 
 "カラースキーム
 colorscheme molokai
