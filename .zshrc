@@ -63,7 +63,7 @@ setopt hist_no_store
 HISTSIZE=1000
 SAVEHIST=100000
 
-alias ls='ls -ilGF'
+alias ls='ls -ilhGF'
 
 # export PYENV_ROOT="${HOME}/.pyenv"
 # export PATH=${PYENV_ROOT}/bin:$PATH

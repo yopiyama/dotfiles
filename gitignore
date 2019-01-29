@@ -1,0 +1,11 @@
+.history/
+.vscode/
+bin/
+.DS_Store
+.gitignore
+*.swp
+__pycache__
+*.out
+*.exe
+test.*
+tmp.*
