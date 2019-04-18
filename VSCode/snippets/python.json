@@ -1,0 +1,15 @@
+{
+	"Shebang!": {
+		"prefix": "shebang",
+		"body": [
+			"#!/usr/bin/env python",
+			"# coding:utf-8\n",
+			"\"\"\"",
+			"$TM_FILENAME",
+			"${1:description}",
+			"\"\"\"",
+			"$0"
+		],
+		"description": "Shebang Snippet"
+	},
+}

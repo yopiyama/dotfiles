@@ -1,0 +1,15 @@
+// Place your key bindings in this file to overwrite the defaults
+[
+  {
+    "key": "shift+cmd+m",  "command": "extension.runner.start",
+                              "when": "editorTextFocus" },
+  { "key": "cmd+shift+.",  "command": "extension.runner.stop" },
+  {
+    "key": "alt+t",
+    "command": "extension.codicTranslate"
+  },
+  {
+    "key": "cmd+r",
+    "command": "python.execInTerminal"
+  }
+]

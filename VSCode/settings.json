@@ -1,0 +1,261 @@
+{
+	//
+	// Editor Settings
+	//
+	// 設定ファイルはJSONで表示
+	"workbench.settings.editor": "json",
+	// フォント
+	"editor.fontFamily": "Ricty Diminished",
+	// フォント(markdownのpreview機能)
+	"markdown.preview.fontFamily": "Ricty Diminished",
+	// デフォルトのエンコーディング
+	"files.encoding": "utf8",
+	//ファイルのオートセーブ
+	"files.autoSave": "onFocusChange",
+	// 半角スペースを全て表示
+	"editor.renderWhitespace": "all",
+	// 選択している行をハイライト
+	"editor.renderLineHighlight": "all",
+	// インデントを見えるようにする
+	"editor.renderIndentGuides": true,
+	// インデントをタブにする
+	"editor.insertSpaces": false,
+	// タブは4タブ
+	"editor.tabSize": 4,
+	// タブいい感じに挿入
+	"editor.tabCompletion": "on",
+	// スニペットは上の方に表示
+	"editor.snippetSuggestions": "top",
+	// セーブ時に整形
+	"editor.formatOnSave": true,
+	// タイプしたら整形
+	"editor.formatOnType": true,
+	// ペーストしたら整形
+	"editor.formatOnPaste": true,
+	// 80文字目と100文字目を可視化
+	"editor.rulers": [
+		80,
+		100
+	],
+	//s
+	"editor.detectIndentation": true,
+	// 左上にミニマップを表示
+	"editor.minimap.enabled": true,
+	// ミニマップの表示をカラーブロックにする．
+	"editor.minimap.renderCharacters": false,
+	// ミニマップのハイライトを常に行う．
+	"editor.minimap.showSlider": "always",
+	// 選択した部分をドラッグ&ドロップで移動可能に
+	"editor.dragAndDrop": true,
+	// 文字の折り返し機能をONに
+	"editor.wordWrap": "on",
+	// 制御文字が見えるようになる．
+	"editor.renderControlCharacters": true,
+	// 選択しているところに出るバーが点滅しなくなる．
+	"editor.cursorBlinking": "solid",
+	// 保存時に行末にある無駄なスペースを全て削除
+	"files.trimTrailingWhitespace": true,
+	// ファイルを開いた時にエンコーディングを自動で合わせてくれる
+	"files.autoGuessEncoding": true,
+	// 新しいファイルを同じウィンドウで開く
+	"window.openFilesInNewWindow": "off",
+	// タイトルバーに編集中のファイルのパスを表示
+	"window.title": "${rootPath}/${activeEditorShort}",
+	// vscodeを終了した時に開いていたファイルを次の起動時に全て開く
+	"window.restoreWindows": "all",
+	// エクステンションを自動でアップデート
+	"extensions.autoUpdate": true,
+	// サイドバーを左に表示
+	"workbench.sideBar.location": "left",
+	// 起動時には何も開かない
+	"workbench.startupEditor": "none",
+	"files.exclude": {
+		"**/.classpath": true,
+		"**/.project": true,
+		"**/.settings": true,
+		"**/.factorypath": true
+	},
+	// アイコンのテーマをmaterial-icon-themeに(要extension)
+	"workbench.iconTheme": "material-icon-theme",
+	/*----------------- 色設定始まり -----------------*/
+	// カラーテーマをMonokaiに
+	"workbench.colorTheme": "Monokai",
+	"workbench.colorCustomizations": {
+		"statusBar.noFolderBackground": "#007ddd",
+		"statusBar.debuggingBackground": "#dd0055",
+		"editorWhitespace.foreground": "#ffffff9c",
+		"[Monokai]": {
+			// "statusBar.background": "#666666",
+			"statusBar.background": "#007ddd",
+			// "panel.background": "#555555",
+			"sideBar.background": "#131313"
+		}
+	},
+	"editor.tokenColorCustomizations": {
+		"comments": {
+			"foreground": "#8a8a8a",
+			"fontStyle": "underline"
+		},
+	},
+	"editor.suggestSelection": "first",
+	"explorer.confirmDragAndDrop": false,
+	"terminal.integrated.rendererType": "dom",
+	/*----------------- 色設定終わり -----------------*/
+	// スクリーンリーダー無効化
+	"editor.accessibilitySupport": "off",
+	// mac向けのタブ機能
+	"window.nativeTabs": true,
+	"workbench.panel.defaultLocation": "right",
+	// アクティビティバーを表示
+	"workbench.activityBar.visible": true,
+	// Shellの設定
+	"terminal.integrated.shell.osx": "/usr/local/bin/zsh",
+	"git.ignoreMissingGitWarning": true,
+	//
+	// Languages
+	//
+	"vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+	//
+	// Markdown Settings
+	//
+	"[markdown]": {
+		"editor.wordWrap": "on",
+		"editor.quickSuggestions": true,
+		"editor.insertSpaces": false
+	},
+	"markdownlint.config": {
+		"default": true,
+		"MD007": false,
+		"no-hard-tabs": false
+	},
+	"markdown.extension.preview.autoShowPreviewToSide": true,
+	//
+	// Python Settings
+	//
+	"[python]": {
+		"editor.insertSpaces": true,
+		"editor.tabSize": 4,
+		"editor.rulers": [
+			79,
+		]
+	},
+	"python.pythonPath": "~/.pyenv/shims/python",
+	"python.linting.pylintEnabled": true,
+	"python.linting.pylintArgs": [
+		"--disable=W0401,W0614,W0312,W1401,C0103,"
+	],
+	"python.autoComplete.addBrackets": true,
+	"python.jediEnabled": false,
+	//
+	// Java
+	//
+	"java.home": "/Library/Java/JavaVirtualMachines/jdk1.8.0_101.jdk/Contents/Home",
+	"java.jdt.ls.vmargs": "-noverify -Xmx1G -XX:+UseG1GC -XX:+UseStringDeduplication -Dfile.encoding=UTF-8",
+	//
+	// C/C++
+	//
+	"[c]": {
+		"editor.insertSpaces": true
+	},
+	"C_Cpp.default.intelliSenseMode": "gcc-x64",
+	"C_Cpp.default.cStandard": "c11",
+	"clang.cxxflags": [
+		"-std=c++17"
+	],
+	"[cpp]": {
+		"editor.insertSpaces": true
+	},
+	"C_Cpp.default.cppStandard": "c++17",
+	"C_Cpp.default.includePath": [
+		"/usr/local/Cellar/gcc/8.3.0/include/c++/8.3.0",
+		"/usr/local/Cellar/gcc/8.3.0/include/c++/8.3.0/x86_64-apple-darwin18.2.0/",
+		"/usr/local/opt/openssl/include:",
+		"/usr/local/Cellar/boost/1.69.0/include",
+	],
+	"C_Cpp.clang_format_fallbackStyle": "{BasedOnStyle: Google, IndentWidth: 4 }",
+	//
+	// Web
+	//
+	"emmet.triggerExpansionOnTab": true,
+	"[sass]": {
+		"editor.tabSize": 2,
+		"editor.insertSpaces": true
+	},
+	"liveSassCompile.settings.formats": [{
+		"format": "compressed",
+		"extensionName": ".min.css",
+		"savePath": "/CSS"
+	}],
+	//
+	// Extensions
+	//
+	"material-icon-theme.showUpdateMessage": false,
+	"clock.dateFormat": "ddd., mmm. dd , yyyy - HH:MM:ss",
+	"local-history.daysLimit": 4,
+	"codic.case": "PascalCase",
+	"runner.languageMap": {
+		"latex": "~/Dropbox/Apps/sh/tex.sh",
+	},
+	//
+	// LaTeX Settings
+	//
+	"latex-workshop.message.warning.show": false,
+	"latex-workshop.message.update.show": false,
+	"latex-workshop.chktex.enabled": true,
+	"latex-workshop.view.pdf.viewer": "tab",
+	"latex-workshop.latex.tools": [{
+			"name": "ptex2pdf",
+			"command": "ptex2pdf",
+			"args": [
+				"-l",
+				"-ot",
+				"-kanji=utf8 -synctex=1",
+				"%DOC%"
+			]
+		},
+		{
+			"name": "bibtex",
+			"command": "bibtex",
+			"args": [
+				"%DOCFILE%"
+			]
+		}
+	],
+	"latex-workshop.latex.recipes": [{
+		"name": "toolchain",
+		"tools": [
+			"ptex2pdf",
+		]
+	}],
+	"latex-workshop.latex.clean.fileTypes": [
+		"*.aux",
+		"*.bbl",
+		"*.blg",
+		"*.idx",
+		"*.ind",
+		"*.lof",
+		"*.lot",
+		"*.out",
+		"*.toc",
+		"*.acn",
+		"*.acr",
+		"*.alg",
+		"*.glg",
+		"*.glo",
+		"*.gls",
+		"*.ist",
+		"*.fls",
+		"*.log",
+		"*.fdb_latexmk",
+		"*.synctex.gz"
+	],
+	"latex-workshop.view.pdf.external.command": {
+		"command": "open",
+		"args": [
+			" -ga /Applications/Skim.app ",
+			"%PDF%"
+		]
+	},
+	"liveServer.settings.donotShowInfoMsg": true,
+	"liveServer.settings.donotVerifyTags": true,
+}

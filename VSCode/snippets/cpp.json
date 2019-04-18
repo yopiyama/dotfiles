@@ -1,0 +1,51 @@
+{
+	"templete": {
+		"prefix": "templete",
+		"body": [
+			"#include <bits/stdc++.h>",
+			"using namespace std;",
+			"using ll = long long;",
+			"",
+			"int main() {",
+			"    cin.tie(0);",
+			"    cout.tie(0);",
+			"    ios::sync_with_stdio(false);",
+			"",
+			"    int x;",
+			"    cin >> x;",
+			"    cout << x * x * x << \"\\n\";",
+			"    $0",
+			"",
+			"return 0;",
+			"}"
+		]
+	},
+	"std::split": {
+		"prefix": "stdsplit",
+		"body": [
+			"std::vector<std::string> split(const std::string &str, char sep) {",
+			"    std::vector<std::string> v;",
+			"    std::stringstream ss(str);",
+			"    std::string buffer;",
+			"    while( std::getline(ss, buffer, sep) ) {",
+			"        v.push_back(buffer);",
+			"    }",
+			"    return v;",
+			"}"
+		]
+	},
+	"split": {
+		"prefix": "split",
+		"body": [
+			"vector<string> split(const string &str, char sep) {",
+			"    vector<string> v;",
+			"    stringstream ss(str);",
+			"    string buffer;",
+			"    while( getline(ss, buffer, sep) ) {",
+			"        v.push_back(buffer);",
+			"    }",
+			"    return v;",
+			"}"
+		]
+	}
+}

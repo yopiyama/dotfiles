@@ -1,0 +1,29 @@
+{
+	"Table": {
+		"prefix": "table",
+		"body": [
+			"| ${1:TH1} | ${2:TH2} |",
+			"----|----",
+			"| ${3:TD1} | ${4:TD2} |",
+			"$0"
+		],
+		"description": "Table"
+	},
+	"URL": {
+		"prefix": "url",
+		"body": [
+			"[${1:title}](${2:url})",
+			"$0"
+		],
+		"description": "URL"
+	},
+	"Highlight": {
+		"prefix": "```",
+		"body": [
+			"```${1:ext}",
+			"$0",
+			"```"
+		],
+		"description": "Highlight"
+	}
+}
