@@ -69,6 +69,7 @@
 	"workbench.sideBar.location": "left",
 	// 起動時には何も開かない
 	"workbench.startupEditor": "none",
+	"window.zoomLevel": 0,
 	"files.exclude": {
 		"**/.classpath": true,
 		"**/.project": true,
@@ -167,8 +168,8 @@
 	},
 	"C_Cpp.default.cppStandard": "c++17",
 	"C_Cpp.default.includePath": [
-		"/usr/local/Cellar/gcc/8.3.0/include/c++/8.3.0",
-		"/usr/local/Cellar/gcc/8.3.0/include/c++/8.3.0/x86_64-apple-darwin18.2.0/",
+		"/usr/local/Cellar/gcc/9.1.0/include/c++/9.1.0",
+		"/usr/local/Cellar/gcc/9.1.0/include/c++/9.1.0/x86_64-apple-darwin18",
 		"/usr/local/opt/openssl/include:",
 		"/usr/local/Cellar/boost/1.69.0/include",
 	],
@@ -191,7 +192,7 @@
 	//
 	"material-icon-theme.showUpdateMessage": false,
 	"clock.dateFormat": "ddd., mmm. dd , yyyy - HH:MM:ss",
-	"local-history.daysLimit": 4,
+	"local-history.daysLimit": 2,
 	"codic.case": "PascalCase",
 	"runner.languageMap": {
 		"latex": "~/Dropbox/Apps/sh/tex.sh",

@@ -298,7 +298,14 @@ autocmd BufNewFile,BufRead *.tex nnoremap <S-M> :!~/Dropbox/Apps/sh/tex.sh %
 let NERDTreeShowHidden = 1
 
 " デフォルトでツリーを表示させる
-autocmd VimEnter * execute 'NERDTree'
+function s:MoveToFileAtStart()
+  call feedkeys("\<Space>")
+  call feedkeys("\s")
+  call feedkeys("\l")
+endfunction
+autocmd VimEnter *  NERDTree | call s:MoveToFileAtStart()
+
+
 
 "他のバッファをすべて閉じた時にNERDTreeが開いていたらNERDTreeも一緒に閉じる。
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif

@@ -13,7 +13,6 @@ tmp.*
 tmp/
 *.icloud
 .sass-cache/
-*.key
 *.zip
 *.dSYM/
 
