@@ -4,6 +4,8 @@
 	//
 	// 設定ファイルはJSONで表示
 	"workbench.settings.editor": "json",
+	// フォントサイズ
+	"editor.fontSize": 12,
 	// フォント
 	"editor.fontFamily": "Ricty Diminished",
 	// フォント(markdownのpreview機能)
@@ -67,6 +69,8 @@
 	"extensions.autoUpdate": true,
 	// サイドバーを左に表示
 	"workbench.sideBar.location": "left",
+	// パンくずリスト
+	"breadcrumbs.enabled": true,
 	// 起動時には何も開かない
 	"workbench.startupEditor": "none",
 	"window.zoomLevel": 0,
@@ -93,6 +97,7 @@
 		}
 	},
 	"editor.tokenColorCustomizations": {
+		// コメントの色と下線を引く設定
 		"comments": {
 			"foreground": "#8a8a8a",
 			"fontStyle": "underline"
@@ -101,6 +106,7 @@
 	"editor.suggestSelection": "first",
 	"explorer.confirmDragAndDrop": false,
 	"terminal.integrated.rendererType": "dom",
+	"workbench.useExperimentalGridLayout": true,
 	/*----------------- 色設定終わり -----------------*/
 	// スクリーンリーダー無効化
 	"editor.accessibilitySupport": "off",
