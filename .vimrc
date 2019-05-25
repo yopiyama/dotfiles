@@ -44,6 +44,7 @@ if dein#check_install()
 endif
 
 
+let g:previm_open_cmd = 'open -a Safari'
 
 "utf-8に設定
 set fenc=utf-8
@@ -120,10 +121,10 @@ nmap <Esc><Esc> :nohlsearch<CR><Esc>
 
 
 " ctrl + a とかで行頭移動とか
-inoremap <C-e> <Esc>$a
-inoremap <C-a> <Esc>^a
-noremap <C-e> <Esc>$a
-noremap <C-a> <Esc>^a
+" inoremap <C-e> <Esc>$a
+" inoremap <C-a> <Esc>^a
+" noremap <C-e> <Esc>$a
+" noremap <C-a> <Esc>^a
 
 
 

@@ -43,3 +43,6 @@ hook_source = '''
 on_i = 1
 on_ft = ['snippet']
 depends = ['neosnippet-snippets']
+
+[[plugins]]
+repo = 'previm/previm'
