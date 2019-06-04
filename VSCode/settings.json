@@ -128,7 +128,8 @@
 	"[markdown]": {
 		"editor.wordWrap": "on",
 		"editor.quickSuggestions": true,
-		"editor.insertSpaces": false
+		"editor.insertSpaces": true,
+		"editor.tabSize": 2,
 	},
 	"markdownlint.config": {
 		"default": true,
@@ -149,7 +150,7 @@
 	"python.pythonPath": "~/.pyenv/shims/python",
 	"python.linting.pylintEnabled": true,
 	"python.linting.pylintArgs": [
-		"--disable=W0401,W0614,W0312,W1401,C0103,"
+		"--disable=W0401,W0614,W0312,W1401,C0103,W0105"
 	],
 	"python.autoComplete.addBrackets": true,
 	"python.jediEnabled": false,
@@ -176,8 +177,8 @@
 	"C_Cpp.default.includePath": [
 		"/usr/local/Cellar/gcc/9.1.0/include/c++/9.1.0",
 		"/usr/local/Cellar/gcc/9.1.0/include/c++/9.1.0/x86_64-apple-darwin18",
-		"/usr/local/opt/openssl/include:",
-		"/usr/local/Cellar/boost/1.69.0/include",
+		"/usr/local/opt/openssl/include",
+		"/usr/local/Cellar/boost/1.69.0_2/include",
 	],
 	"C_Cpp.clang_format_fallbackStyle": "{BasedOnStyle: Google, IndentWidth: 4 }",
 	//

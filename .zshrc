@@ -64,6 +64,7 @@ HISTSIZE=1000
 SAVEHIST=100000
 
 alias ls='ls -ilhGF'
+alias sl='ls'
 
 # export PYENV_ROOT="${HOME}/.pyenv"
 # export PATH=${PYENV_ROOT}/bin:$PATH
@@ -156,3 +157,4 @@ function tmux_automatically_attach_session()
     fi
 }
 tmux_automatically_attach_session
+
