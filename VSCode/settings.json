@@ -66,7 +66,7 @@
 	// vscodeを終了した時に開いていたファイルを次の起動時に全て開く
 	"window.restoreWindows": "all",
 	// エクステンションを自動でアップデート
-	"extensions.autoUpdate": true,
+	"extensions.autoUpdate": false,
 	// サイドバーを左に表示
 	"workbench.sideBar.location": "left",
 	// パンくずリスト
@@ -147,7 +147,8 @@
 			79,
 		]
 	},
-	"python.pythonPath": "~/.pyenv/shims/python",
+	"python.pythonPath": "python",
+	"python.condaPath": "conda",
 	"python.linting.pylintEnabled": true,
 	"python.linting.pylintArgs": [
 		"--disable=W0401,W0614,W0312,W1401,C0103,W0105"
@@ -199,10 +200,9 @@
 	//
 	"material-icon-theme.showUpdateMessage": false,
 	"clock.dateFormat": "ddd., mmm. dd , yyyy - HH:MM:ss",
-	"local-history.daysLimit": 2,
 	"codic.case": "PascalCase",
 	"runner.languageMap": {
-		"latex": "~/Dropbox/Apps/sh/tex.sh",
+		"latex": "~/OneDrive/Documents/Programming/Shell/tex.sh",
 	},
 	//
 	// LaTeX Settings
@@ -266,4 +266,5 @@
 	},
 	"liveServer.settings.donotShowInfoMsg": true,
 	"liveServer.settings.donotVerifyTags": true,
+	"explorer.confirmDelete": false,
 }
