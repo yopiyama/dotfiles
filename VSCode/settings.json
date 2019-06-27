@@ -80,6 +80,8 @@
 		"**/.settings": true,
 		"**/.factorypath": true
 	},
+	// エクスプローラーでファイルとかを削除するときに確認しない．
+	"explorer.confirmDelete": false,
 	// アイコンのテーマをmaterial-icon-themeに(要extension)
 	"workbench.iconTheme": "material-icon-theme",
 	/*----------------- 色設定始まり -----------------*/
@@ -210,6 +212,16 @@
 	"latex-workshop.message.warning.show": false,
 	"latex-workshop.message.update.show": false,
 	"latex-workshop.chktex.enabled": true,
+	"latex-workshop.chktex.args.active": [
+		"-wall",
+		"-n22",
+		"-n30",
+		"-n19",
+		"-n24",
+		"-n44",
+		"-e16",
+		"-q"
+	],
 	"latex-workshop.view.pdf.viewer": "tab",
 	"latex-workshop.latex.tools": [{
 			"name": "ptex2pdf",
@@ -266,5 +278,4 @@
 	},
 	"liveServer.settings.donotShowInfoMsg": true,
 	"liveServer.settings.donotVerifyTags": true,
-	"explorer.confirmDelete": false,
 }

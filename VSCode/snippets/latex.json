@@ -98,7 +98,6 @@
 		"body": [
 			"\\begin{table}[H]",
 			"%\\centering",
-			"\\begin{center}",
 			"\\caption{${1:Title}}",
 			"%\\scalebox{0.9}[0.9]{",
 			"\\begin{tabular}{|l|c|r|}\\hline",
@@ -107,7 +106,6 @@
 			"\t${5:ddd} & ${6:eee} & ${7:fff}\\\\ \\hline",
 			"\\end{tabular}",
 			"% }",
-			"\\end{center}",
 			"\\label{tb:${8:label}}",
 			"\\end{table}"
 		]

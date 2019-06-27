@@ -1,0 +1,17 @@
+{
+	"snippet": {
+		"prefix": "snippet",
+		"body": [
+			"precision mediump float;",
+			"uniform float time; // time",
+			"uniform vec2 resolution; // resolution",
+			"",
+			"void main(void) {",
+			"vec2 position = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);",
+			"",
+			"\t$0",
+			"}"
+		],
+		"description": "snippet"
+	},
+}
