@@ -5,7 +5,7 @@
 	// 設定ファイルはJSONで表示
 	"workbench.settings.editor": "json",
 	// フォントサイズ
-	"editor.fontSize": 12,
+	"editor.fontSize": 13,
 	// フォント
 	"editor.fontFamily": "Ricty Diminished",
 	// フォント(markdownのpreview機能)
@@ -149,7 +149,7 @@
 			79,
 		]
 	},
-	"python.pythonPath": "python",
+	"python.pythonPath": "~/.pyenv/versions/anaconda3-5.3.1/bin/python",
 	"python.condaPath": "conda",
 	"python.linting.pylintEnabled": true,
 	"python.linting.pylintArgs": [
