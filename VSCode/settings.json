@@ -106,6 +106,11 @@
 		},
 	},
 	"editor.suggestSelection": "first",
+	"editor.quickSuggestions": { //入力補完を自動で表示する
+		"other": true, //文字列以外
+		"strings": false, //文字列
+		"comments": false, //コメント
+	},
 	"explorer.confirmDragAndDrop": false,
 	"terminal.integrated.rendererType": "dom",
 	"workbench.useExperimentalGridLayout": true,
@@ -114,7 +119,8 @@
 	"editor.accessibilitySupport": "off",
 	// mac向けのタブ機能
 	"window.nativeTabs": true,
-	"workbench.panel.defaultLocation": "right",
+	// outputとかterminalの位置
+	"workbench.panel.defaultLocation": "bottom",
 	// アクティビティバーを表示
 	"workbench.activityBar.visible": true,
 	// Shellの設定
@@ -278,4 +284,65 @@
 	},
 	"liveServer.settings.donotShowInfoMsg": true,
 	"liveServer.settings.donotVerifyTags": true,
+	//
+	// Vim settings
+	//
+	"vim.easymotion": true,
+	"vim.sneak": true,
+	"vim.incsearch": true,
+	"vim.useSystemClipboard": true,
+	"vim.useCtrlKeys": true,
+	"vim.hlsearch": true,
+	"vim.visualstar": true,
+	"vim.foldfix": true,
+	"vim.whichwrap": "h,l,<,>,[,]",
+	"vim.insertModeKeyBindings": [{
+		"before": [
+			"<C-j>"
+		],
+		"after": [
+			"<Esc>"
+		]
+	}],
+	"vim.normalModeKeyBindingsNonRecursive": [{
+			"before": [
+				"<leader>",
+				"d"
+			],
+			"after": [
+				"d",
+				"d"
+			]
+		},
+		{
+			"before": [
+				"<Esc>",
+				"<Esc>"
+			],
+			"commands": [
+				":nohl"
+			]
+		},
+		{
+			"before": ["n"],
+			"after": ["n", "z", "z"]
+		},
+		{
+			"before": ["N"],
+			"after": ["N", "z", "z"]
+		},
+		{
+			"before": ["*"],
+			"after": ["*", "z", "z"]
+		},
+		{
+			"before": ["#"],
+			"after": ["#", "z", "z"]
+		},
+	],
+	"vim.leader": "<space>",
+	"vim.handleKeys": {
+		"<C-a>": false,
+		"<C-f>": false
+	}
 }

@@ -80,6 +80,9 @@ nnoremap k gk
 nnoremap <Down> gj
 nnoremap <Up>   gk
 
+imap <C-j> <esc>
+noremap! <C-j> <esc>
+
 "方向キーの無効化
 noremap <Up> <Nop>
 noremap <Down> <Nop>
