@@ -116,7 +116,9 @@
 			"\\begin{thebibliography}{9}",
 			"%\\addcontentsline{toc}{section}{\\refname}",
 			"\t\\bibitem{${1:label}} ${2:title_url}",
-			"\\end{thebibliography}"
+			"\\end{thebibliography}",
+			"% \\bibliography{hoge} %hoge.bibから拡張子を外した名前",
+			"% \\bibliographystyle {junsrt}"
 		],
 		"description": "Bibliography"
 	}

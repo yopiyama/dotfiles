@@ -88,15 +88,14 @@
 	// カラーテーマをMonokaiに
 	"workbench.colorTheme": "Monokai",
 	"workbench.colorCustomizations": {
-		"statusBar.noFolderBackground": "#007ddd",
-		"statusBar.debuggingBackground": "#dd0055",
+		"statusBar.noFolderBackground": "#B48EAD",
+		"statusBar.debuggingBackground": "#ff54e0",
 		"editorWhitespace.foreground": "#ffffff9c",
 		"[Monokai]": {
-			// "statusBar.background": "#666666",
 			"statusBar.background": "#007ddd",
-			// "panel.background": "#555555",
 			"sideBar.background": "#131313"
-		}
+		},
+		"statusBar.background": "#B48EAD"
 	},
 	"editor.tokenColorCustomizations": {
 		// コメントの色と下線を引く設定
@@ -316,6 +315,58 @@
 		},
 		{
 			"before": [
+				"j"
+			],
+			"after": [
+				"g",
+				"j"
+			]
+		},
+		{
+			"before": [
+				"k"
+			],
+			"after": [
+				"g",
+				"k"
+			]
+		},
+		{
+			"before": [
+				"<Down>"
+			],
+			"after": [
+				"g",
+				"j"
+			]
+		},
+		{
+			"before": [
+				"<Up>"
+			],
+			"after": [
+				"g",
+				"k"
+			]
+		},
+		{
+			"before": ["<Up>"],
+			"after": ["<Nop>"]
+		},
+		{
+			"before": ["<Down>"],
+			"after": ["<Nop>"]
+		},
+		{
+			"before": ["<Left>"],
+			"after": ["<Nop>"]
+		},
+		{
+			"before": ["<Right>"],
+			"after": ["<Nop>"]
+		},
+		{
+			"before": [
 				"<Esc>",
 				"<Esc>"
 			],
@@ -342,7 +393,7 @@
 	],
 	"vim.leader": "<space>",
 	"vim.handleKeys": {
-		"<C-a>": false,
+		// "<C-a>": false,
 		"<C-f>": false
-	}
+	},
 }

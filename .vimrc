@@ -74,6 +74,8 @@ set backspace=indent,eol,start
 set showmatch
 set laststatus=2
 set wildmode=list:longest
+" クリップボードをOSと共有
+set clipboard+=unnamed
 "確かgjとかで下の行のその列にそのまま動けるようになるやつ
 nnoremap j gj
 nnoremap k gk

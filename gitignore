@@ -8,8 +8,10 @@ __pycache__
 *.exe
 test.*
 test/
+test*
 tmp.*
 tmp/
+tmp*
 *.icloud
 .sass-cache/
 *.zip
