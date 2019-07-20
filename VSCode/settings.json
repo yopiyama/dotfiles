@@ -88,8 +88,8 @@
 	// カラーテーマをMonokaiに
 	"workbench.colorTheme": "Monokai",
 	"workbench.colorCustomizations": {
-		"statusBar.noFolderBackground": "#B48EAD",
-		"statusBar.debuggingBackground": "#ff54e0",
+		"statusBar.noFolderBackground": "#3aa782",
+		"statusBar.debuggingBackground": "#b93ba2",
 		"editorWhitespace.foreground": "#ffffff9c",
 		"[Monokai]": {
 			"statusBar.background": "#007ddd",
@@ -158,7 +158,7 @@
 	"python.condaPath": "conda",
 	"python.linting.pylintEnabled": true,
 	"python.linting.pylintArgs": [
-		"--disable=W0401,W0614,W0312,W1401,C0103,W0105"
+		"--disable=W0401,W0614,W0312,W1401,C0103,W0105,W0108"
 	],
 	"python.autoComplete.addBrackets": true,
 	"python.jediEnabled": false,

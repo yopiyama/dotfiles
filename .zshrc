@@ -66,6 +66,8 @@ SAVEHIST=100000
 alias ls='ls -ilhGF'
 alias sl='ls'
 
+alias mv='mv -i'
+
 zstyle ":anyframe:selector:" use peco
 
 
@@ -108,4 +110,21 @@ fi
 #     :  # Start terminal normally
 #   fi
 # fi
+
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/Users/Yopiyama/.pyenv/versions/anaconda3-5.3.1/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/Users/Yopiyama/.pyenv/versions/anaconda3-5.3.1/etc/profile.d/conda.sh" ]; then
+        . "/Users/Yopiyama/.pyenv/versions/anaconda3-5.3.1/etc/profile.d/conda.sh"
+    else
+        export PATH="/Users/Yopiyama/.pyenv/versions/anaconda3-5.3.1/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+conda activate base
 
