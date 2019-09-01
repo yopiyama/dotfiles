@@ -316,6 +316,8 @@ autocmd VimEnter *  NERDTree | call s:MoveToFileAtStart()
 "他のバッファをすべて閉じた時にNERDTreeが開いていたらNERDTreeも一緒に閉じる。
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 
+autocmd ColorScheme * highlight Visual ctermfg=4 guifg=#808080
+
 "カラースキーム
 colorscheme molokai
 "色つけれる時はつける

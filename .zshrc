@@ -1,7 +1,11 @@
-if [[ -z "$TMUX" ]]
-then
-	tmux new-session;
-	exit;
+if [[ ! -n $TMUX ]]; then
+  # get the IDs
+  ID="`tmux list-sessions`"
+  if [[ -z "$ID" ]]; then
+    tmux new-session
+  fi
+  ID="`echo $ID | $PERCOL | cut -d: -f1`"
+  tmux attach-session -t "$ID"
 fi
 
 export ZPLUG_HOME=/usr/local/opt/zplug

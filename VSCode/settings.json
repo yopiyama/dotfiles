@@ -105,10 +105,14 @@
 		},
 	},
 	"editor.suggestSelection": "first",
-	"editor.quickSuggestions": { //入力補完を自動で表示する
-		"other": true, //文字列以外
-		"strings": false, //文字列
-		"comments": false, //コメント
+	//入力補完を自動で表示する
+	"editor.quickSuggestions": {
+		//文字列以外
+		"other": true,
+		//文字列
+		"strings": false,
+		//コメント
+		"comments": false,
 	},
 	"explorer.confirmDragAndDrop": false,
 	"terminal.integrated.rendererType": "dom",
@@ -154,7 +158,7 @@
 			79,
 		]
 	},
-	"python.pythonPath": "~/.pyenv/versions/anaconda3-5.3.1/bin/python",
+	"python.pythonPath": "~/.pyenv/versions/3.7.4/bin/python",
 	"python.condaPath": "conda",
 	"python.linting.pylintEnabled": true,
 	"python.linting.pylintArgs": [
@@ -197,17 +201,18 @@
 		"editor.tabSize": 2,
 		"editor.insertSpaces": true
 	},
-	"liveSassCompile.settings.formats": [{
-		"format": "compressed",
-		"extensionName": ".min.css",
-		"savePath": "/CSS"
-	}],
+	"liveSassCompile.settings.formats": [
+		{
+			"format": "compressed",
+			"extensionName": ".min.css",
+			"savePath": "/CSS"
+		}
+	],
 	//
 	// Extensions
 	//
 	"material-icon-theme.showUpdateMessage": false,
 	"clock.dateFormat": "ddd., mmm. dd , yyyy - HH:MM:ss",
-	"codic.case": "PascalCase",
 	"runner.languageMap": {
 		"latex": "~/OneDrive/Documents/Programming/Shell/tex.sh",
 	},
@@ -228,13 +233,15 @@
 		"-q"
 	],
 	"latex-workshop.view.pdf.viewer": "tab",
-	"latex-workshop.latex.tools": [{
+	"latex-workshop.latex.tools": [
+		{
 			"name": "ptex2pdf",
 			"command": "ptex2pdf",
 			"args": [
 				"-l",
 				"-ot",
 				"-kanji=utf8 -synctex=1",
+				"-recorder",
 				"%DOC%"
 			]
 		},
@@ -246,12 +253,14 @@
 			]
 		}
 	],
-	"latex-workshop.latex.recipes": [{
-		"name": "toolchain",
-		"tools": [
-			"ptex2pdf",
-		]
-	}],
+	"latex-workshop.latex.recipes": [
+		{
+			"name": "toolchain",
+			"tools": [
+				"ptex2pdf",
+			]
+		}
+	],
 	"latex-workshop.latex.clean.fileTypes": [
 		"*.aux",
 		"*.bbl",
@@ -295,15 +304,18 @@
 	"vim.visualstar": true,
 	"vim.foldfix": true,
 	"vim.whichwrap": "h,l,<,>,[,]",
-	"vim.insertModeKeyBindings": [{
-		"before": [
-			"<C-j>"
-		],
-		"after": [
-			"<Esc>"
-		]
-	}],
-	"vim.normalModeKeyBindingsNonRecursive": [{
+	"vim.insertModeKeyBindings": [
+		{
+			"before": [
+				"<C-j>"
+			],
+			"after": [
+				"<Esc>"
+			]
+		}
+	],
+	"vim.normalModeKeyBindingsNonRecursive": [
+		{
 			"before": [
 				"<leader>",
 				"d"
@@ -350,20 +362,36 @@
 			]
 		},
 		{
-			"before": ["<Up>"],
-			"after": ["<Nop>"]
+			"before": [
+				"<Up>"
+			],
+			"after": [
+				"<Nop>"
+			]
 		},
 		{
-			"before": ["<Down>"],
-			"after": ["<Nop>"]
+			"before": [
+				"<Down>"
+			],
+			"after": [
+				"<Nop>"
+			]
 		},
 		{
-			"before": ["<Left>"],
-			"after": ["<Nop>"]
+			"before": [
+				"<Left>"
+			],
+			"after": [
+				"<Nop>"
+			]
 		},
 		{
-			"before": ["<Right>"],
-			"after": ["<Nop>"]
+			"before": [
+				"<Right>"
+			],
+			"after": [
+				"<Nop>"
+			]
 		},
 		{
 			"before": [
@@ -375,20 +403,44 @@
 			]
 		},
 		{
-			"before": ["n"],
-			"after": ["n", "z", "z"]
+			"before": [
+				"n"
+			],
+			"after": [
+				"n",
+				"z",
+				"z"
+			]
 		},
 		{
-			"before": ["N"],
-			"after": ["N", "z", "z"]
+			"before": [
+				"N"
+			],
+			"after": [
+				"N",
+				"z",
+				"z"
+			]
 		},
 		{
-			"before": ["*"],
-			"after": ["*", "z", "z"]
+			"before": [
+				"*"
+			],
+			"after": [
+				"*",
+				"z",
+				"z"
+			]
 		},
 		{
-			"before": ["#"],
-			"after": ["#", "z", "z"]
+			"before": [
+				"#"
+			],
+			"after": [
+				"#",
+				"z",
+				"z"
+			]
 		},
 	],
 	"vim.leader": "<space>",
