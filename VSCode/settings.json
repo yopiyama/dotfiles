@@ -195,6 +195,32 @@
 	//
 	// Web
 	//
+	"[html]": {
+		"editor.tabSize": 2,
+		"editor.insertSpaces": true
+	},
+	"beautify.language": {
+		"js": {
+			"type": [
+				"javascript",
+				"json",
+				"jsonc"
+			],
+			"filename": [
+				".jshintrc",
+				".jsbeautifyrc"
+			]
+		},
+		"css": [
+			"css",
+			"less",
+			"scss"
+		],
+		"html": [
+			"htm",
+			"html"
+		]
+	},
 	"emmet.triggerExpansionOnTab": true,
 	"[sass]": {
 		"editor.tabSize": 2,
@@ -212,7 +238,6 @@
 	// Extensions
 	//
 	"material-icon-theme.showUpdateMessage": false,
-	"clock.dateFormat": "ddd., mmm. dd , yyyy - HH:MM:ss",
 	"runner.languageMap": {
 		"latex": "~/OneDrive/Documents/Programming/Shell/tex.sh",
 	},
