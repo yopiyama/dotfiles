@@ -16,7 +16,9 @@
 			"\\usepackage{multicol}",
 			"\\usepackage[dvipdfmx, bookmarkstype=toc, colorlinks=false, pdfborder={0 0 0}, bookmarks=true, bookmarksnumbered=true]{hyperref}",
 			"\\usepackage{pxjahyper}",
-			"\n\n",
+			"\n",
+			"\\graphicspath{{./img/}}",
+			"\n",
 			"\\begin{document}",
 			"$0",
 			"\\end{document}"

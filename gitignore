@@ -16,6 +16,8 @@ tmp*
 .sass-cache/
 *.zip
 *.dSYM/
+*.link
+export/
 
 *.log
 *.blg
