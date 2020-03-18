@@ -19,6 +19,7 @@ tmp*
 *.link
 export/
 
+# related tex
 *.log
 *.blg
 *.log
@@ -27,5 +28,8 @@ export/
 *.bbl
 *.orig
 *.aux
+*(busy)
 *.synctex.gz
 *.fls
+*.lof
+*.lot

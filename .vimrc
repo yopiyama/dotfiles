@@ -6,7 +6,7 @@ let s:dein_dir = expand('~/.vim/dein')
 let s:dein_repo_dir = s:dein_dir . '/repos/github.com/Shougo/dein.vim'
 
 " python (pyenv)
-let g:python3_host_prog = $PYENV_ROOT . '/shims/python3'
+let g:python3_host_prog = '/usr/local/bin/python3'
 
 " dein.vim がなければ github から落としてくる
 if &runtimepath !~# '/dein.vim'
@@ -86,14 +86,14 @@ imap <C-j> <esc>
 noremap! <C-j> <esc>
 
 "方向キーの無効化
-noremap <Up> <Nop>
-noremap <Down> <Nop>
-noremap <Left> <Nop>
-noremap <Right> <Nop>
-inoremap <Up> <Nop>
-inoremap <Down> <Nop>
-inoremap <Left> <Nop>
-inoremap <Right> <Nop>
+" noremap <Up> <Nop>
+" noremap <Down> <Nop>
+" noremap <Left> <Nop>
+" noremap <Right> <Nop>
+" inoremap <Up> <Nop>
+" inoremap <Down> <Nop>
+" inoremap <Left> <Nop>
+" inoremap <Right> <Nop>
 
 " 括弧とかの補完
 " inoremap { {}<LEFT>

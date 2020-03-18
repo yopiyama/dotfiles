@@ -17,32 +17,12 @@ hook_source = '''
 '''
 on_i = 1
 
-[[plugins]]
-repo = 'davidhalter/jedi-vim'
-hook_add = '''
-	let g:jedi#show_call_signatures = 0
-'''
-depends = ['Shougo/deoplete.nvim']
-
-[[plugins]]
-repo = 'lambdalisue/vim-pyenv'
-depends = ['davidhalter/jedi-vim']
-filetypes = ['python']
-
-
-[[plugins]]
-repo = 'Shougo/neosnippet'
-hook_source = '''
-	imap <C-k> <Plug>(neosnippet_expand_or_jump)
-	smap <C-k> <Plug>(neosnippet_expand_or_jump)
-	xmap <C-k> <Plug>(neosnippet_expand_target)
-	if has('conceal')
-		set conceallevel=2 concealcursor=niv
-	endif
-'''
-on_i = 1
-on_ft = ['snippet']
-depends = ['neosnippet-snippets']
+# [[plugins]]
+# repo = 'davidhalter/jedi-vim'
+# hook_add = '''
+# 	let g:jedi#show_call_signatures = 0
+# '''
+# depends = ['Shougo/deoplete.nvim']
 
 [[plugins]]
 repo = 'previm/previm'

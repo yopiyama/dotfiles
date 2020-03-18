@@ -17,12 +17,12 @@ zplug "zsh-users/zsh-history-substring-search"
 zplug "chrissicool/zsh-256color"
 zplug "peco/peco", as:command, from:gh-r
 zplug "mollifier/anyframe"
-# if ! zplug check --verbose; then
-#   printf "Install? [y/N]: "
-#   if read -q; then
-#     echo; zplug install
-#   fi
-# fi
+if ! zplug check --verbose; then
+  printf "Install? [y/N]: "
+  if read -q; then
+    echo; zplug install
+  fi
+fi
 zplug load
 
 export LANG=ja_JP.UTF-8
@@ -76,6 +76,8 @@ SAVEHIST=100000
 alias ls='ls -ilhGF'
 alias sl='ls'
 alias mv='mv -i'
+alias ls='exa'
+alias exa='exa --long'
 
 if [ ~/.zshrc -nt ~/.zshrc.zwc ]; then
   zcompile ~/.zshrc
