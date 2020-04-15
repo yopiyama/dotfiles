@@ -417,4 +417,5 @@
 		// "<C-a>": false,
 		"<C-f>": false
 	},
+	"editor.columnSelection": true,
 }

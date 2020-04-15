@@ -37,6 +37,8 @@ zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 # プロンプトの設定
 autoload -U promptinit; promptinit
 prompt pure
+# PROMPT='[30;48;5;068m%F{white}%*[0m '$PROMPT
+
 # viライクなキーバインディング
 bindkey -v
 
@@ -73,11 +75,10 @@ setopt hist_no_store
 HISTSIZE=1000
 SAVEHIST=100000
 
-alias ls='ls -ilhGF'
-alias sl='ls'
 alias mv='mv -i'
-alias ls='exa'
 alias exa='exa --long'
+alias ls='exa'
+alias sl='ls'
 
 if [ ~/.zshrc -nt ~/.zshrc.zwc ]; then
   zcompile ~/.zshrc
