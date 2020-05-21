@@ -1,249 +1,243 @@
 {
-	//
-	// Editor Settings
-	//
-	// 設定ファイルはJSONで表示
-	"workbench.settings.editor": "json",
-	// フォントサイズ
-	"editor.fontSize": 13,
-	// フォント
-	"editor.fontFamily": "Cica",
-	// フォント(markdownのpreview機能)
-	"markdown.preview.fontFamily": "'M+ 1p'",
-	// フォント(integrated terminal)
-	"terminal.integrated.fontFamily": "'Ricty Diminished'",
-	"terminal.integrated.fontSize": 13,
-	// デフォルトのエンコーディング
-	"files.encoding": "utf8",
-	//ファイルのオートセーブ
-	"files.autoSave": "off",
-	// 半角スペースを全て表示
-	"editor.renderWhitespace": "all",
-	// 選択している行をハイライト
-	"editor.renderLineHighlight": "all",
-	// インデントを見えるようにする
-	"editor.renderIndentGuides": true,
-	// インデントをタブにする
-	"editor.insertSpaces": false,
-	// タブは4タブ
-	"editor.tabSize": 4,
-	// タブいい感じに挿入
-	"editor.tabCompletion": "on",
-	// スニペットは上の方に表示
-	"editor.snippetSuggestions": "top",
-	// セーブ時に整形
-	"editor.formatOnSave": true,
-	// タイプしたら整形 : off
-	"editor.formatOnType": false,
-	// ペーストしたら整形
-	"editor.formatOnPaste": true,
-	//s
-	"editor.detectIndentation": true,
-	// 左上にミニマップを表示
-	"editor.minimap.enabled": true,
-	// ミニマップの表示をカラーブロックにする．
-	"editor.minimap.renderCharacters": false,
-	// ミニマップのハイライトを常に行う．
-	"editor.minimap.showSlider": "always",
-	// 選択した部分をドラッグ&ドロップで移動可能に
-	"editor.dragAndDrop": true,
-	// 文字の折り返し機能をONに
-	"editor.wordWrap": "on",
-	// 制御文字が見えるようになる．
-	"editor.renderControlCharacters": true,
-	// 選択しているところに出るバーが点滅しなくなる．
-	"editor.cursorBlinking": "solid",
-	// 保存時に行末にある無駄なスペースを全て削除
-	"files.trimTrailingWhitespace": true,
-	// ファイルを開いた時にエンコーディングを自動で合わせてくれる
-	"files.autoGuessEncoding": true,
-	// 新しいファイルを同じウィンドウで開く
-	"window.openFilesInNewWindow": "off",
-	// タイトルバーに編集中のファイルのパスを表示
-	"window.title": "${rootPath}/${activeEditorShort}",
-	// vscodeを終了した時に開いていたファイルを次の起動時に全て開く
-	"window.restoreWindows": "all",
-	// エクステンションを自動でアップデート
-	"extensions.autoUpdate": false,
-	// サイドバーを左に表示
-	"workbench.sideBar.location": "left",
-	// エクスプローラーのツリーにガイドを表示
-	"workbench.tree.renderIndentGuides": "always",
-	// パンくずリスト
-	"breadcrumbs.enabled": true,
-	// 起動時には何も開かない
-	"workbench.startupEditor": "none",
-	"window.zoomLevel": 0,
-	// エクスプローラーでファイルとかを削除するときに確認しない．
-	"explorer.confirmDelete": false,
-	//
-	"explorer.compactFolders": true,
-	// アイコンのテーマをmaterial-icon-themeに
-	"workbench.iconTheme": "material-icon-theme",
-	"workbench.colorTheme": "Monokai",
-	"workbench.colorCustomizations": {
-		"statusBar.noFolderBackground": "#3aa782",
-		"statusBar.debuggingBackground": "#b93ba2",
-		"editorWhitespace.foreground": "#ffffff9c",
-		"tree.indentGuidesStroke": "#ffffff",
-		"[Monokai]": {
-			"statusBar.background": "#007ddd",
-			"sideBar.background": "#131313"
-		}
-	},
-	"editor.tokenColorCustomizations": {
-		// コメントの色と下線を引く設定
-		"comments": {
-			"foreground": "#8a8a8a",
-			"fontStyle": "underline"
-		}
-	},
-	"editor.suggestSelection": "first",
-	//入力補完を自動で表示する
-	"editor.quickSuggestions": {
-		//文字列以外
-		"other": true,
-		//文字列
-		"strings": false,
-		//コメント
-		"comments": false
-	},
-	"explorer.confirmDragAndDrop": false,
-	"terminal.integrated.rendererType": "dom",
-	/*----------------- 色設定終わり -----------------*/
-	// スクリーンリーダー無効化
-	"editor.accessibilitySupport": "off",
-	// mac向けのタブ機能
-	"window.nativeTabs": true,
-	// outputとかterminalの位置
-	"workbench.panel.defaultLocation": "bottom",
-	// アクティビティバーを表示
-	"workbench.activityBar.visible": true,
-	// Shellの設定
-	"terminal.integrated.shell.osx": "/usr/local/bin/zsh",
-	"git.ignoreMissingGitWarning": true,
-	"[json]": {
-		"editor.quickSuggestions": {
-			"strings": true
-		},
-		"editor.suggest.insertMode": "replace",
-		"editor.insertSpaces": false,
-		"editor.tabSize": 4,
-		"editor.defaultFormatter": "vscode.json-language-features"
-	},
-	"[jsonc]": {
-		"editor.quickSuggestions": {
-			"strings": true
-		},
-		"editor.suggest.insertMode": "replace",
-		"editor.insertSpaces": false,
-		"editor.tabSize": 4,
-		"editor.defaultFormatter": "vscode.json-language-features"
-	},
-	//
-	// Markdown Settings
-	//
-	"[markdown]": {
-		"editor.wordWrap": "on",
-		"editor.quickSuggestions": true,
-		"editor.insertSpaces": true,
-		"editor.tabSize": 2
-	},
-	"markdownlint.config": {
-		"default": true,
-		"MD007": false,
-		"MD003": false,
-		"MD024": false,
-		"MD025": false,
-		"MD033": false,
-		"no-hard-tabs": false
-	},
-	// "markdown.extension.preview.autoShowPreviewToSide": true,
-	"markdown-preview-enhanced.enableExtendedTableSyntax": true,
-	//
-	// Python Settings
-	//
-	"[python]": {
-		"editor.insertSpaces": true,
-		"editor.tabSize": 4,
-		"editor.rulers": [
-			79
-		]
-	},
-	"python.pythonPath": "/usr/local/bin/python3",
-	"python.linting.pylintEnabled": true,
-	"python.linting.pylintArgs": [
-		"--disable=W0401,W0614,W0312,W1401,C0103,W0105,W0108"
-	],
-	"python.autoComplete.addBrackets": true,
-	"python.jediEnabled": false,
-	//
-	// Rust
-	//
-	"[rust]": {
-		"editor.insertSpaces": true,
-		"editor.tabSize": 4,
-		"editor.rulers": [
-			100
-		]
-	},
-	//
-	// C/C++
-	//
-	"[c]": {
-		"editor.insertSpaces": true
-	},
-	"C_Cpp.default.intelliSenseMode": "gcc-x64",
-	"C_Cpp.default.cStandard": "c11",
-	"[cpp]": {
-		"editor.insertSpaces": true
-	},
-	"C_Cpp.default.cppStandard": "c++17",
-	"C_Cpp.default.includePath": [
-		"${default}",
-		"/usr/local/Cellar/gcc/9.2.0_1/include/c++/9.2.0",
-		"/usr/local/Cellar/gcc/9.2.0_1/include/c++/9.2.0/x86_64-apple-darwin18/",
-		"/usr/local/opt/openssl/include",
-		"/usr/local/Cellar/boost/1.71.0/include"
-	],
-	"C_Cpp.clang_format_fallbackStyle": "{BasedOnStyle: Google, IndentWidth: 4 }",
-	"C_Cpp.enhancedColorization": "Enabled",
-	//
-	// Shell
-	//
-	"[shellscript]": {
-		"files.eol": "\n",
-		"editor.insertSpaces": true,
-		"editor.tabSize": 2
-	},
-	//
-	// Web
-	//
-	"[html]": {
-		"editor.tabSize": 4,
-		"editor.insertSpaces": true
-	},
-	"[javascript]": {
-		"editor.tabSize": 4,
-		"editor.insertSpaces": true
-	},
-	"emmet.triggerExpansionOnTab": true,
-	"[sass]": {
-		"editor.tabSize": 4,
-		"editor.insertSpaces": true
-	},
-	"liveSassCompile.settings.generateMap": false,
-	"liveSassCompile.settings.formats": [
-		{
-			"format": "compressed",
-			"extensionName": ".min.css",
-			"savePath": "/css"
-		}
-	],
-	//
-	// Extensions
-	//
-	"material-icon-theme.showUpdateMessage": false,
-	"liveServer.settings.donotShowInfoMsg": true,
-	"liveServer.settings.donotVerifyTags": true,
+    //
+    // Editor Settings
+    //
+    // 設定ファイルはJSONで表示
+    "workbench.settings.editor": "json",
+    // フォントサイズ
+    "editor.fontSize": 13,
+    // フォント
+    "editor.fontFamily": "Cica",
+    // フォント(markdownのpreview機能)
+    "markdown.preview.fontFamily": "'M+ 1p'",
+    // フォント(integrated terminal)
+    "terminal.integrated.fontFamily": "'Ricty Diminished'",
+    "terminal.integrated.fontSize": 13,
+    // デフォルトのエンコーディング
+    "files.encoding": "utf8",
+    //ファイルのオートセーブ
+    "files.autoSave": "off",
+    // 半角スペースを全て表示
+    "editor.renderWhitespace": "all",
+    // 選択している行をハイライト
+    "editor.renderLineHighlight": "all",
+    // インデントを見えるようにする
+    "editor.renderIndentGuides": true,
+    // インデントをタブにする
+    "editor.insertSpaces": false,
+    // タブは4タブ
+    "editor.tabSize": 4,
+    // タブいい感じに挿入
+    "editor.tabCompletion": "on",
+    // スニペットは上の方に表示
+    "editor.snippetSuggestions": "top",
+    // セーブ時に整形
+    "editor.formatOnSave": true,
+    // タイプしたら整形 : off
+    "editor.formatOnType": false,
+    // ペーストしたら整形
+    "editor.formatOnPaste": true,
+    //s
+    "editor.detectIndentation": true,
+    // 左上にミニマップを表示
+    "editor.minimap.enabled": true,
+    // ミニマップの表示をカラーブロックにする．
+    "editor.minimap.renderCharacters": false,
+    // ミニマップのハイライトを常に行う．
+    "editor.minimap.showSlider": "always",
+    // 選択した部分をドラッグ&ドロップで移動可能に
+    "editor.dragAndDrop": true,
+    // 文字の折り返し機能をONに
+    "editor.wordWrap": "on",
+    // 制御文字が見えるようになる．
+    "editor.renderControlCharacters": true,
+    // 選択しているところに出るバーが点滅しなくなる．
+    "editor.cursorBlinking": "solid",
+    // 保存時に行末にある無駄なスペースを全て削除
+    "files.trimTrailingWhitespace": true,
+    // ファイルを開いた時にエンコーディングを自動で合わせてくれる
+    "files.autoGuessEncoding": true,
+    // 新しいファイルを同じウィンドウで開く
+    "window.openFilesInNewWindow": "off",
+    // タイトルバーに編集中のファイルのパスを表示
+    "window.title": "${rootPath}/${activeEditorShort}",
+    // vscodeを終了した時に開いていたファイルを次の起動時に全て開く
+    "window.restoreWindows": "all",
+    // エクステンションを自動でアップデート
+    "extensions.autoUpdate": false,
+    // サイドバーを左に表示
+    "workbench.sideBar.location": "left",
+    // エクスプローラーのツリーにガイドを表示
+    "workbench.tree.renderIndentGuides": "always",
+    // パンくずリスト
+    "breadcrumbs.enabled": true,
+    // 起動時には何も開かない
+    "workbench.startupEditor": "none",
+    "window.zoomLevel": 0,
+    // エクスプローラーでファイルとかを削除するときに確認しない．
+    "explorer.confirmDelete": false,
+    //
+    "explorer.compactFolders": true,
+    // アイコンのテーマをmaterial-icon-themeに
+    "workbench.iconTheme": "material-icon-theme",
+    "workbench.colorTheme": "Monokai",
+    "workbench.colorCustomizations": {
+        "statusBar.noFolderBackground": "#3aa782",
+        "statusBar.debuggingBackground": "#b93ba2",
+        "editorWhitespace.foreground": "#ffffff9c",
+        "tree.indentGuidesStroke": "#ffffff",
+        "[Monokai]": {
+            "statusBar.background": "#007ddd",
+            "sideBar.background": "#131313"
+        }
+    },
+    "editor.tokenColorCustomizations": {
+        // コメントの色と下線を引く設定
+        "comments": {
+            "foreground": "#8a8a8a",
+            "fontStyle": "underline"
+        }
+    },
+    "editor.suggestSelection": "first",
+    //入力補完を自動で表示する
+    "editor.quickSuggestions": {
+        //文字列以外
+        "other": true,
+        //文字列
+        "strings": false,
+        //コメント
+        "comments": false
+    },
+    "explorer.confirmDragAndDrop": false,
+    "terminal.integrated.rendererType": "dom",
+    /*----------------- 色設定終わり -----------------*/
+    // スクリーンリーダー無効化
+    "editor.accessibilitySupport": "off",
+    // mac向けのタブ機能
+    "window.nativeTabs": true,
+    // outputとかterminalの位置
+    "workbench.panel.defaultLocation": "bottom",
+    // アクティビティバーを表示
+    "workbench.activityBar.visible": true,
+    // Shellの設定
+    "terminal.integrated.shell.osx": "/usr/local/bin/zsh",
+    "git.ignoreMissingGitWarning": true,
+    "[json]": {
+        "editor.quickSuggestions": {
+            "strings": true
+        },
+        "editor.suggest.insertMode": "replace",
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4
+    },
+    "[jsonc]": {
+        "editor.quickSuggestions": {
+            "strings": true
+        },
+        "editor.suggest.insertMode": "replace",
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4
+    },
+    //
+    // Markdown Settings
+    //
+    "[markdown]": {
+        "editor.wordWrap": "on",
+        "editor.quickSuggestions": true,
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2
+    },
+    "markdownlint.config": {
+        "default": true,
+        "MD007": false,
+        "MD003": false,
+        "MD024": false,
+        "MD025": false,
+        "MD033": false,
+        "no-hard-tabs": false
+    },
+    //
+    // Python Settings
+    //
+    "[python]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4,
+        "editor.rulers": [79]
+    },
+    "python.pythonPath": "/usr/local/bin/python3",
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintArgs": [
+        "--disable=W0401,W0614,W0312,W1401,C0103,W0105,W0108"
+    ],
+    "python.autoComplete.addBrackets": true,
+    "python.jediEnabled": false,
+    //
+    // Rust
+    //
+    "[rust]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4,
+        "editor.rulers": [100]
+    },
+    //
+    // C/C++
+    //
+    "[c]": {
+        "editor.insertSpaces": true
+    },
+    "C_Cpp.default.intelliSenseMode": "gcc-x64",
+    "C_Cpp.default.cStandard": "c11",
+    "[cpp]": {
+        "editor.insertSpaces": true
+    },
+    "C_Cpp.default.cppStandard": "c++17",
+    "C_Cpp.default.includePath": [
+        "${default}",
+        "/usr/local/Cellar/gcc/9.2.0_1/include/c++/9.2.0",
+        "/usr/local/Cellar/gcc/9.2.0_1/include/c++/9.2.0/x86_64-apple-darwin18/",
+        "/usr/local/opt/openssl/include",
+        "/usr/local/Cellar/boost/1.71.0/include"
+    ],
+    "C_Cpp.clang_format_fallbackStyle": "{BasedOnStyle: Google, IndentWidth: 4 }",
+    "C_Cpp.enhancedColorization": "Enabled",
+    //
+    // Shell
+    //
+    "[shellscript]": {
+        "files.eol": "\n",
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2
+    },
+    //
+    // Web
+    //
+    "[html]": {
+        "editor.tabSize": 4,
+        "editor.insertSpaces": true
+    },
+    "[javascript]": {
+        "editor.tabSize": 4,
+        "editor.insertSpaces": true
+    },
+    "emmet.triggerExpansionOnTab": true,
+    "[sass]": {
+        "editor.tabSize": 4,
+        "editor.insertSpaces": true
+    },
+    "liveSassCompile.settings.generateMap": false,
+    "liveSassCompile.settings.formats": [
+        {
+            "format": "compressed",
+            "extensionName": ".min.css",
+            "savePath": "/css"
+        }
+    ],
+    "prettier.singleQuote": true,
+    "prettier.tabWidth": 4,
+    //
+    // Extensions
+    //
+    "material-icon-theme.showUpdateMessage": false,
+    "liveServer.settings.donotShowInfoMsg": true,
+    "liveServer.settings.donotVerifyTags": true
 }
