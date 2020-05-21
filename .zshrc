@@ -15,7 +15,6 @@ zplug "zsh-users/zsh-completions"
 zplug "zsh-users/zsh-syntax-highlighting"
 zplug "zsh-users/zsh-history-substring-search"
 zplug "chrissicool/zsh-256color"
-zplug "peco/peco", as:command, from:gh-r
 zplug "mollifier/anyframe"
 if ! zplug check --verbose; then
   printf "Install? [y/N]: "

@@ -297,9 +297,6 @@ endif
 "拡張子がpyの時normal modeで (shift + m) を押すとpython filenameで実行
 autocmd BufNewFile,BufRead *.py nnoremap <S-M> :!python %
 
-"拡張子がtexの時normal modeで (shift + m) を押すとtexのコンパイルスクリプトを実行
-autocmd BufNewFile,BufRead *.tex nnoremap <S-M> :!~/Dropbox/Apps/sh/tex.sh %
-
 " 隠しファイルをデフォルトで表示させる
 let NERDTreeShowHidden = 1
 
