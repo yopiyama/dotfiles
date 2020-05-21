@@ -33,8 +33,8 @@
 	"editor.snippetSuggestions": "top",
 	// セーブ時に整形
 	"editor.formatOnSave": true,
-	// タイプしたら整形
-	"editor.formatOnType": true,
+	// タイプしたら整形 : off
+	"editor.formatOnType": false,
 	// ペーストしたら整形
 	"editor.formatOnPaste": true,
 	//s
@@ -55,8 +55,8 @@
 	"editor.cursorBlinking": "solid",
 	// 保存時に行末にある無駄なスペースを全て削除
 	"files.trimTrailingWhitespace": true,
-	// ファイルを開いた時にエンコーディングを自動で合わせてくれる→offにした
-	// "files.autoGuessEncoding": true,
+	// ファイルを開いた時にエンコーディングを自動で合わせてくれる
+	"files.autoGuessEncoding": true,
 	// 新しいファイルを同じウィンドウで開く
 	"window.openFilesInNewWindow": "off",
 	// タイトルバーに編集中のファイルのパスを表示
@@ -67,6 +67,8 @@
 	"extensions.autoUpdate": false,
 	// サイドバーを左に表示
 	"workbench.sideBar.location": "left",
+	// エクスプローラーのツリーにガイドを表示
+	"workbench.tree.renderIndentGuides": "always",
 	// パンくずリスト
 	"breadcrumbs.enabled": true,
 	// 起動時には何も開かない
@@ -83,17 +85,18 @@
 		"statusBar.noFolderBackground": "#3aa782",
 		"statusBar.debuggingBackground": "#b93ba2",
 		"editorWhitespace.foreground": "#ffffff9c",
+		"tree.indentGuidesStroke": "#ffffff",
 		"[Monokai]": {
 			"statusBar.background": "#007ddd",
 			"sideBar.background": "#131313"
-		},
+		}
 	},
 	"editor.tokenColorCustomizations": {
 		// コメントの色と下線を引く設定
 		"comments": {
 			"foreground": "#8a8a8a",
 			"fontStyle": "underline"
-		},
+		}
 	},
 	"editor.suggestSelection": "first",
 	//入力補完を自動で表示する
@@ -103,7 +106,7 @@
 		//文字列
 		"strings": false,
 		//コメント
-		"comments": false,
+		"comments": false
 	},
 	"explorer.confirmDragAndDrop": false,
 	"terminal.integrated.rendererType": "dom",
@@ -119,6 +122,24 @@
 	// Shellの設定
 	"terminal.integrated.shell.osx": "/usr/local/bin/zsh",
 	"git.ignoreMissingGitWarning": true,
+	"[json]": {
+		"editor.quickSuggestions": {
+			"strings": true
+		},
+		"editor.suggest.insertMode": "replace",
+		"editor.insertSpaces": false,
+		"editor.tabSize": 4,
+		"editor.defaultFormatter": "vscode.json-language-features"
+	},
+	"[jsonc]": {
+		"editor.quickSuggestions": {
+			"strings": true
+		},
+		"editor.suggest.insertMode": "replace",
+		"editor.insertSpaces": false,
+		"editor.tabSize": 4,
+		"editor.defaultFormatter": "vscode.json-language-features"
+	},
 	//
 	// Markdown Settings
 	//
@@ -126,7 +147,7 @@
 		"editor.wordWrap": "on",
 		"editor.quickSuggestions": true,
 		"editor.insertSpaces": true,
-		"editor.tabSize": 2,
+		"editor.tabSize": 2
 	},
 	"markdownlint.config": {
 		"default": true,
@@ -146,7 +167,7 @@
 		"editor.insertSpaces": true,
 		"editor.tabSize": 4,
 		"editor.rulers": [
-			79,
+			79
 		]
 	},
 	"python.pythonPath": "/usr/local/bin/python3",
@@ -163,7 +184,7 @@
 		"editor.insertSpaces": true,
 		"editor.tabSize": 4,
 		"editor.rulers": [
-			100,
+			100
 		]
 	},
 	//
@@ -193,18 +214,22 @@
 	"[shellscript]": {
 		"files.eol": "\n",
 		"editor.insertSpaces": true,
-		"editor.tabSize": 2,
+		"editor.tabSize": 2
 	},
 	//
 	// Web
 	//
 	"[html]": {
-		"editor.tabSize": 2,
+		"editor.tabSize": 4,
+		"editor.insertSpaces": true
+	},
+	"[javascript]": {
+		"editor.tabSize": 4,
 		"editor.insertSpaces": true
 	},
 	"emmet.triggerExpansionOnTab": true,
 	"[sass]": {
-		"editor.tabSize": 2,
+		"editor.tabSize": 4,
 		"editor.insertSpaces": true
 	},
 	"liveSassCompile.settings.generateMap": false,
@@ -219,203 +244,6 @@
 	// Extensions
 	//
 	"material-icon-theme.showUpdateMessage": false,
-	//
-	// LaTeX Settings
-	//
-	"latex-workshop.message.warning.show": false,
-	"latex-workshop.message.update.show": false,
-	"latex-workshop.chktex.enabled": true,
-	"latex-workshop.chktex.args.active": [
-		"-wall",
-		"-n22",
-		"-n30",
-		"-n19",
-		"-n24",
-		"-n44",
-		"-e16",
-		"-q"
-	],
-	"latex-workshop.view.pdf.viewer": "tab",
-	"latex-workshop.latex.tools": [
-		{
-			"name": "ptex2pdf",
-			"command": "ptex2pdf",
-			"args": [
-				"-l",
-				"-ot",
-				"-kanji=utf8 -synctex=1",
-				"-recorder",
-				"%DOC%"
-			]
-		},
-		{
-			"name": "bibtex",
-			"command": "bibtex",
-			"args": [
-				"%DOCFILE%"
-			]
-		}
-	],
-	"latex-workshop.latex.recipes": [
-		{
-			"name": "toolchain",
-			"tools": [
-				"ptex2pdf",
-			]
-		}
-	],
-	"latex-workshop.latex.clean.fileTypes": [
-		"*.aux",
-		"*.bbl",
-		"*.blg",
-		"*.idx",
-		"*.ind",
-		"*.lof",
-		"*.lot",
-		"*.out",
-		"*.toc",
-		"*.acn",
-		"*.acr",
-		"*.alg",
-		"*.glg",
-		"*.glo",
-		"*.gls",
-		"*.ist",
-		"*.fls",
-		"*.log",
-		"*.fdb_latexmk",
-		"*.synctex.gz"
-	],
-	"latex-workshop.view.pdf.external.viewer.command": "open",
-	"latex-workshop.view.pdf.external.viewer.args": [
-		" -ga /Applications/Skim.app ",
-		"%PDF%"
-	],
 	"liveServer.settings.donotShowInfoMsg": true,
 	"liveServer.settings.donotVerifyTags": true,
-	//
-	// Vim settings
-	//
-	"vim.easymotion": true,
-	"vim.sneak": true,
-	"vim.incsearch": true,
-	"vim.useSystemClipboard": true,
-	"vim.useCtrlKeys": true,
-	"vim.hlsearch": true,
-	"vim.visualstar": true,
-	"vim.foldfix": true,
-	"vim.whichwrap": "h,l,<,>,[,]",
-	"vim.insertModeKeyBindings": [
-		{
-			"before": [
-				"<C-j>"
-			],
-			"after": [
-				"<Esc>"
-			]
-		}
-	],
-	"vim.normalModeKeyBindingsNonRecursive": [
-		{
-			"before": [
-				"<leader>",
-				"d"
-			],
-			"after": [
-				"d",
-				"d"
-			]
-		},
-		{
-			"before": [
-				"j"
-			],
-			"after": [
-				"g",
-				"j"
-			]
-		},
-		{
-			"before": [
-				"k"
-			],
-			"after": [
-				"g",
-				"k"
-			]
-		},
-		{
-			"before": [
-				"<Down>"
-			],
-			"after": [
-				"g",
-				"j"
-			]
-		},
-		{
-			"before": [
-				"<Up>"
-			],
-			"after": [
-				"g",
-				"k"
-			]
-		},
-		{
-			"before": [
-				"<Esc>",
-				"<Esc>"
-			],
-			"commands": [
-				":nohl"
-			]
-		},
-		{
-			"before": [
-				"n"
-			],
-			"after": [
-				"n",
-				"z",
-				"z"
-			]
-		},
-		{
-			"before": [
-				"N"
-			],
-			"after": [
-				"N",
-				"z",
-				"z"
-			]
-		},
-		{
-			"before": [
-				"*"
-			],
-			"after": [
-				"*",
-				"z",
-				"z"
-			]
-		},
-		{
-			"before": [
-				"#"
-			],
-			"after": [
-				"#",
-				"z",
-				"z"
-			]
-		},
-	],
-	"vim.leader": "<space>",
-	"vim.handleKeys": {
-		// "<C-a>": false,
-		"<C-f>": false
-	},
-	"editor.columnSelection": true,
 }
