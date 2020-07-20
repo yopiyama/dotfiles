@@ -142,10 +142,11 @@
     // Markdown Settings
     //
     "[markdown]": {
-        "editor.wordWrap": "on",
+        "editor.wordWrap": "off",
         "editor.quickSuggestions": true,
         "editor.insertSpaces": true,
-        "editor.tabSize": 2
+        "editor.tabSize": 2,
+        "editor.trimAutoWhitespace": false
     },
     "markdownlint.config": {
         "default": true,
@@ -164,7 +165,7 @@
         "editor.tabSize": 4,
         "editor.rulers": [79]
     },
-    "python.pythonPath": "/usr/local/bin/python3",
+    "python.pythonPath": "/usr/local/opt/python",
     "python.linting.pylintEnabled": true,
     "python.linting.pylintArgs": [
         "--disable=W0401,W0614,W0312,W1401,C0103,W0105,W0108"
