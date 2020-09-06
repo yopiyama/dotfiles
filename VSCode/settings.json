@@ -11,7 +11,7 @@
     // フォント(markdownのpreview機能)
     "markdown.preview.fontFamily": "'M+ 1p'",
     // フォント(integrated terminal)
-    "terminal.integrated.fontFamily": "'Ricty Diminished'",
+    "terminal.integrated.fontFamily": "Cica",
     "terminal.integrated.fontSize": 13,
     // デフォルトのエンコーディング
     "files.encoding": "utf8",
@@ -54,7 +54,7 @@
     // 選択しているところに出るバーが点滅しなくなる．
     "editor.cursorBlinking": "solid",
     // 保存時に行末にある無駄なスペースを全て削除
-    "files.trimTrailingWhitespace": true,
+    "files.trimTrailingWhitespace": false,
     // ファイルを開いた時にエンコーディングを自動で合わせてくれる
     "files.autoGuessEncoding": true,
     // 新しいファイルを同じウィンドウで開く
@@ -80,7 +80,7 @@
     "explorer.compactFolders": true,
     // アイコンのテーマをmaterial-icon-themeに
     "workbench.iconTheme": "material-icon-theme",
-    "workbench.colorTheme": "Monokai",
+    "workbench.colorTheme": "Visual Studio Dark",
     "workbench.colorCustomizations": {
         "statusBar.noFolderBackground": "#3aa782",
         "statusBar.debuggingBackground": "#b93ba2",
@@ -145,8 +145,7 @@
         "editor.wordWrap": "off",
         "editor.quickSuggestions": true,
         "editor.insertSpaces": true,
-        "editor.tabSize": 2,
-        "editor.trimAutoWhitespace": false
+        "editor.tabSize": 2
     },
     "markdownlint.config": {
         "default": true,
@@ -163,9 +162,13 @@
     "[python]": {
         "editor.insertSpaces": true,
         "editor.tabSize": 4,
-        "editor.rulers": [79]
+        "editor.rulers": [79],
+        "files.trimTrailingWhitespace": true
     },
-    "python.pythonPath": "/usr/local/opt/python",
+    "python.pythonPath": "/usr/local/opt/python/libexec/bin/python",
+    "python.autoComplete.extraPaths": [
+        "/usr/local/lib/python3.8/site-packages"
+    ],
     "python.linting.pylintEnabled": true,
     "python.linting.pylintArgs": [
         "--disable=W0401,W0614,W0312,W1401,C0103,W0105,W0108"
@@ -218,27 +221,20 @@
     },
     "[javascript]": {
         "editor.tabSize": 4,
-        "editor.insertSpaces": true
+        "editor.insertSpaces": true,
+        "files.trimTrailingWhitespace": true
     },
     "emmet.triggerExpansionOnTab": true,
     "[sass]": {
         "editor.tabSize": 4,
         "editor.insertSpaces": true
     },
-    "liveSassCompile.settings.generateMap": false,
-    "liveSassCompile.settings.formats": [
-        {
-            "format": "compressed",
-            "extensionName": ".min.css",
-            "savePath": "/css"
-        }
-    ],
     "prettier.singleQuote": true,
     "prettier.tabWidth": 4,
     //
     // Extensions
     //
     "material-icon-theme.showUpdateMessage": false,
-    "liveServer.settings.donotShowInfoMsg": true,
-    "liveServer.settings.donotVerifyTags": true
+    "extensions.ignoreRecommendations": true,
+    "python.languageServer": "Microsoft"
 }
