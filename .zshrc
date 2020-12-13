@@ -8,35 +8,43 @@ if [[ ! -n $TMUX ]]; then
   tmux attach-session -t "$ID"
 fi
 
-export ZPLUG_HOME=/usr/local/opt/zplug
-source $ZPLUG_HOME/init.zsh
-zplug "zsh-users/zsh-autosuggestions"
-zplug "zsh-users/zsh-completions"
-zplug "zsh-users/zsh-syntax-highlighting"
-zplug "zsh-users/zsh-history-substring-search"
-zplug "chrissicool/zsh-256color"
-zplug "mollifier/anyframe"
-if ! zplug check --verbose; then
-  printf "Install? [y/N]: "
-  if read -q; then
-    echo; zplug install
-  fi
+### Added by Zinit's installer
+if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
+    print -P "%F{33}▓▒░ %F{220}Installing %F{33}DHARMA%F{220} Initiative Plugin Manager (%F{33}zdharma/zinit%F{220})…%f"
+    command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
+    command git clone https://github.com/zdharma/zinit "$HOME/.zinit/bin" && \
+        print -P "%F{33}▓▒░ %F{34}Installation successful.%f%b" || \
+        print -P "%F{160}▓▒░ The clone has failed.%f%b"
 fi
-zplug load
+
+source "$HOME/.zinit/bin/zinit.zsh"
+autoload -Uz _zinit
+(( ${+_comps} )) && _comps[zinit]=_zinit
+### End of Zinit's installer chunk
+
+zinit light zsh-users/zsh-autosuggestions
+zinit light zsh-users/zsh-completions
+zinit light zsh-users/zsh-syntax-highlighting
+zinit light zsh-users/zsh-history-substring-search
+zinit light chrissicool/zsh-256color
+zinit light mollifier/anyframe
+zinit light peco/peco
+
+zinit ice pick"async.zsh" src"pure.zsh"
+zinit light sindresorhus/pure
 
 export LANG=ja_JP.UTF-8
 # 自動保管
 autoload -U compinit; compinit
-compinit -C
+# compinit -C
 # コマンドミスを修正ss
 setopt correct
 # 大文字小文字区別しない
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 
 # プロンプトの設定
-autoload -U promptinit; promptinit
-prompt pure
-# PROMPT='[30;48;5;068m%F{white}%*[0m '$PROMPT
+# autoload -U promptinit; promptinit
+# prompt pure
 
 # viライクなキーバインディング
 bindkey -v
@@ -75,12 +83,11 @@ HISTSIZE=1000
 SAVEHIST=100000
 
 alias mv='mv -i'
-alias exa='exa --long'
+alias exa='exa --long --icons -F --group-directories-first'
 alias ls='exa'
 alias sl='ls'
 
 if [ ~/.zshrc -nt ~/.zshrc.zwc ]; then
   zcompile ~/.zshrc
 fi
-
 
