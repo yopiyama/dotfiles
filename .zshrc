@@ -1,3 +1,4 @@
+export TMUX_TMPDIR=$HOME/.tmux/tmp
 if [[ ! -n $TMUX ]]; then
   # get the IDs
   ID="`tmux list-sessions`"
@@ -86,6 +87,8 @@ alias mv='mv -i'
 alias exa='exa --long --icons -F --group-directories-first'
 alias ls='exa'
 alias sl='ls'
+
+eval "$(pyenv init -)"
 
 if [ ~/.zshrc -nt ~/.zshrc.zwc ]; then
   zcompile ~/.zshrc
