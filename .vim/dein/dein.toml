@@ -22,4 +22,9 @@ repo = 'Shougo/neco-syntax'
 [[plugins]]
 repo = 'ujihisa/neco-look'
 
+# neosnipet
+[[plugins]]
+repo = 'Shougo/neosnippet.vim'
 
+[[plugins]]
+repo = 'Shougo/neosnippet-snippets'
