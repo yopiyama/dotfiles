@@ -80,8 +80,11 @@ HISTFILE=${HOME}/.zsh/.zhistory
 setopt hist_ignore_all_dups
 setopt share_history
 setopt hist_no_store
+setopt hist_no_store
+setopt extended_history
 HISTSIZE=1000
 SAVEHIST=100000
+alias history='history -i'
 
 alias mv='mv -i'
 alias exa='exa --long --icons -F --group-directories-first'
@@ -93,4 +96,3 @@ eval "$(pyenv init -)"
 if [ ~/.zshrc -nt ~/.zshrc.zwc ]; then
   zcompile ~/.zshrc
 fi
-
