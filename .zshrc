@@ -50,6 +50,11 @@ zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 # viライクなキーバインディング
 bindkey -v
 
+# https://mollifier.hatenablog.com/entry/20081213/1229148947
+# ctrl-a と ctrl-e の挙動だけ戻す
+bindkey '^A' beginning-of-line
+bindkey '^E' end-of-line
+
 zstyle ":anyframe:selector:" use peco
 # C-eでcd履歴検索後移動
 autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
@@ -59,7 +64,7 @@ zstyle ':chpwd:*' recent-dirs-max 500
 zstyle ':chpwd:*' recent-dirs-default true
 zstyle ':chpwd:*' recent-dirs-file "$HOME/.zsh/.cache/chpwd-recent-dirs"
 zstyle ':chpwd:*' recent-dirs-pushd true
-bindkey '^E' anyframe-widget-cdr
+bindkey '^H' anyframe-widget-cdr
 # C-rでコマンド履歴検索後実行
 bindkey '^R' anyframe-widget-execute-history
 # C-fでファイル名検索，挿入
@@ -80,14 +85,13 @@ HISTFILE=${HOME}/.zsh/.zhistory
 setopt hist_ignore_all_dups
 setopt share_history
 setopt hist_no_store
-setopt hist_no_store
 setopt extended_history
 HISTSIZE=1000
 SAVEHIST=100000
 alias history='history -i'
 
 alias mv='mv -i'
-alias exa='exa --long --icons -F --group-directories-first'
+alias exa='exa --long --icons -F --group-directories-first --time-style=long-iso'
 alias ls='exa'
 alias sl='ls'
 
