@@ -56,8 +56,9 @@ set showmode
 set number
 set title
 set ambiwidth=double
-"tabは4タブ
+"tabは4タブ, Space
 set tabstop=4
+set expandtab
 set shiftwidth=4
 set smartindent
 set autoindent
@@ -154,8 +155,11 @@ if &term =~ "xterm"
 endif
 
 
-"画面分割とtab関連 > https://qiita.com/tekkoc/items/98adcadfa4bdc8b5a6ca#タブページ関連
+"画面分割とtab関連
+" reference : https://original-game.com/vim-mac6/
 nnoremap s <Nop>
+
+" 画面分割後の移動系
 nnoremap sj <C-w>j
 nnoremap sk <C-w>k
 nnoremap sl <C-w>l
@@ -175,8 +179,12 @@ nnoremap sN :<C-u>bn<CR>
 nnoremap sP :<C-u>bp<CR>
 nnoremap st :<C-u>tabnew<CR>
 nnoremap sT :<C-u>Unite tab<CR>
+
+" 画面分割 水平
 nnoremap ss :<C-u>sp<CR>
+" 画面分割 垂直
 nnoremap sv :<C-u>vs<CR>
+
 nnoremap sq :<C-u>q<CR>
 nnoremap sQ :<C-u>bd<CR>
 nnoremap sb :<C-u>Unite buffer_tab -buffer-name=file<CR>
@@ -269,8 +277,6 @@ function! s:GetHighlight(hi)
 	redir => hl
 	exec 'highlight '.a:hi
 	redir END
-	let hl = substitute(hl, '[\r\n]', '', 'g')
-	let hl = substitute(hl, 'xxx', '', '')
 	return hl
 endfunction
 
