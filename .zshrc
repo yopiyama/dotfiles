@@ -57,7 +57,7 @@ bindkey '^A' beginning-of-line
 bindkey '^E' end-of-line
 
 zstyle ":anyframe:selector:" use peco
-# C-eでcd履歴検索後移動
+# C-hでcd履歴検索後移動
 autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
 add-zsh-hook chpwd chpwd_recent_dirs
 zstyle ':completion:*' recent-dirs-insert both
@@ -94,10 +94,34 @@ alias history='history -i'
 alias mv='mv -i'
 alias exa='exa --long --icons -F --group-directories-first --time-style=long-iso'
 alias ls='exa'
-alias sl='ls'
+
+# https://qiita.com/k725/items/5c220a4ab87eb84a8233
+# tmux も併用している場合は一工夫必要 https://zenn.dev/kyoshida/articles/1cf9099e865ce8
+function ssh_color() {
+    case $1 in
+        # Prefix が prod-c- →紫
+        prod-c-* ) echo -e "\033Ptmux;\033\033]1337;SetProfile=ssh-purple\007\033\\";;
+        # Prefix が prod- → 赤
+        prod-* ) echo -e "\033Ptmux;\033\033]1337;SetProfile=ssh-red\007\033\\";;
+        # Prefix が dev →青
+        dev* ) echo -e "\033Ptmux;\033\033]1337;SetProfile=ssh-blue\007\033\\";;
+        *) echo -e "\033Ptmux;\033\033]1337;SetProfile=Main\007\033\\";;
+    esac
+    /usr/bin/ssh $@
+    echo -e "\033Ptmux;\033\033]50;SetProfile=Main\007\033\\"
+}
+
+alias ssh='ssh_color'
+compdef _ssh ssh_color=ssh
 
 eval "$(pyenv init -)"
+
+if [[ -x `which colordiff` ]]; then
+  alias diff='colordiff'
+fi
+
 
 if [ ~/.zshrc -nt ~/.zshrc.zwc ]; then
   zcompile ~/.zshrc
 fi
+
