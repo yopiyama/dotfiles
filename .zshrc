@@ -1,4 +1,10 @@
 export TMUX_TMPDIR=$HOME/.tmux/tmp
+# no server running on /private/tmp/tmux-503/default
+# [exited]
+# no sessions
+# tmux new → exited となる場合
+# brew install reattach-to-user-namespace
+
 if [[ ! -n $TMUX ]]; then
   # get the IDs
   ID="`tmux list-sessions`"
@@ -113,8 +119,6 @@ function ssh_color() {
 
 alias ssh='ssh_color'
 compdef _ssh ssh_color=ssh
-
-eval "$(pyenv init -)"
 
 if [[ -x `which colordiff` ]]; then
   alias diff='colordiff'
