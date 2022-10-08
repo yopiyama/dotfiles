@@ -15,6 +15,22 @@ if [[ ! -n $TMUX ]]; then
   tmux attach-session -t "$ID"
 fi
 
+setopt no_global_rcs
+
+typeset -U path PATH
+path=(
+	/opt/homebrew/bin(N-/)
+	/opt/homebrew/sbin(N-/)
+	/usr/local/bin(N-/)
+	/usr/local/sbin(N-/)
+	/Library/Apple/usr/bin(N-/)
+	/usr/bin
+	/usr/sbin
+	/bin
+	/sbin
+	$path
+)
+
 # Zinit → https://qiita.com/taiyodayo/items/c1ebdc863e6baa18ea06
 ### Added by Zinit's installer
 if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
