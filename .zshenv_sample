@@ -1,0 +1,17 @@
+setopt no_global_rcs
+
+typeset -U path PATH
+path=(
+	/opt/homebrew/bin(N-/)
+	/opt/homebrew/sbin(N-/)
+	/usr/local/bin(N-/)
+	/usr/local/sbin(N-/)
+	/Library/Apple/usr/bin(N-/)
+	/usr/bin
+	/usr/sbin
+	/bin
+	/sbin
+	$path
+)
+
+# https://qiita.com/muran001/items/7b104d33f5ea3f75353f

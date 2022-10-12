@@ -1,19 +1,3 @@
-setopt no_global_rcs
-
-typeset -U path PATH
-path=(
-	/opt/homebrew/bin(N-/)
-	/opt/homebrew/sbin(N-/)
-	/usr/local/bin(N-/)
-	/usr/local/sbin(N-/)
-	/Library/Apple/usr/bin(N-/)
-	/usr/bin
-	/usr/sbin
-	/bin
-	/sbin
-	$path
-)
-
 export TMUX_TMPDIR=$HOME/.tmux/tmp
 # no server running on /private/tmp/tmux-503/default
 # [exited]
