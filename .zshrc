@@ -129,3 +129,11 @@ if [ ~/.zshrc -nt ~/.zshrc.zwc ]; then
   zcompile ~/.zshrc
 fi
 
+case ${OSTYPE} in
+    darwin*)
+        alias xargs='gxargs'
+		alias sed='gsed'
+		alias awk='gawk'
+        ;;
+
+esac
