@@ -36,9 +36,9 @@ zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-history-substring-search
 zinit light chrissicool/zsh-256color
 zinit light mollifier/anyframe
+zinit light sindresorhus/pure
 
 zinit ice pick"async.zsh" src"pure.zsh"
-zinit light sindresorhus/pure
 
 #----------------------------------- General config -----------------------------------
 
@@ -50,8 +50,7 @@ setopt correct
 # 大文字小文字区別しない
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 
-# zstyle ":anyframe:selector:" use peco
-zstyle ":anyframe:selector:" use fzf
+zstyle ":anyframe:selector:fzf:" command 'fzf --reverse'
 
 autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
 add-zsh-hook chpwd chpwd_recent_dirs
