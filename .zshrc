@@ -85,6 +85,7 @@ export PATH="$HOME/.rd/bin:$PATH"
 tput cup $LINES
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
+export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!.git/*"'
 
 # ----------------------------------- Functions -----------------------------------
 function anyframe-widget-kill () {
