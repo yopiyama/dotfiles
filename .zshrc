@@ -128,7 +128,7 @@ bindkey '^L' myclear
 alias dirs='dirs -v'
 alias history='history -i'
 alias mv='mv -i'
-alias exa='exa --long --icons -F --group-directories-first --time-style=long-iso'
+alias exa='exa --long --icons --git --git-ignore -F --group-directories-first --time-style=long-iso -I ".git"'
 alias ls='exa'
 
 # clear で画面を再描画した時の設定
