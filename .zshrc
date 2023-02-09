@@ -38,7 +38,7 @@ zinit light chrissicool/zsh-256color
 zinit light mollifier/anyframe
 zinit light sindresorhus/pure
 
-zinit ice pick"async.zsh" src"pure.zsh"
+zinit ice depth=1; zinit light romkatv/powerlevel10k
 
 #----------------------------------- General config -----------------------------------
 
@@ -50,7 +50,7 @@ setopt correct
 # 大文字小文字区別しない
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 
-zstyle ":anyframe:selector:fzf:" command 'fzf --reverse'
+zstyle ":anyframe:selector:fzf:" command 'fzf --height 50%'
 
 autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
 add-zsh-hook chpwd chpwd_recent_dirs
@@ -81,6 +81,11 @@ SAVEHIST=100000
 
 export PATH="$HOME/.rd/bin:$PATH"
 
+# Prompt を画面下へ固定
+tput cup $LINES
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+
 # ----------------------------------- Functions -----------------------------------
 function anyframe-widget-kill () {
   ps -u $USER -o pid,stat,%cpu,%mem,cputime,command \
@@ -90,6 +95,15 @@ function anyframe-widget-kill () {
 }
 
 zle -N anyframe-widget-kill
+
+# ctrl-l で画面を再描画した時の設定
+function myclear() {
+    clear
+    tput cup $LINES
+    zle reset-prompt
+}
+
+zle -N myclear
 
 # ----------------------------------- Key Binding -----------------------------------
 # viライクなキーバインディング
@@ -106,6 +120,8 @@ bindkey '^R' anyframe-widget-execute-history
 bindkey '^F' anyframe-widget-insert-filename
 # Kill
 bindkey '^x^k' anyframe-widget-kill
+# C-l 時の挙動
+bindkey '^L' myclear
 
 #----------------------------------- Alias -----------------------------------
 alias dirs='dirs -v'
@@ -113,6 +129,9 @@ alias history='history -i'
 alias mv='mv -i'
 alias exa='exa --long --icons -F --group-directories-first --time-style=long-iso'
 alias ls='exa'
+
+# clear で画面を再描画した時の設定
+alias clear="clear;tput cup $LINES"
 
 # 個別の Alias 設定
 
