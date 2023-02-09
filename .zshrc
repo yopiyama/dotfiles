@@ -1,3 +1,10 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 export TMUX_TMPDIR=$HOME/.tmux/tmp
 # no server running on /private/tmp/tmux-503/default
 # [exited]
@@ -36,9 +43,7 @@ zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-history-substring-search
 zinit light chrissicool/zsh-256color
 zinit light mollifier/anyframe
-zinit light sindresorhus/pure
-
-zinit ice depth=1; zinit light romkatv/powerlevel10k
+zinit light romkatv/powerlevel10k
 
 #----------------------------------- General config -----------------------------------
 
@@ -110,9 +115,10 @@ zle -N myclear
 # viライクなキーバインディング
 bindkey -v
 # https://mollifier.hatenablog.com/entry/20081213/1229148947
-# ctrl-a と ctrl-e の挙動だけ戻す
+# ctrl-a と ctrl-e, ctrl-k の挙動だけ戻す
 bindkey '^A' beginning-of-line
 bindkey '^E' end-of-line
+bindkey '^K' kill-line
 # C-hでcd履歴検索後移動
 bindkey '^H' anyframe-widget-cdr
 # C-rでコマンド履歴検索後実行
