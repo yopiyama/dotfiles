@@ -42,7 +42,6 @@ zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-history-substring-search
 zinit light chrissicool/zsh-256color
-zinit light mollifier/anyframe
 zinit light romkatv/powerlevel10k
 
 #----------------------------------- General config -----------------------------------
@@ -54,8 +53,6 @@ autoload -U compinit; compinit
 setopt correct
 # 大文字小文字区別しない
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
-
-zstyle ":anyframe:selector:fzf:" command 'fzf --height 50%'
 
 autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
 add-zsh-hook chpwd chpwd_recent_dirs
@@ -91,24 +88,33 @@ tput cup $LINES
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!.git/*"'
+export FZF_DEFAULT_OPTS='--height 50%  --border --inline-info'
 
 # ----------------------------------- Functions -----------------------------------
-function anyframe-widget-kill () {
-  ps -u $USER -o pid,stat,%cpu,%mem,cputime,command \
-    | anyframe-selector-auto \
-    | awk '{print $1}' \
-    | anyframe-action-execute kill
+function fzf-cdr() {
+  target_dir=`cdr -l | sed 's/^[^ ][^ ]*  *//' | fzf`
+  target_dir=`echo ${target_dir/\~/$HOME}`
+  if [ -n "$target_dir" ]; then
+    cd $target_dir
+    tput cup $LINES
+    zle reset-prompt
+  fi
 }
+zle -N fzf-cdr
 
-zle -N anyframe-widget-kill
+function  fzf-file-list() {
+  fzf
+  tput cup $LINES
+  zle reset-prompt
+}
+zle -N fzf-file-list
 
 # ctrl-l で画面を再描画した時の設定
 function myclear() {
-    clear
-    tput cup $LINES
-    zle reset-prompt
+  clear
+  tput cup $LINES
+  zle reset-prompt
 }
-
 zle -N myclear
 
 # ----------------------------------- Key Binding -----------------------------------
@@ -120,13 +126,12 @@ bindkey '^A' beginning-of-line
 bindkey '^E' end-of-line
 bindkey '^K' kill-line
 # C-hでcd履歴検索後移動
-bindkey '^H' anyframe-widget-cdr
+# bindkey '^H' anyframe-widget-cdr
+bindkey '^H' fzf-cdr
 # C-rでコマンド履歴検索後実行
-bindkey '^R' anyframe-widget-execute-history
+# bindkey '^R'
 # C-fでファイル名検索，挿入
-bindkey '^F' anyframe-widget-insert-filename
-# Kill
-bindkey '^x^k' anyframe-widget-kill
+bindkey '^F' fzf-file-list
 # C-l 時の挙動
 bindkey '^L' myclear
 
