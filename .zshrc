@@ -102,10 +102,11 @@ function fzf-cdr() {
 }
 zle -N fzf-cdr
 
-function  fzf-file-list() {
-  fzf
+function fzf-file-list() {
+  BUFFER="${BUFFER}"`eval $FZF_DEFAULT_COMMAND | fzf`
   tput cup $LINES
-  zle reset-prompt
+  zle redisplay
+  # zle reset-prompt
 }
 zle -N fzf-file-list
 
