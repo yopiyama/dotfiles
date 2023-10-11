@@ -78,8 +78,9 @@ setopt hist_ignore_all_dups
 setopt share_history
 setopt hist_no_store
 setopt extended_history
-HISTSIZE=1000
+HISTSIZE=10000
 SAVEHIST=100000
+HISTTIMEFORMAT='%Y/%m/%d %H:%M:%S '
 
 export PATH="$HOME/.rd/bin:$PATH"
 
@@ -139,10 +140,11 @@ bindkey '^L' myclear
 #----------------------------------- Alias -----------------------------------
 alias dirs='dirs -v'
 alias history='history -i'
+alias hist='fc'
 alias mv='mv -i'
 alias rm='rm -i'
-alias exa='exa --long --icons --git -F --group-directories-first --time-style=long-iso -I ".git"'
-alias ls='exa'
+alias ll='eza --long --icons --git -F --group-directories-first --time-style=long-iso -I ".git"'
+alias bat='bat --color=always'
 
 # clear で画面を再描画した時の設定
 alias clear="clear;tput cup $LINES"
