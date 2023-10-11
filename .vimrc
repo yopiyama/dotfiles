@@ -202,7 +202,7 @@ nnoremap sB :<C-u>Unite buffer -buffer-name=file<CR>
 
 "不可視文字を可視化するやつ
 set list
-set listchars=tab:--,eol:~,extends:>,precedes:<,trail:~
+set listchars=space:.,tab:--,eol:~,extends:>,precedes:<,trail:~
 
 "保存時に行末の余分な空白を削除する
 autocmd BufWritePre * :%s/\s\+$//ge
