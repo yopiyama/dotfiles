@@ -93,7 +93,7 @@ export FZF_DEFAULT_OPTS='--height 50%  --border --inline-info'
 
 # ----------------------------------- Functions -----------------------------------
 function fzf-cdr() {
-  target_dir=`cdr -l | sed 's/^[^ ][^ ]*  *//' | fzf`
+  target_dir=`cdr -l | sed 's/^[^ ][^ ]*  *//' | fzf  --preview="eza --long --icons --git -F --group-directories-first --time-style=long-iso -I '.git' '{-1}'" --preview-window=down`
   target_dir=`echo ${target_dir/\~/$HOME}`
   if [ -n "$target_dir" ]; then
     cd $target_dir
@@ -104,8 +104,9 @@ function fzf-cdr() {
 zle -N fzf-cdr
 
 function fzf-file-list() {
-  BUFFER="${BUFFER}"`eval $FZF_DEFAULT_COMMAND | fzf`
+  BUFFER="${BUFFER}"`eval $FZF_DEFAULT_COMMAND | fzf  --preview="bat '{-1}' --color=always" --preview-window=down`
   tput cup $LINES
+  CURSOR=${#BUFFER}
   zle redisplay
   # zle reset-prompt
 }
