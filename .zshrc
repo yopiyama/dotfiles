@@ -88,17 +88,19 @@ export PATH="$HOME/.rd/bin:$PATH"
 tput cup $LINES
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!.git/*"'
+export FZF_DEFAULT_COMMAND="rg --files --hidden --follow --glob '!**/.git/'"
 export FZF_DEFAULT_OPTS='--height 50%  --border --inline-info'
 
 # ----------------------------------- Functions -----------------------------------
 function fzf-cdr() {
-  target_dir=`cdr -l | sed 's/^[^ ][^ ]*  *//' | fzf  --preview="eza --long --icons --git -F --group-directories-first --time-style=long-iso -I '.git' '{-1}'" --preview-window=down`
+  target_dir=`cdr -l | sed 's/^[^ ][^ ]*  *//' | fzf  --preview="eza --long --icons --git -F --group-directories-first --time-style=long-iso -I '**/.git/' '{-1}'" --preview-window=down`
   target_dir=`echo ${target_dir/\~/$HOME}`
   if [ -n "$target_dir" ]; then
-    cd $target_dir
+    BUFFER="cd ${target_dir}"
     tput cup $LINES
-    zle reset-prompt
+    CURSOR=${#BUFFER}
+    # zle reset-prompt
+    zle redisplay
   fi
 }
 zle -N fzf-cdr
@@ -144,7 +146,7 @@ alias history='history -i'
 alias hist='fc'
 alias mv='mv -i'
 alias rm='rm -i'
-alias ll='eza --long --icons --git -F --group-directories-first --time-style=long-iso -I ".git"'
+alias ll='eza --long --icons --git -F --group-directories-first --time-style=long-iso -I "**/.git/"'
 alias bat='bat --color=always'
 
 # clear で画面を再描画した時の設定
