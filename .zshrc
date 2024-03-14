@@ -148,6 +148,7 @@ alias mv='mv -i'
 alias rm='rm -i'
 alias ll='eza --long --icons --git -F --group-directories-first --time-style=long-iso -I "**/.git/"'
 alias bat='bat --color=always'
+alias tf-plan='terraform plan | tee >(grep -E "# \w|Plan:" > /tmp/_plan_abst.log) && cat /tmp/_plan_abst.log'
 
 # clear で画面を再描画した時の設定
 alias clear="clear;tput cup $LINES"
@@ -171,3 +172,7 @@ esac
 if [ ~/.zshrc -nt ~/.zshrc.zwc ]; then
   zcompile ~/.zshrc
 fi
+
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/yoshiyama/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
