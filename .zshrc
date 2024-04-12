@@ -114,6 +114,15 @@ function fzf-file-list() {
 }
 zle -N fzf-file-list
 
+function fzf-history() {
+  # BUFFER=$(history -n -r 1 | cut -d ' ' -f 4- | fzf --query "$LBUFFER" --reverse)
+  BUFFER=$(history -n -r 1 | fzf --query "$LBUFFER" --reverse | cut -d ' ' -f 4-)
+  tput cpu $LINES
+  CURSOR=${#BUFFER}
+  zle redisplay
+}
+zle -N fzf-history
+
 # ctrl-l で画面を再描画した時の設定
 function myclear() {
   clear
@@ -134,7 +143,7 @@ bindkey '^K' kill-line
 # bindkey '^H' anyframe-widget-cdr
 bindkey '^H' fzf-cdr
 # C-rでコマンド履歴検索後実行
-# bindkey '^R'
+bindkey '^R' fzf-history
 # C-fでファイル名検索，挿入
 bindkey '^F' fzf-file-list
 # C-l 時の挙動
