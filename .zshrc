@@ -1,3 +1,5 @@
+# Amazon Q pre block. Keep at the top of this file.
+[[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh"
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -88,7 +90,7 @@ export PATH="$HOME/.rd/bin:$PATH"
 tput cup $LINES
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-export FZF_DEFAULT_COMMAND="rg --files --hidden --follow --glob '!**/.git/'"
+export FZF_DEFAULT_COMMAND="rg --hidden --follow --glob '!**/.git/'"
 export FZF_DEFAULT_OPTS='--height 50%  --border --inline-info'
 
 # ----------------------------------- Functions -----------------------------------
@@ -114,6 +116,15 @@ function fzf-file-list() {
 }
 zle -N fzf-file-list
 
+function fzf-history() {
+  # BUFFER=$(history -n -r 1 | cut -d ' ' -f 4- | fzf --query "$LBUFFER" --reverse)
+  BUFFER=$(history -n -r 1 | fzf --query "$LBUFFER" --reverse | cut -d ' ' -f 4-)
+  tput cpu $LINES
+  CURSOR=${#BUFFER}
+  zle redisplay
+}
+zle -N fzf-history
+
 # ctrl-l で画面を再描画した時の設定
 function myclear() {
   clear
@@ -134,7 +145,7 @@ bindkey '^K' kill-line
 # bindkey '^H' anyframe-widget-cdr
 bindkey '^H' fzf-cdr
 # C-rでコマンド履歴検索後実行
-# bindkey '^R'
+bindkey '^R' fzf-history
 # C-fでファイル名検索，挿入
 bindkey '^F' fzf-file-list
 # C-l 時の挙動
@@ -148,6 +159,7 @@ alias mv='mv -i'
 alias rm='rm -i'
 alias ll='eza --long --icons --git -F --group-directories-first --time-style=long-iso -I "**/.git/"'
 alias bat='bat --color=always'
+alias tf-plan='terraform plan | tee >(grep -E "# \w|Plan:" > /tmp/_plan_abst.log) && cat /tmp/_plan_abst.log'
 
 # clear で画面を再描画した時の設定
 alias clear="clear;tput cup $LINES"
