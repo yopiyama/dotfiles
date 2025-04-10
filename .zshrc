@@ -102,7 +102,7 @@ function fzf-cdr() {
     tput cup $LINES
     CURSOR=${#BUFFER}
     # zle reset-prompt
-    zle redisplay
+    zle .redisplay
   fi
 }
 zle -N fzf-cdr
@@ -111,7 +111,7 @@ function fzf-file-list() {
   BUFFER="${BUFFER}"`eval $FZF_DEFAULT_COMMAND | fzf  --preview="bat '{-1}' --color=always" --preview-window=down`
   tput cup $LINES
   CURSOR=${#BUFFER}
-  zle redisplay
+  zle .redisplay
   # zle reset-prompt
 }
 zle -N fzf-file-list
@@ -119,17 +119,21 @@ zle -N fzf-file-list
 function fzf-history() {
   # BUFFER=$(history -n -r 1 | cut -d ' ' -f 4- | fzf --query "$LBUFFER" --reverse)
   BUFFER=$(history -n -r 1 | fzf --query "$LBUFFER" --reverse | cut -d ' ' -f 4-)
-  tput cpu $LINES
+  tput cup $LINES
   CURSOR=${#BUFFER}
-  zle redisplay
+  zle .redisplay
 }
 zle -N fzf-history
 
 # ctrl-l で画面を再描画した時の設定
 function myclear() {
+  if [[ -n "$__MYCLEAR_RUNNING" ]]; then return; fi
+  __MYCLEAR_RUNNING=1
+
   clear
   tput cup $LINES
   zle reset-prompt
+  unset __MYCLEAR_RUNNING
 }
 zle -N myclear
 
