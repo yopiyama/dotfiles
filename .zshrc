@@ -132,7 +132,7 @@ function myclear() {
 
   clear
   tput cup $LINES
-  zle reset-prompt
+  zle .reset-prompt
   unset __MYCLEAR_RUNNING
 }
 zle -N myclear
