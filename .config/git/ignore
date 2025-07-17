@@ -1,4 +1,3 @@
-.vscode/
 bin/
 .DS_Store
 *.swp
@@ -36,6 +35,13 @@ export/
 cert/
 
 *~
-python/*
+~*
+*~/
+~*/
+
 .env
 *.env
+
+python/*
+layer/
+*.base64sha256.txt
