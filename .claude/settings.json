@@ -1,5 +1,4 @@
 {
-  "autoConnectIde": true,
   "enableAllProjectMcpServers": true,
   "env": {
     "AWS_REGION": "us-east-1",
@@ -40,6 +39,5 @@
       "Bash(curl:*)",
       "Bash(wget:*)"
     ]
-  },
-  "preferredNotifChannel": "iterm2"
+  }
 }
