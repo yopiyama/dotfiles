@@ -48,3 +48,4 @@ layer/
 .ansible/
 
 **/.claude/settings.local.json
+.serena/cache/
