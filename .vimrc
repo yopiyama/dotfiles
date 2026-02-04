@@ -141,19 +141,20 @@ nmap <Esc><Esc> :nohlsearch<CR><Esc>
 "endfor
 
 
-"paste をいい感じにする
-if &term =~ "xterm"
-	let &t_SI .= "\e[?2004h"
-	let &t_EI .= "\e[?2004l"
-	let &pastetoggle = "\e[201~"
-
-	function XTermPasteBegin(ret)
-		set paste
-		return a:ret
-	endfunction
-	inoremap <special> <expr> <Esc>[200~ XTermPasteBegin("")
-endif
-
+" paste をいい感じにする（Bracketed Paste を Vim 標準機能で扱う）
+" tmux/screen でも &term が screen-256color 等になるため prefix マッチにする
+" 参考: :help xterm-bracketed-paste
+if !has('gui_running') && &term =~# '^\%(xterm\|screen\|tmux\)'
+	" ESC と端末キーコードの誤認識を減らす
+	set ttimeout
+	set ttimeoutlen=50
+	" bracketed paste を有効化/無効化（Vim が raw mode enter/leave で端末へ送る）
+let &t_BE = "\<Esc>[?2004h"
+	let &t_BD = "\<Esc>[?2004l"
+	" ペースト開始/終了マーカー（端末がペースト内容を囲う）
+l	et &t_PS = "\<Esc>[200~"
+let &t_PE = "\<Esc>[201~"
+	endif
 
 "画面分割とtab関連
 " reference : https://original-game.com/vim-mac6/
@@ -327,4 +328,3 @@ colorscheme molokai
 if has("syntax")
 	syntax on
 endif
-

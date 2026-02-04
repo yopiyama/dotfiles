@@ -17,8 +17,8 @@
       "Bash(gh run view:*)",
       "Bash(gh run list:*)",
       "Bash(ls:*)",
-      "Bash(eza:*",
-      "Bash(cat:**)",
+      "Bash(eza:*)",
+      "Bash(cat:*)",
       "Bash(osascript -e:*)",
       "mcp__context7__resolve-library-id",
       "mcp__context7__get-library-docs"

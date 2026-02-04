@@ -4,9 +4,6 @@ bin/
 __pycache__
 *.out
 *.exe
-test.*
-test/
-test*
 tmp.*
 tmp/
 tmp*
