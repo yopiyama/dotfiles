@@ -1,5 +1,3 @@
-# Amazon Q pre block. Keep at the top of this file.
-[[ -f "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/amazon-q/shell/zshrc.pre.zsh"
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -8,19 +6,25 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 export TMUX_TMPDIR=$HOME/.tmux/tmp
-# no server running on /private/tmp/tmux-503/default
-# [exited]
-# no sessions
-# tmux new → exited となる場合
-# brew install reattach-to-user-namespace
+
+# iTerm で起動したときだけ tmux を自動起動する（VSCode/Kiro 等の統合ターミナルでは起動しない）
+_is_iterm() {
+  [[ -n "${ITERM_SESSION_ID:-}" || "${TERM_PROGRAM:-}" == "iTerm.app" ]]
+}
+_is_vscode() {
+  [[ "${TERM_PROGRAM:-}" == "vscode" || -n "${VSCODE_IPC_HOOK_CLI:-}" ]]
+}
+_is_kiro() {
+  [[ "${TERM_PROGRAM:-}" == "kiro" ]]
+}
 
 if [[ ! -n $TMUX ]]; then
   # get the IDs
-  ID="`tmux list-sessions`"
+  ID="$(tmux list-sessions 2>/dev/null)"
   if [[ -z "$ID" ]]; then
     tmux new-session
   fi
-  ID="`echo $ID | $PERCOL | cut -d: -f1`"
+  ID="$(echo "$ID" | $PERCOL | cut -d: -f1)"
   tmux attach-session -t "$ID"
 fi
 
@@ -166,6 +170,7 @@ alias ll='eza --long --icons --git -F --group-directories-first --time-style=lon
 alias bat='bat --color=always'
 alias tf='terraform'
 alias tf-p='terraform plan | tee >(grep -E "# \w|Plan:" > /tmp/_plan_abst.log) && cat /tmp/_plan_abst.log'
+alias ruff='uvx ruff'
 
 # clear で画面を再描画した時の設定
 alias clear="clear;tput cup $LINES"
