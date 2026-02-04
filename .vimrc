@@ -149,11 +149,11 @@ if !has('gui_running') && &term =~# '^\%(xterm\|screen\|tmux\)'
 	set ttimeout
 	set ttimeoutlen=50
 	" bracketed paste を有効化/無効化（Vim が raw mode enter/leave で端末へ送る）
-let &t_BE = "\<Esc>[?2004h"
+	let &t_BE = "\<Esc>[?2004h"
 	let &t_BD = "\<Esc>[?2004l"
 	" ペースト開始/終了マーカー（端末がペースト内容を囲う）
-l	et &t_PS = "\<Esc>[200~"
-let &t_PE = "\<Esc>[201~"
+	let &t_PS = "\<Esc>[200~"
+	let &t_PE = "\<Esc>[201~"
 	endif
 
 "画面分割とtab関連
