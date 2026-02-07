@@ -174,6 +174,14 @@ alias bat='bat --color=always --show-all'
 alias tf='terraform'
 alias tf-p='terraform plan | tee >(grep -E "# \w|Plan:" > /tmp/_plan_abst.log) && cat /tmp/_plan_abst.log'
 alias ruff='uvx ruff'
+# nvim を引数無しで起動したらカレントディレクトリを開く
+nvim() {
+  if (( $# == 0 )); then
+    command nvim .
+  else
+    command nvim "$@"
+  fi
+}
 alias nv='nvim'
 
 # clear で画面を再描画した時の設定
