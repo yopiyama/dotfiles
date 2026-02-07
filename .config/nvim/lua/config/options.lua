@@ -40,6 +40,9 @@ local options = {
 	-- 操作系
 	timeoutlen = 300,
 	updatetime = 300,
+	-- Window 系
+	splitright = true,
+	splitbelow = true
 	}
 
 for k, v in pairs(options) do
