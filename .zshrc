@@ -170,10 +170,11 @@ alias mv='mv -i'
 alias rm='rm -i'
 alias ls='eza --icons'
 alias ll='eza --long --icons --git -F --group-directories-first --time-style=long-iso -I "**/.git/"'
-alias bat='bat --color=always'
+alias bat='bat --color=always --show-all'
 alias tf='terraform'
 alias tf-p='terraform plan | tee >(grep -E "# \w|Plan:" > /tmp/_plan_abst.log) && cat /tmp/_plan_abst.log'
 alias ruff='uvx ruff'
+alias nv='nvim'
 
 # clear で画面を再描画した時の設定
 alias clear="clear;tput cup $LINES"
