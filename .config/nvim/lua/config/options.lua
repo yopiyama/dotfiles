@@ -7,6 +7,7 @@ local options = {
 	cmdheight = 2,
 	termguicolors = true,
 	pumheight = 10,
+    pumwidth = 30,
 	showtabline = 2,
 	background = "dark",
 	winblend = 0,
@@ -17,12 +18,12 @@ local options = {
 	signcolumn = "yes",
 	list = true,
 	listchars = {
-		space = ".",
-		tab = "--",
-		eol = "~",
-		extends = ">",
-		precedes = "<",
-		trail = "~",
+		space = "·",
+		tab = "»·",
+		eol = "↴",
+		extends = "›",
+		precedes = "‹",
+		trail = "·",
 	},
 	-- 編集系
 	expandtab = true,
@@ -31,6 +32,7 @@ local options = {
 	smartindent = true,
 	wrap = true,
 	cursorline = true,
+	autoread = true,
 	clipboard = "unnamedplus",
 	completeopt = {"menuone","noselect"},
 	-- 検索系
@@ -40,6 +42,9 @@ local options = {
 	-- 操作系
 	timeoutlen = 300,
 	updatetime = 300,
+	-- Window 系
+	splitright = true,
+	splitbelow = true
 	}
 
 for k, v in pairs(options) do
