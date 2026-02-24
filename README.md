@@ -22,4 +22,3 @@ It is intended to be used by creating symbolic links from files in this repo to 
 - `.zshenv_sample`: Sample Zsh environment file.
 - `.zshrc`: Zsh configuration.
 - `iterm_main_profile.json`: iTerm2 profile export.
-
