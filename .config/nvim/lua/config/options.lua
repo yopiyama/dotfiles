@@ -42,6 +42,7 @@ local options = {
 	-- 操作系
 	timeoutlen = 300,
 	updatetime = 300,
+	mouse = "",
 	-- Window 系
 	splitright = true,
 	splitbelow = true
