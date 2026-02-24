@@ -9,6 +9,11 @@ return {
     config = function()
       require("neo-tree").setup({
         filesystem = {
+          bind_to_cwd = true,
+          cwd_target = {
+            sidebar = "global",
+            current = "global",
+          },
           filtered_items = {
             visible = true,
             hide_dotfiles = false,
@@ -16,6 +21,7 @@ return {
             hide_by_name = {
               ".git",
               ".terraform",
+              ".DS_Store",
             },
           },
         },

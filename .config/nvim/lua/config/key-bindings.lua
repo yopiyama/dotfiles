@@ -10,6 +10,12 @@ vim.g.mapleader = vim.g.mapleader or " "
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Diagnostic: previous" })
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Diagnostic: next" })
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Diagnostic: open float" })
+vim.keymap.set("n", "<Esc>", function()
+  vim.cmd("nohlsearch")
+  vim.lsp.buf.clear_references()
+end, { desc = "Clear search + LSP highlights" })
+vim.keymap.set("n", "<leader>q", "<cmd>cclose<CR>", { desc = "Close quickfix" })
+vim.keymap.set("n", "<leader>l", "<cmd>lclose<CR>", { desc = "Close loclist" })
 
 -- LSP buffer-local mappings (only active when LSP attaches)
 local lsp_augroup = vim.api.nvim_create_augroup("UserLspKeymaps", { clear = true })
