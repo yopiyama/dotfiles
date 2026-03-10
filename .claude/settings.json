@@ -1,9 +1,5 @@
 {
   "enableAllProjectMcpServers": true,
-  "env": {
-    "AWS_REGION": "us-east-1",
-    "CLAUDE_CODE_USE_BEDROCK": "true"
-  },
   "permissions": {
     "allow": [
       "Read(**)",
