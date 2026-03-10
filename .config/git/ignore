@@ -44,5 +44,5 @@ layer/
 *.base64sha256.txt
 .ansible/
 
-**/.claude/settings.local.json
+**/settings.local.json
 .serena/cache/

@@ -101,6 +101,20 @@ export FZF_DEFAULT_COMMAND="rg --hidden --follow --glob '!**/.git/'"
 export FZF_DEFAULT_OPTS='--height 50%  --border --inline-info'
 
 # ----------------------------------- Functions -----------------------------------
+function __fzf_select_dir() {
+  emulate -L zsh
+  local query="$1"
+  local -a cmd
+  if (( $+commands[fd] )); then
+    cmd=(fd --type d --hidden --follow --exclude .git .)
+  else
+    cmd=(find . -type d -not -path '*/.git/*')
+  fi
+  local selected
+  selected="$("${cmd[@]}" 2>/dev/null | sed 's|^\./||' | fzf --query "$query" --preview="eza --long --icons --git -F --group-directories-first --time-style=long-iso -I '**/.git/' '{-1}'" --preview-window=down)"
+  print -r -- "$selected"
+}
+
 function fzf-cdr() {
   target_dir=`cdr -l | sed 's/^[^ ][^ ]*  *//' | fzf  --preview="eza --long --icons --git -F --group-directories-first --time-style=long-iso -I '**/.git/' '{-1}'" --preview-window=down`
   target_dir=`echo ${target_dir/\~/$HOME}`
@@ -132,6 +146,33 @@ function fzf-history() {
 }
 zle -N fzf-history
 
+function smart-cd-tab() {
+  emulate -L zsh
+  local buffer="$LBUFFER"
+  local -a match
+
+  if [[ $buffer =~ '(^|[[:space:]])cd[[:space:]]+([^;&|]*)$' ]]; then
+    local query="${match[2]}"
+    if [[ -z "$query" || "$query" == -* || "$query" == ~* || "$query" == /* ]]; then
+      zle expand-or-complete
+      return
+    fi
+
+    local selected
+    selected="$(__fzf_select_dir "$query")"
+    if [[ -n "$selected" ]]; then
+      local base_len=$(( ${#buffer} - ${#query} ))
+      local base="${buffer:0:$base_len}"
+      LBUFFER="${base}${(q-)selected}"
+      zle .redisplay
+    fi
+    return
+  fi
+
+  zle expand-or-complete
+}
+zle -N smart-cd-tab
+
 # ctrl-l で画面を再描画した時の設定
 function myclear() {
   if [[ -n "$__MYCLEAR_RUNNING" ]]; then return; fi
@@ -161,6 +202,9 @@ bindkey '^R' fzf-history
 bindkey '^F' fzf-file-list
 # C-l 時の挙動
 bindkey '^L' myclear
+# Tab は cd のときだけ fzf、通常は補完
+bindkey -M viins '^I' smart-cd-tab
+bindkey -M emacs '^I' smart-cd-tab
 
 #----------------------------------- Alias -----------------------------------
 alias dirs='dirs -v'
