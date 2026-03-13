@@ -256,4 +256,3 @@ fi
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
 eval "$( /opt/homebrew/bin/mise activate zsh)"
-
