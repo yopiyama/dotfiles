@@ -1,5 +1,4 @@
 {
-  "enableAllProjectMcpServers": true,
   "permissions": {
     "allow": [
       "Read(**)",
@@ -32,5 +31,6 @@
       "Bash(curl:*)",
       "Bash(wget:*)"
     ]
-  }
+  },
+  "enableAllProjectMcpServers": true
 }

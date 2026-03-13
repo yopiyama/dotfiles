@@ -46,3 +46,4 @@ layer/
 
 **/settings.local.json
 .serena/cache/
+.idea/
