@@ -104,14 +104,35 @@ export FZF_DEFAULT_OPTS='--height 50%  --border --inline-info'
 function __fzf_select_dir() {
   emulate -L zsh
   local query="$1"
-  local -a cmd
-  if (( $+commands[fd] )); then
-    cmd=(fd --type d --hidden --follow --exclude .git .)
-  else
-    cmd=(find . -type d -not -path '*/.git/*')
+
+  # クエリにパス区切りが含まれる場合、ディレクトリ部分を検索ルートにする
+  local search_root="."
+  local fzf_query="$query"
+  if [[ "$query" == */* ]]; then
+    local dir_part="${query%/*}"
+    if [[ -d "$dir_part" ]]; then
+      search_root="$dir_part"
+      fzf_query="${query##*/}"
+    fi
   fi
+
   local selected
-  selected="$("${cmd[@]}" 2>/dev/null | sed 's|^\./||' | fzf --query "$query" --preview="eza --long --icons --git -F --group-directories-first --time-style=long-iso -I '**/.git/' '{-1}'" --preview-window=down)"
+  selected="$(
+    {
+      if (( $+commands[fd] )); then
+        # 浅いパスを先に流してから深いパスを流す
+        fd --type d --hidden --follow --exclude .git --max-depth 1 . "$search_root" 2>/dev/null
+        fd --type d --hidden --follow --exclude .git --min-depth 2 --max-depth 5 . "$search_root" 2>/dev/null
+      else
+        find "$search_root" -mindepth 1 -maxdepth 1 -type d 2>/dev/null
+        find "$search_root" -mindepth 2 -maxdepth 5 -type d \
+          -not -path '*/Library/*' -not -path '*/.git/*' 2>/dev/null
+      fi
+    } | sed 's|^\./||' \
+      | fzf --query "$fzf_query" --scheme=path --tiebreak=begin,length \
+            --preview="eza --long --icons --git -F --group-directories-first --time-style=long-iso -I '**/.git/' '{-1}'" \
+            --preview-window=down
+  )"
   print -r -- "$selected"
 }
 
@@ -164,8 +185,8 @@ function smart-cd-tab() {
       local base_len=$(( ${#buffer} - ${#query} ))
       local base="${buffer:0:$base_len}"
       LBUFFER="${base}${(q-)selected}"
-      zle .redisplay
     fi
+    zle reset-prompt
     return
   fi
 
