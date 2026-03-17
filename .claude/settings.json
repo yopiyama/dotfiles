@@ -1,4 +1,5 @@
 {
+  "enableAllProjectMcpServers": true,
   "permissions": {
     "allow": [
       "Bash(awk:*)",
@@ -33,6 +34,7 @@
       "Bash(head:*)",
       "Bash(jq:*)",
       "Bash(ls:*)",
+      "Bash(obsidian:*)",
       "Bash(osascript -e:*)",
       "Bash(pwd:*)",
       "Bash(rg:*)",
@@ -87,6 +89,5 @@
       "Read(id_rsa)",
       "Write(.env*)"
     ]
-  },
-  "enableAllProjectMcpServers": true
+  }
 }
