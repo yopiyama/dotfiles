@@ -267,6 +267,24 @@ case ${OSTYPE} in
       ;;
 esac
 
+new-worktree() {
+  local branch=$1
+  local repo=$(basename $(git rev-parse --show-toplevel))
+  local dir="${2:-../${repo}.worktree/${branch///\///-}}"
+
+  # 既存ブランチかどうかで分岐
+  if git show-ref --verify --quiet "refs/heads/$branch"; then
+    git worktree add "$dir" "$branch"
+  else
+    git worktree add "$dir" -b "$branch"
+  fi
+
+  cd "$dir"
+  claude mcp add serena -- uvx --from git+https://github.com/oraios/serena \
+    serena start-mcp-server --context claude-code --project "$(pwd)"
+  echo "✅ Worktree + Serena ready at $(pwd)"
+}
+
 #----------------------------------- Compile zshrc at end -----------------------------------
 if [ ~/.zshrc -nt ~/.zshrc.zwc ]; then
   zcompile ~/.zshrc
