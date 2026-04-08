@@ -270,7 +270,7 @@ esac
 new-worktree() {
   local branch=$1
   local repo=$(basename $(git rev-parse --show-toplevel))
-  local dir="${2:-../${repo}.worktree/${branch///\///-}}"
+  local dir="${2:-../${repo}.worktrees/${branch///\///-}}"
 
   # 既存ブランチかどうかで分岐
   if git show-ref --verify --quiet "refs/heads/$branch"; then
