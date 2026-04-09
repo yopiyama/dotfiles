@@ -80,7 +80,8 @@
       "Bash(tee:*)",
       "Bash(wget:*)",
       "Bash(xargs:*)",
-      "Read(.env.*)",
+      "Read(.env*)",
+      "Bash(cat *.env*)",
       "Read(id_ed25519)",
       "Read(id_rsa)",
       "Write(.env*)"
