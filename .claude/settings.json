@@ -86,5 +86,6 @@
       "Read(id_rsa)",
       "Write(.env*)"
     ]
-  }
+  },
+  "showThinkingSummaries": true
 }
