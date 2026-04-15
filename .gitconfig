@@ -1,0 +1,22 @@
+[include]
+    path = ~/.gitconfig.local
+
+# github.com/dandavison/delta
+[core]
+    pager = delta
+
+[delta]
+    side-by-side = true
+    features = unobtrusive-line-numbers decorations
+    whitespace-error-style = 22 reverse
+
+[delta "unobtrusive-line-numbers"]
+    line-numbers = true
+    line-numbers-left-format = "{nm:>4}┊"
+    line-numbers-right-format = "{np:>4}│"
+    line-numbers-left-style = blue
+    line-numbers-right-style = blue
+
+[delta "decorations"]
+    commit-decoration-style =  box ul
+
