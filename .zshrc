@@ -280,6 +280,9 @@ new-worktree() {
   fi
 
   cd "$dir"
+  if [[ -f "mise.toml" ]] || [[ -f ".mise.toml" ]]; then
+      mise trust
+  fi
   claude mcp add serena -- uvx --from git+https://github.com/oraios/serena \
     serena start-mcp-server --context claude-code --project "$(pwd)"
   echo "✅ Worktree + Serena ready at $(pwd)"
