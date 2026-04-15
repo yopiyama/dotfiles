@@ -48,3 +48,5 @@ layer/
 **/settings.local.json
 .serena/cache/
 .idea/
+
+.claude/worktrees/
