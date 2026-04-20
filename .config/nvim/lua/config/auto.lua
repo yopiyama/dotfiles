@@ -89,3 +89,20 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
     sync_cwd_to_neotree_root()
   end,
 })
+
+-- :q でファイルを閉じて neo-tree だけになったら、右に空バッファを復元
+vim.api.nvim_create_autocmd("WinClosed", {
+  nested = true,
+  callback = function()
+    vim.schedule(function()
+      local wins = vim.api.nvim_list_wins()
+      if #wins ~= 1 then
+        return
+      end
+      if vim.bo[vim.api.nvim_win_get_buf(wins[1])].filetype ~= "neo-tree" then
+        return
+      end
+      vim.cmd("rightbelow vnew")
+    end)
+  end,
+})
