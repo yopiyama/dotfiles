@@ -75,11 +75,6 @@
       "Bash(git cherry-pick:*)",
       "Bash(git clean:*)",
       "Bash(git merge:*)",
-      "Bash(git push:* --force*)",
-      "Bash(git push:* -f*)",
-      "Bash(git push:* --force-with-lease*)", // 必要なら外す
-      "Bash(git push:* --delete*)",
-      "Bash(git push:* :*)", // refspec での削除
       "Bash(git push origin main*)",
       "Bash(git push origin master*)",
       "Bash(git push origin HEAD*)",
