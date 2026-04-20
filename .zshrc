@@ -1,5 +1,7 @@
 # Kiro CLI pre block. Keep at the top of this file.
-[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh"
+if [[ "${TERM_PROGRAM:-}" == "kiro" ]]; then
+  [[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh"
+fi
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
@@ -22,13 +24,22 @@ _is_kiro() {
 }
 
 if [[ -z ${TMUX:-} ]] && _is_iterm && ! _is_kiro; then
-  # get the IDs
-  ID="$(tmux list-sessions 2>/dev/null)"
-  if [[ -z "$ID" ]]; then
-    tmux new-session
+  rel="${PWD#$HOME}"
+  [[ -z "$rel" ]] && rel="/"
+  sessions="$(tmux list-sessions -F '#S' 2>/dev/null)"
+  if [[ -z "$sessions" ]]; then
+    tmux new-session -s "iTerm/$rel"
+  elif [[ $(echo "$sessions" | wc -l) -eq 1 ]]; then
+    tmux attach-session -t "$sessions"
+  else
+    ID="$(printf '+ new (iTerm/%s)\n%s\n' "$rel" "$sessions" | fzf --prompt='tmux> ' --height=40% --reverse --no-sort)"
+    if [[ "$ID" == "+ new "* ]]; then
+      tmux new-session -A -s "iTerm/$rel"
+    elif [[ -n "$ID" ]]; then
+      tmux attach-session -t "$ID"
+    fi
   fi
-  ID="$(echo "$ID" | $PERCOL | cut -d: -f1)"
-  tmux attach-session -t "$ID"
+  unset rel sessions ID
 fi
 
 #----------------------------------- zinit config -----------------------------------
@@ -46,18 +57,32 @@ autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
 ### End of Zinit's installer chunk
 
-zinit light zsh-users/zsh-autosuggestions
-zinit light zsh-users/zsh-completions
-zinit light zsh-users/zsh-syntax-highlighting
-zinit light zsh-users/zsh-history-substring-search
-zinit light chrissicool/zsh-256color
+# プロンプト本体は即時ロード (instant prompt の整合性のため)
 zinit light romkatv/powerlevel10k
+
+# 重いプラグインはプロンプト表示後に遅延ロード (turbo mode)
+zinit wait lucid light-mode for \
+    zsh-users/zsh-syntax-highlighting \
+  atload"!_zsh_autosuggest_start" \
+    zsh-users/zsh-autosuggestions \
+  blockf \
+    zsh-users/zsh-completions \
+    zsh-users/zsh-history-substring-search
 
 #----------------------------------- General config -----------------------------------
 
 export LANG=ja_JP.UTF-8
-# 自動保管
-autoload -U compinit; compinit
+# 自動保管 (dump は 24h 以上経過時のみ security check する)
+autoload -Uz compinit
+() {
+  emulate -L zsh
+  local stale=(${ZDOTDIR:-$HOME}/.zcompdump(Nmh+24))
+  if (( ${#stale} )); then
+    compinit
+  else
+    compinit -C
+  fi
+}
 # コマンドミスを修正
 setopt correct
 # 大文字小文字区別しない
@@ -294,7 +319,9 @@ if [ ~/.zshrc -nt ~/.zshrc.zwc ]; then
 fi
 
 # Kiro CLI post block. Keep at the bottom of this file.
-[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"
+if [[ "${TERM_PROGRAM:-}" == "kiro" ]]; then
+  [[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"
+fi
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
 eval "$( /opt/homebrew/bin/mise activate zsh)"

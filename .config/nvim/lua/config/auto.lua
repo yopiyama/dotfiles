@@ -111,3 +111,12 @@ vim.api.nvim_create_autocmd("WinClosed", {
     end)
   end,
 })
+
+-- neo-tree 上で :q / :wq したら nvim 全体を終了
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "neo-tree",
+  callback = function()
+    vim.cmd("cnoreabbrev <buffer> q qa")
+    vim.cmd("cnoreabbrev <buffer> wq wqa")
+  end,
+})
