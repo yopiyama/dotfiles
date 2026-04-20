@@ -106,6 +106,8 @@ vim.api.nvim_create_autocmd("WinClosed", {
       vim.cmd("rightbelow vnew")
       -- neo-tree のデフォルト幅 (40) に戻す
       vim.api.nvim_win_set_width(tree_win, 40)
+      -- カーソルを neo-tree 側へ戻す
+      vim.api.nvim_set_current_win(tree_win)
     end)
   end,
 })
