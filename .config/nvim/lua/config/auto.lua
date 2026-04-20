@@ -99,10 +99,13 @@ vim.api.nvim_create_autocmd("WinClosed", {
       if #wins ~= 1 then
         return
       end
-      if vim.bo[vim.api.nvim_win_get_buf(wins[1])].filetype ~= "neo-tree" then
+      local tree_win = wins[1]
+      if vim.bo[vim.api.nvim_win_get_buf(tree_win)].filetype ~= "neo-tree" then
         return
       end
       vim.cmd("rightbelow vnew")
+      -- neo-tree のデフォルト幅 (40) に戻す
+      vim.api.nvim_win_set_width(tree_win, 40)
     end)
   end,
 })
