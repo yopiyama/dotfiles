@@ -3,16 +3,11 @@ if [[ "${TERM_PROGRAM:-}" == "kiro" ]]; then
   [[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh"
 fi
 
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
 export TMUX_TMPDIR=$HOME/.tmux/tmp
 
 # iTerm で起動したときだけ tmux を自動起動する（VSCode/Kiro 等の統合ターミナルでは起動しない）
+# NOTE: p10k instant prompt より前に置くこと。後に置くと stdio がパイプに差し替わり
+#       tmux が TTY を掴めず "open terminal failed: not a terminal" で落ちる。
 _is_iterm() {
   [[ -n "${ITERM_SESSION_ID:-}" || "${TERM_PROGRAM:-}" == "iTerm.app" ]]
 }
@@ -23,23 +18,31 @@ _is_kiro() {
   [[ "${TERM_PROGRAM:-}" == "kiro" ]]
 }
 
-if [[ -z ${TMUX:-} ]] && _is_iterm && ! _is_kiro; then
+if [[ -z ${TMUX:-} ]] && [[ $- == *i* ]] && _is_iterm && ! _is_kiro && (( $+commands[tmux] )); then
   rel="${PWD#$HOME}"
   [[ -z "$rel" ]] && rel="/"
+  session_name="iTerm/$rel"
   sessions="$(tmux list-sessions -F '#S' 2>/dev/null)"
   if [[ -z "$sessions" ]]; then
-    tmux new-session -s "iTerm/$rel"
-  elif [[ $(echo "$sessions" | wc -l) -eq 1 ]]; then
-    tmux attach-session -t "$sessions"
+    exec tmux new-session -s "$session_name"
+  elif [[ $(print -r -- "$sessions" | wc -l) -eq 1 ]]; then
+    exec tmux attach-session -t "$sessions"
   else
-    ID="$(printf '+ new (iTerm/%s)\n%s\n' "$rel" "$sessions" | fzf --prompt='tmux> ' --height=40% --reverse --no-sort)"
+    ID="$(printf '+ new (%s)\n%s\n' "$session_name" "$sessions" | fzf --prompt='tmux> ' --height=40% --reverse --no-sort)"
     if [[ "$ID" == "+ new "* ]]; then
-      tmux new-session -A -s "iTerm/$rel"
+      exec tmux new-session -A -s "$session_name"
     elif [[ -n "$ID" ]]; then
-      tmux attach-session -t "$ID"
+      exec tmux attach-session -t "$ID"
     fi
   fi
-  unset rel sessions ID
+  unset rel sessions ID session_name
+fi
+
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
 #----------------------------------- zinit config -----------------------------------
