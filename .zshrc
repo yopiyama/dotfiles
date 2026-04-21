@@ -313,6 +313,15 @@ new-worktree() {
   echo "✅ Worktree + Serena ready at $(pwd)"
 }
 
+# 実行コマンドを tmux の pane_title にセット
+if [[ -n "$TMUX" ]]; then
+  autoload -Uz add-zsh-hook
+  _tmux_set_pane_title_preexec() {
+    printf '\033]2;%s\033\\' "$1"
+  }
+  add-zsh-hook preexec _tmux_set_pane_title_preexec
+fi
+
 #----------------------------------- Compile zshrc at end -----------------------------------
 if [ ~/.zshrc -nt ~/.zshrc.zwc ]; then
   zcompile ~/.zshrc
