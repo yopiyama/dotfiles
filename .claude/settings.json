@@ -80,7 +80,6 @@
       "Bash(git rebase:*)",
       "Bash(git reset:*)",
       "Bash(git revert:*)",
-      "Bash(git stash:*)",
       "Bash(gh pr merge:*)",
       "Bash(gh pr close:*)",
       "Bash(git switch:*)",
