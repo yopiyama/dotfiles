@@ -1,0 +1,11 @@
+{
+    "bindings": [
+        {
+            "context": "Chat",
+            "bindings": {
+                "ctrl+s": null,
+                "ctrl+alt+s": "chat:stash"
+            }
+        }
+    ]
+}
