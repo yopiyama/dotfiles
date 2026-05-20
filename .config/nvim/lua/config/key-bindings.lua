@@ -17,6 +17,11 @@ end, { desc = "Clear search + LSP highlights" })
 vim.keymap.set("n", "<leader>q", "<cmd>cclose<CR>", { desc = "Close quickfix" })
 vim.keymap.set("n", "<leader>l", "<cmd>lclose<CR>", { desc = "Close loclist" })
 
+-- Buffer navigation (bufferline)
+vim.keymap.set("n", "<Tab>", "<cmd>BufferLineCycleNext<CR>", { desc = "Buffer: next" })
+vim.keymap.set("n", "<S-Tab>", "<cmd>BufferLineCyclePrev<CR>", { desc = "Buffer: previous" })
+vim.keymap.set("n", "<leader>x", "<cmd>bdelete<CR>", { desc = "Buffer: close" })
+
 -- LSP buffer-local mappings (only active when LSP attaches)
 local lsp_augroup = vim.api.nvim_create_augroup("UserLspKeymaps", { clear = true })
 
