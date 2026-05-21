@@ -319,8 +319,23 @@ obsidian task file=<ファイル名> line=<行番号> done
 
 ## 権限設定
 
-このスキルを使うには `.claude/settings.json` の `permissions.allow` に以下を追加する:
+このスキルを使うには `.claude/settings.json` の `permissions.allow` に以下を追加する。
+`obsidian delete`(永久削除も可) と `obsidian eval`(任意 JS 実行) は意図的に allow に含めず、毎回確認プロンプトで実行する。
 
 ```json
-"Bash(obsidian:*)"
+"Bash(obsidian files:*)",
+"Bash(obsidian read:*)",
+"Bash(obsidian file:*)",
+"Bash(obsidian search:*)",
+"Bash(obsidian vault:*)",
+"Bash(obsidian version:*)",
+"Bash(obsidian property:*)",
+"Bash(obsidian template:*)",
+"Bash(obsidian create:*)",
+"Bash(obsidian append:*)",
+"Bash(obsidian prepend:*)",
+"Bash(obsidian daily:*)",
+"Bash(obsidian tasks:*)",
+"Bash(obsidian task:*)",
+"Bash(obsidian open:*)"
 ```
