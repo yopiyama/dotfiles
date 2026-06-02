@@ -90,20 +90,33 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
   end,
 })
 
--- :q でファイルを閉じて neo-tree だけになったら、右に空バッファを復元
+-- :q でファイルを閉じて neo-tree だけになったら、右にペインを復元
 vim.api.nvim_create_autocmd("WinClosed", {
   nested = true,
   callback = function()
     vim.schedule(function()
       local wins = vim.api.nvim_list_wins()
-      if #wins ~= 1 then
+      -- フローティングウィンドウ（telescope 等）を除外して判定
+      local normal_wins = vim.tbl_filter(function(w)
+        local cfg = vim.api.nvim_win_get_config(w)
+        return not cfg.relative or cfg.relative == ""
+      end, wins)
+      if #normal_wins ~= 1 then
         return
       end
-      local tree_win = wins[1]
+      local tree_win = normal_wins[1]
       if vim.bo[vim.api.nvim_win_get_buf(tree_win)].filetype ~= "neo-tree" then
         return
       end
-      vim.cmd("rightbelow vnew")
+      -- listed バッファが残っていればそれを表示、なければからバッファ
+      local listed = vim.tbl_filter(function(b)
+        return vim.bo[b].buflisted
+      end, vim.api.nvim_list_bufs())
+      if #listed > 0 then
+        vim.cmd("rightbelow vertical sbuffer " .. listed[1])
+      else
+        vim.cmd("rightbelow vnew")
+      end
       -- neo-tree のデフォルト幅 (40) に戻す
       vim.api.nvim_win_set_width(tree_win, 40)
       -- カーソルを neo-tree 側へ戻す
@@ -120,3 +133,58 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.cmd("cnoreabbrev <buffer> wq wqa")
   end,
 })
+
+-- bufferline 対応: :q でバッファを閉じる
+--   複数バッファ → 現バッファ削除、次のバッファへ
+--   最後の1バッファ → [No Name] に置き換えてレイアウト維持
+--   [No Name] のみ → Neovim 終了
+local function smart_quit(bang)
+  local bang_str = bang and "!" or ""
+  local listed = vim.tbl_filter(function(b)
+    return vim.bo[b].buflisted
+  end, vim.api.nvim_list_bufs())
+
+  if #listed > 1 then
+    local cur = vim.api.nvim_get_current_buf()
+    vim.cmd("bprevious")
+    vim.cmd("bdelete" .. bang_str .. " " .. cur)
+    return
+  end
+
+  local buf = vim.api.nvim_get_current_buf()
+  if vim.api.nvim_buf_get_name(buf) == "" and not vim.bo[buf].modified then
+    -- [No Name] からバッファのみ → 終了
+    vim.cmd("qall" .. bang_str)
+    return
+  end
+
+  -- 最後の実ファイルバッファ → 空バッファに差し替え
+  if vim.bo[buf].modified and not bang then
+    vim.notify("E37: No write since last change (add ! to override)", vim.log.levels.ERROR)
+    return
+  end
+  vim.cmd("enew")
+  vim.cmd("bdelete" .. bang_str .. " " .. buf)
+
+  -- neo-tree があればフォーカスを移す
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "neo-tree" then
+        vim.api.nvim_set_current_win(win)
+        break
+    end
+  end
+end
+
+vim.api.nvim_create_user_command("BufQ", function(opts)
+  smart_quit(opts.bang)
+end, { bang = true })
+
+vim.api.nvim_create_user_command("BufWQ", function(opts)
+  vim.cmd("write" .. (opts.bang and "!" or ""))
+  smart_quit(false)
+end, { bang = true })
+
+-- :q → BufQ, :wq → BufWQ（コマンドモード先頭のみ展開、neo-tree はバッファローカルabbrev が優先）
+vim.cmd([[cnoreabbrev <expr> q getcmdtype() == ':' && getcmdline() ==# 'q' ? 'BufQ' : 'q']])
+vim.cmd([[cnoreabbrev <expr> wq getcmdtype() == ':' && getcmdline() ==# 'wq' ? 'BufWQ' : 'wq']])
+

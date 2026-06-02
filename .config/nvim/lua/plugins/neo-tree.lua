@@ -8,6 +8,13 @@ return {
     },
     config = function()
       require("neo-tree").setup({
+        window = {
+            mappings = {
+                -- デフォルトの f (fuzzy_finder) を / に逃がし、<leader>f* を telescope 用に空ける
+                ["f"] = "none",
+                ["/"] = "fuzzy_finder",
+            },
+        },
         filesystem = {
           bind_to_cwd = true,
           cwd_target = {
