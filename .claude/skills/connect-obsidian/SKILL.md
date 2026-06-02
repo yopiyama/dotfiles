@@ -12,7 +12,7 @@ Obsidian の操作を CLI (`obsidian` コマンド) を使って行う。Obsidia
 
 ## 基本ルール
 
-- ノートを新規作成する場合は `Notes/` フォルダに配置する（`path="Notes/<ファイル名>.md"`を使う）。vault ルートには置かない
+- ノートを新規作成する場合は `Notes/` フォルダに配置する（`path="Notes/<ファイル名>.md"` を使う）。vault ルートには置かない
 - `vault=<name>` を最初のパラメータに指定することで特定の vault を対象にできる
 - `file=<name>` はファイル名での解決（拡張子・フルパス不要）
 - `path=<path>` は vault ルートからの正確なパス（例: `folder/note.md`）

@@ -15,7 +15,7 @@ export default async function Command() {
 
   // Notion のタブタイトルから通知数プレフィックス "(2) " などを除去
   if (activeTab.url.includes("notion.so")) {
-      title = title.replace(/^\(\d+\)\s+/,"");
+    title = title.replace(/^\(\d+\)\s+/, "");
   }
   const title = activeTab.title?.trim() || activeTab.url;
   const markdown = `[${escapeMarkdownText(title)}](${activeTab.url})`;

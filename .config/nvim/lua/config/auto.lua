@@ -108,7 +108,7 @@ vim.api.nvim_create_autocmd("WinClosed", {
       if vim.bo[vim.api.nvim_win_get_buf(tree_win)].filetype ~= "neo-tree" then
         return
       end
-      -- listed バッファが残っていればそれを表示、なければからバッファ
+      -- listed バッファが残っていればそれを表示、なければ空バッファ
       local listed = vim.tbl_filter(function(b)
         return vim.bo[b].buflisted
       end, vim.api.nvim_list_bufs())
@@ -184,7 +184,7 @@ vim.api.nvim_create_user_command("BufWQ", function(opts)
   smart_quit(false)
 end, { bang = true })
 
--- :q → BufQ, :wq → BufWQ（コマンドモード先頭のみ展開、neo-tree はバッファローカルabbrev が優先）
+-- :q → BufQ, :wq → BufWQ（コマンドモード先頭のみ展開、neo-tree はバッファローカル abbrev が優先）
 vim.cmd([[cnoreabbrev <expr> q getcmdtype() == ':' && getcmdline() ==# 'q' ? 'BufQ' : 'q']])
 vim.cmd([[cnoreabbrev <expr> wq getcmdtype() == ':' && getcmdline() ==# 'wq' ? 'BufWQ' : 'wq']])
 
