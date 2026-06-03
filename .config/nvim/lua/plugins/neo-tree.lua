@@ -13,6 +13,9 @@ return {
                 -- デフォルトの f (fuzzy_finder) を / に逃がし、<leader>f* を telescope 用に空ける
                 ["f"] = "none",
                 ["/"] = "fuzzy_finder",
+                -- <leader> がスペースなので neo-tree の toggle_node と競合する。
+                -- スペースを無効化し、ディレクトリ開閉は <CR>(Enter) で代用する
+                ["<space>"] = "none",
             },
         },
         filesystem = {
