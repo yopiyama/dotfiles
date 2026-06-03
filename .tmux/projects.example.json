@@ -1,0 +1,27 @@
+{
+  "//": "git 管理外の ~/.tmux/projects.json にコピーして使う。projects[].windows を省略すると defaults.windows が使われる。",
+  "defaults": {
+    "windows": [
+      { "name": "editor", "cmd": "nvim ." },
+      { "name": "server", "cmd": "" },
+      { "name": "git", "cmd": "lazygit" },
+      { "name": "shell", "cmd": "" },
+      { "name": "claude", "cmd": "claude" }
+    ]
+  },
+  "projects": [
+    {
+      "name": "dotfiles",
+      "path": "~/ghq/github.com/yopiyama/dotfiles"
+    },
+    {
+      "name": "example-with-custom-windows",
+      "path": "~/ghq/github.com/yopiyama/example",
+      "windows": [
+        { "name": "editor", "cmd": "nvim ." },
+        { "name": "test", "cmd": "" },
+        { "name": "claude", "cmd": "claude" }
+      ]
+    }
+  ]
+}
