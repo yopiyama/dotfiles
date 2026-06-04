@@ -1,27 +1,50 @@
 #!/usr/bin/env bash
 # fzf でプロジェクトを選び、定義済みウィンドウセットで tmux セッションを作成して attach する。
 # 設定ファイル: ~/.tmux/projects.json (TMUX_PROJECTS_JSON で上書き可)
-# 通常は tmux の `prefix + P` から display-popup 経由で呼ばれる。
+# 通常は tmux の `prefix + C-p` から display-popup 経由で呼ばれる。
+#
+# --startup <名前>: iTerm 起動時 (tmux 外・既存セッション無し) に zshrc から exec される用。
+#   一覧に "+ new" を加え、それを選択 or キャンセルした場合は素のセッション <名前> を作る
+#   (必ず tmux に入る従来挙動を維持)。
 set -euo pipefail
 
 CONFIG="${TMUX_PROJECTS_JSON:-$HOME/.tmux/projects.json}"
 
+STARTUP_SESSION=""
+[ "${1:-}" = "--startup" ] && STARTUP_SESSION="${2:-iTerm}"
+
 die() { tmux display-message "launch_project: $*" 2>/dev/null || echo "launch_project: $*" >&2; exit 1; }
 
-[ -f "$CONFIG" ] || die "$CONFIG が見つかりません (projects.example.json をコピーしてください)"
-command -v jq  >/dev/null || die "jq が必要です"
-command -v fzf >/dev/null || die "fzf が必要です"
+# 起動時モードのフォールバック: ピッカーを出せない/選ばなかったときは素のセッションへ
+startup_fallback() { exec tmux new-session -A -s "$STARTUP_SESSION"; }
 
-# name<TAB>path の一覧を fzf に渡し、name を取得
-selected="$(
-  jq -r '.projects[] | "\(.name)\t\(.path)"' "$CONFIG" \
-    | fzf --delimiter='\t' --with-nth=1,2 \
-          --prompt='project> ' \
-          --header='Enter: open / attach   Esc: cancel' \
-          --no-multi
-)" || exit 0  # Esc 等でキャンセルしたら何もしない
+if [ -n "$STARTUP_SESSION" ]; then
+  { [ -f "$CONFIG" ] && command -v jq >/dev/null && command -v fzf >/dev/null; } || startup_fallback
+else
+  [ -f "$CONFIG" ] || die "$CONFIG が見つかりません (projects.example.json をコピーしてください)"
+  command -v jq  >/dev/null || die "jq が必要です"
+  command -v fzf >/dev/null || die "fzf が必要です"
+fi
+
+# name<TAB>path の一覧。起動時モードでは先頭に "+ new" (素のセッション) を加える。
+list="$(jq -r '.projects[] | "\(.name)\t\(.path)"' "$CONFIG")"
+[ -n "$STARTUP_SESSION" ] && list="+ new"$'\t'"(素のセッション: $STARTUP_SESSION)
+$list"
+
+selected="$(printf '%s\n' "$list" \
+  | fzf --delimiter='\t' --with-nth=1,2 \
+        --prompt='project> ' \
+        --header='Enter: open / attach   Esc: cancel' \
+        --no-multi
+)" || selected=""
 
 name="${selected%%$'\t'*}"
+
+# 起動時モード: "+ new" 選択 or キャンセル(空) なら素のセッションへフォールバック
+if [ -n "$STARTUP_SESSION" ] && { [ -z "$name" ] || [ "$name" = "+ new" ]; }; then
+  startup_fallback
+fi
+
 [ -n "$name" ] || exit 0
 
 # 既に同名セッションがあればそのまま attach

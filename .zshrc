@@ -24,6 +24,11 @@ if [[ -z ${TMUX:-} ]] && [[ $- == *i* ]] && _is_iterm && ! _is_kiro && (( $+comm
   session_name="iTerm/$rel"
   sessions="$(tmux list-sessions -F '#S' 2>/dev/null)"
   if [[ -z "$sessions" ]]; then
+    # 既存セッションが無いときはプロジェクト別ウィンドウセットを選んで起動する
+    # (キャンセル時は launcher 側で素のセッション $session_name にフォールバック)
+    if [[ -x "$HOME/.tmux/launch_project.sh" ]]; then
+      exec "$HOME/.tmux/launch_project.sh" --startup "$session_name"
+    fi
     exec tmux new-session -s "$session_name"
   elif [[ $(print -r -- "$sessions" | wc -l) -eq 1 ]]; then
     exec tmux attach-session -t "$sessions"
