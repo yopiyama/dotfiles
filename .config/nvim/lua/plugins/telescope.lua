@@ -1,7 +1,7 @@
 return {
     {
         "nvim-telescope/telescope.nvim",
-        branch = "0.1.8",
+        tag = "0.1.8",
         dependencies = {
             "nvim-lua/plenary.nvim",
             { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
@@ -60,13 +60,13 @@ return {
                 if dir ~= "" then
                     builtin.find_files({ search_dirs = { dir } })
                 end
-            end, { desc = "Live files in dir" })
+            end, { desc = "Find files in dir" })
             vim.keymap.set("n", "<leader>fG", function()
                 local dir = vim.fn.input("Grep in: ", "", "dir")
                 if dir ~= "" then
-                    builtin.find_files({ search_dirs = { dir } })
+                    builtin.live_grep({ search_dirs = { dir } })
                 end
-            end, { desc = "Live grep in dir"})
+            end, { desc = "Live grep in dir" })
             vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Buffers" })
             vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Help tags" })
             vim.keymap.set("n", "<leader>fk", builtin.keymaps, { desc = "Keymaps" })
