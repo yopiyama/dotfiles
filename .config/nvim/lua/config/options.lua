@@ -39,6 +39,11 @@ local options = {
 	hlsearch = true,
 	ignorecase = true,
 	smartcase = true,
+    -- 折りたたみ (nvim-ufo)
+    foldcolumn = "1",
+    foldlevel = 99,
+    foldlevelstart = 99,
+    foldenable = true,
 	-- 操作系
 	timeoutlen = 300,
 	updatetime = 300,

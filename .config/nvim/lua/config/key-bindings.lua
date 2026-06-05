@@ -17,6 +17,12 @@ end, { desc = "Clear search + LSP highlights" })
 vim.keymap.set("n", "<leader>q", "<cmd>cclose<CR>", { desc = "Close quickfix" })
 vim.keymap.set("n", "<leader>l", "<cmd>lclose<CR>", { desc = "Close loclist" })
 
+-- Fold (nvim-ufo)
+vim.keymap.set("n", "zR", function() require("ufo").openAllFolds() end, { desc = "Fold: open all" })
+vim.keymap.set("n", "zM", function() require("ufo").closeAllFolds() end, { desc = "Fold: close all" })
+vim.keymap.set("n", "zK", function() require("ufo").peekFoldedLinesUnderCursor() end, { desc = "Fold: peek" })
+
+
 -- Buffer navigation (bufferline)
 vim.keymap.set("n", "<Tab>", "<cmd>BufferLineCycleNext<CR>", { desc = "Buffer: next" })
 vim.keymap.set("n", "<S-Tab>", "<cmd>BufferLineCyclePrev<CR>", { desc = "Buffer: previous" })
