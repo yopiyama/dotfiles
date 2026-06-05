@@ -76,7 +76,7 @@ return {
             -- LSP
             vim.keymap.set("n", "gr", builtin.lsp_references, { desc = "LSP references" })
             vim.keymap.set("n", "gd", builtin.lsp_definitions, { desc = "LSP definitions" })
-            vim.keymap.set("n", "gr", builtin.lsp_implementations, { desc = "LSP implementations" })
+            vim.keymap.set("n", "gi", builtin.lsp_implementations, { desc = "LSP implementations" })
             -- Git
             vim.keymap.set("n", "<leader>gl", builtin.git_commits, { desc = "Git commits" })
             vim.keymap.set("n", "<leader>gs", builtin.git_status, { desc = "Git status" })
