@@ -30,6 +30,7 @@ LINKS="$(cat <<'EOF'
 .config/nvim/init.lua|.config/nvim/init.lua
 .config/nvim/lua|.config/nvim/lua
 .config/git/ignore|.config/git/ignore
+lazygit/config.yml|Library/Application Support/lazygit/config.yml
 EOF
 )"
 
