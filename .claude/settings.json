@@ -1,6 +1,4 @@
 {
-  "enableAllProjectMcpServers": true,
-  "effortLevel": "high",
   "permissions": {
     "allow": [
       "Bash(awk:*)",
@@ -14,11 +12,13 @@
       "Bash(gh pr view:*)",
       "Bash(gh pr list:*)",
       "Bash(gh pr check:*)",
+      "Bash(gh pr diff:*)",
       "Bash(gh release view:*)",
       "Bash(gh repo view:*)",
       "Bash(gh run list:*)",
       "Bash(gh run view:*)",
       "Bash(gh workflow view:*)",
+      "Bash(gh workflow list:*)",
       "Bash(gh pr create:*)",
       "Bash(gh pr edit:*)",
       "Bash(gh pr comment:*)",
@@ -129,5 +129,8 @@
       "Write(.env*)"
     ]
   },
+  "model": "claude-opus-4-7",
+  "enableAllProjectMcpServers": true,
+  "effortLevel": "high",
   "showThinkingSummaries": true
 }
