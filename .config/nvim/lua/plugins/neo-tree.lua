@@ -29,9 +29,12 @@ return {
             hide_dotfiles = false,
             hide_gitignored = false,
             hide_by_name = {
-              ".git",
               ".terraform",
               ".DS_Store",
+            },
+            -- visible = true でも .git は常に非表示にする
+            never_show = {
+              ".git",
             },
           },
         },
