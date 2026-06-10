@@ -30,11 +30,11 @@ return {
             hide_gitignored = false,
             hide_by_name = {
               ".terraform",
-              ".DS_Store",
             },
             -- visible = true でも .git は常に非表示にする
             never_show = {
               ".git",
+              ".DS_Store",
             },
           },
         },
