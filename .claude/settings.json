@@ -127,10 +127,13 @@
       "Edit(**/*.env)",
       "Write(**/*.env)",
       "Write(.env*)"
-    ]
+    ],
+    "defaultMode": "default"
   },
   "model": "claude-opus-4-7",
   "enableAllProjectMcpServers": true,
   "effortLevel": "high",
-  "showThinkingSummaries": true
+  "showThinkingSummaries": true,
+  "editorMode": "vim",
+  "preferredNotifChannel": "iterm2"
 }
