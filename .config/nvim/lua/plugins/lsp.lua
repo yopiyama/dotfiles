@@ -30,6 +30,7 @@ return {
       -- nvim-lspconfig provides base server definitions on runtimepath.
       vim.lsp.config("lua_ls", {
         capabilities = capabilities,
+        root_markers = { ".luarc.json", ".luarc.jsonc", ".luacheckrc", ".stylua.toml", "stylua.toml" },
         settings = {
           Lua = {
             workspace = {

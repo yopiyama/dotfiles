@@ -19,6 +19,8 @@ return {
 
             telescope.setup({
                 defaults = {
+                    -- ファイルパスを幅に合わせて切り詰めて表示する
+                    path_display = { "truncate" },
                     -- 隠しファイルも対象にしつつ上記パターンを除外する
                     file_ignore_patterns = ignore_patterns,
                     -- live_grep / grep_string でも隠しファイルを検索対象にする
@@ -46,6 +48,16 @@ return {
                         -- 隠しファイル(ドットファイル)を表示する
                         hidden = true,
                     },
+                    -- ファイル名の表示幅を広げる （デフォルト 30）
+                    lsp_reference = {
+                        fname_width = 60
+                    },
+                    lsp_definitions = {
+                        fname_width = 60
+                    },
+                    lsp_implementations = {
+                        fname_width = 60
+                    }
                 },
             })
             pcall(telescope.load_extension, "fzf")
