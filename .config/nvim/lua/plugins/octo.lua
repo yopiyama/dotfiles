@@ -17,7 +17,7 @@ return {
         { "<leader>oI", "<cmd>Octo issue create<CR>", desc = "Octo: issue create" },
         { "<leader>or", "<cmd>Octo review start<CR>", desc = "Octo: review start" },
         { "<leader>os", "<cmd>Octo review submit<CR>", desc = "Octo: review submit" },
-        { "<leader>oo", "<cmd>Octo<CR>", desc = "Octo: command palette" },
+        { "<leader>oo", "<cmd>Octo actions<CR>", desc = "Octo: actions" },
     },
     config = function()
         vim.api.nvim_create_user_command("OctoPRCurrent", function()

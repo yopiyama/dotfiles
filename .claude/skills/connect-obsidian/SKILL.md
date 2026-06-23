@@ -20,6 +20,7 @@ Obsidian の操作を CLI (`obsidian` コマンド) を使って行う。Obsidia
 - 複数行コンテンツは `\n` を使う（例: `content="# Title\n\nBody text"`）
 - 出力をクリップボードにコピーするには `--copy` フラグを使う
 - **`obsidian help` / `obsidian --help`（サブコマンド無し）を `head` などで早期 close するパイプに繋ぐとハングする**（例: `obsidian help | head -5`）。仕様確認は `obsidian help <subcommand>` で具体名を指定するか、 `obsidian help | grep PATTERN` のように全出力を消費する形にする。他のサブコマンドは早期 close パイプでも問題無い。
+
 ---
 
 ## ファイル操作
@@ -99,6 +100,7 @@ obsidian delete file=<ファイル名> permanent
 CLI にはヘッディング・ブロックを直接ターゲットにした patch コマンドはない。操作の種類によって以下のアプローチを使う。
 
 **フロントマターのプロパティ編集:**
+
 ```bash
 # プロパティを設定
 obsidian property:set name=<プロパティ名> value=<値> file=<ファイル名>
@@ -114,6 +116,7 @@ obsidian property:read name=<プロパティ名> file=<ファイル名>
 ```
 
 **ヘッディング・ブロック以下への追記:**
+
 ```bash
 # ファイル末尾への追記で代替
 obsidian append file=<ファイル名> content=<内容>
@@ -123,6 +126,7 @@ obsidian prepend file=<ファイル名> content=<内容>
 ```
 
 **ヘッディング配下の特定セクションを置換する場合:**
+
 ```bash
 # 1. ファイルの内容を読み取り
 content=$(obsidian read file=<ファイル名>)
