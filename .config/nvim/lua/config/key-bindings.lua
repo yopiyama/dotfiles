@@ -17,6 +17,22 @@ end, { desc = "Clear search + LSP highlights" })
 vim.keymap.set("n", "<leader>q", "<cmd>cclose<CR>", { desc = "Close quickfix" })
 vim.keymap.set("n", "<leader>l", "<cmd>lclose<CR>", { desc = "Close loclist" })
 
+-- Copy current file's repo-relative path to clipboard
+vim.keymap.set("n", "<leader><C-l>", function()
+    local file = vim.fn.expand("%:p")
+    if file == "" then
+        vim.notify("No file in buffer", vim.log.levels.WARN)
+        return
+    end
+    local result = vim.fn.systemlist({ "git", "-C", vim.fn.fnamemodify(file, ":h"), "ls-files", "--full-name", "--", file })
+    local path = result[1]
+    if vim.v.shell_error ~= 0 or not path or paht == "" then
+        path = vim.fn.fnamemodify(file, ":.")
+    end
+    vim.fn.setreg("+", path)
+    vim.notify("Copied: ", .. path)
+end, { desc = "Cppy repo-relative file path" })
+
 -- Fold (nvim-ufo)
 vim.keymap.set("n", "zR", function() require("ufo").openAllFolds() end, { desc = "Fold: open all" })
 vim.keymap.set("n", "zM", function() require("ufo").closeAllFolds() end, { desc = "Fold: close all" })
