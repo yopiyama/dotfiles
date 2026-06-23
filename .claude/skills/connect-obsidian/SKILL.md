@@ -1,6 +1,6 @@
 ---
 name: connect-obsidian
-description: Interact with Obsidian vault using the Obsidian CLI via Bash. Use when the user wants to read, write, search, manage, or open files in their Obsidian vault, or execute templates. Obsidian app must be running. Requires obsidian command available in PATH.
+description: Read, write, search, manage, or open files in the user's Obsidian vault via the Obsidian CLI (obsidian command). Use this - instead of plain Read/Grep - whenever the user mentions Obsidian, their vault, notes, or daily notes, e.g. 「Obsidian のファイルを読んで」「vault を検索して」「デイリーノートに追記して」「ノートを開いて」. Also covers executing templates and opening notes in the app. Requires the Obsidian app runnning and obsidian in PATH.
 tools: Bash
 ---
 
@@ -19,7 +19,7 @@ Obsidian の操作を CLI (`obsidian` コマンド) を使って行う。Obsidia
 - ファイル指定なしの場合はアクティブファイルが対象になる
 - 複数行コンテンツは `\n` を使う（例: `content="# Title\n\nBody text"`）
 - 出力をクリップボードにコピーするには `--copy` フラグを使う
-
+- **`obsidian help` / `obsidian --help`（サブコマンド無し）を `head` などで早期 close するパイプに繋ぐとハングする**（例: `obsidian help | head -5`）。仕様確認は `obsidian help <subcommand>` で具体名を指定するか、 `obsidian help | grep PATTERN` のように全出力を消費する形にする。他のサブコマンドは早期 close パイプでも問題無い。
 ---
 
 ## ファイル操作
