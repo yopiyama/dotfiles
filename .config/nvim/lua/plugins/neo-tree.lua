@@ -5,6 +5,7 @@ return {
       "nvim-lua/plenary.nvim",
       "MunifTanjim/nui.nvim",
       "nvim-tree/nvim-web-devicons",
+      "s1n7ax/nvim-window-picker",
     },
     config = function()
       require("neo-tree").setup({

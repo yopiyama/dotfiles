@@ -38,6 +38,31 @@ vim.keymap.set("n", "zR", function() require("ufo").openAllFolds() end, { desc =
 vim.keymap.set("n", "zM", function() require("ufo").closeAllFolds() end, { desc = "Fold: close all" })
 vim.keymap.set("n", "zK", function() require("ufo").peekFoldedLinesUnderCursor() end, { desc = "Fold: peek" })
 
+-- Window split aliases
+vim.keymap.set("n", "<C-w>-", "<C-w>s", { desc = "Window: horizontal split" })
+vim.keymap.set("n", "<C-w>\\", "<C-w>v", { desc = "Window: vertical split" })
+
+-- Window picker
+vim.keymap.set("n", "<leader>wl", function()
+  local win = require("window-picker").pick_window()
+  if win then
+    vim.api.nvim_set_current_win(win)
+  end
+end, { desc = "Window: pick and jump" })
+vim.keymap.set("n", "<leader>ws", function()
+  local win = require("window-picker").pick_window()
+  if win then
+    local cur = vim.api.nvim_get_current_win()
+    local cur_buf = vim.api.nvim_win_get_buf(cur)
+    local target_buf = vim.api.nvim_win_get_buf(win)
+    vim.api.nvim_win_set_buf(cur, target_buf)
+    vim.api.nvim_win_set_buf(win, cur_buf)
+  end
+end, { desc = "Window: pick and swap" })
+vim.keymap.set("n", "<leader>wt", "<cmd>Neotree toggle<CR>", { desc = "Window: toggle neo-tree" })
+vim.keymap.set("n", "<leader>wo", "<cmd>only<CR>", { desc = "Window: close others" })
+vim.keymap.set("n", "<leader>w=", "<C-w>=", { desc = "Window: equalize size" })
+
 -- Buffer navigation (bufferline)
 vim.keymap.set("n", "<Tab>", "<cmd>BufferLineCycleNext<CR>", { desc = "Buffer: next" })
 vim.keymap.set("n", "<S-Tab>", "<cmd>BufferLineCyclePrev<CR>", { desc = "Buffer: previous" })
