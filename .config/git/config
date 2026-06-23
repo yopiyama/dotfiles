@@ -1,5 +1,8 @@
 [include]
-    path = ~/.gitconfig.local
+    path = ~/.config/git/config.local
+
+[init]
+    defaultBranch = main
 
 # github.com/dandavison/delta
 [core]
@@ -19,4 +22,9 @@
 
 [delta "decorations"]
     commit-decoration-style =  box ul
+
+# https://mergiraf.org/usage.html#registration-as-a-git-merge-driver
+[merge "mergiraf"]
+    name = mergiraf
+    driver = mergiraf merge --git %0 %A %B -s %S -x %X -y %Y -p %P -l %L
 
