@@ -20,6 +20,7 @@ DRY_RUN=0
 LINKS="$(cat <<'EOF'
 .zshrc|.zshrc
 .p10k.zsh|.p10k.zsh
+.config/git/config|.config/git/config
 .gitconfig|.gitconfig
 .tmux.conf|.tmux.conf
 .tmux/ip_addr.sh|.tmux/ip_addr.sh
@@ -27,9 +28,11 @@ LINKS="$(cat <<'EOF'
 .claude/keybindings.json|.claude/keybindings.json
 .claude/.mcp.json|.claude/.mcp.json
 .claude/skills|.claude/skills
+.claude/hooks|.claude/hooks
 .config/nvim/init.lua|.config/nvim/init.lua
 .config/nvim/lua|.config/nvim/lua
 .config/git/ignore|.config/git/ignore
+.config/git/attributes|.config/git/attributes
 lazygit/config.yml|Library/Application Support/lazygit/config.yml
 EOF
 )"
@@ -102,4 +105,6 @@ fi
 
 echo "--- done ---"
 echo "linked: $n_linked / skipped: $n_skipped / backed-up: $n_backed"
-[ "$DRY_RUN" -eq 1 ] && echo "(dry-run でした。実行するには --dry-run を外してください)"
+if [ "$DRY_RUN" -eq 1 ]; then
+    echo "(dry-run でした。実行するには --dry-run を外してください)"
+fi
