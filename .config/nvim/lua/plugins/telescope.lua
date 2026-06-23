@@ -1,13 +1,25 @@
 return {
     {
         "nvim-telescope/telescope.nvim",
-        tag = "0.1.8",
+        tag = "v0.2.2",
         dependencies = {
             "nvim-lua/plenary.nvim",
             { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
         },
         config = function()
             local telescope = require("telescope")
+
+            -- プロンプト内でカーソル移動するための readline 風キー
+            -- （Telescope のプロンプトは挿入モードなので、特殊キーを feedkeys で送る）
+            local function feed(keys)
+                return function()
+                    vim.api.nvim_feedkeys(
+                        vim.api.nvim_replace_termcodes(keys, true, false, true),
+                        "n",
+                        false
+                    )
+                end
+            end
 
             -- ここに追記したパターンに一致するファイル/ディレクトリは検索結果から除外される
             -- (Lua パターンで file_ignore_patterns に渡される。柔軟に増やせる)
@@ -40,6 +52,13 @@ return {
                         i = {
                             ["<C-j>"] = "move_selection_next",
                             ["<C-k>"] = "move_selection_previous",
+                            -- readline 風のカーソル移動 / 削除
+                            ["<C-a>"] = feed("<Home>"),  -- 行頭へ
+                            ["<C-e>"] = feed("<End>"),   -- 行末へ
+                            ["<C-b>"] = feed("<Left>"),  -- 1 文字戻る
+                            ["<C-f>"] = feed("<Right>"), -- 1 文字進む
+                            ["<C-d>"] = feed("<Del>"),   -- カーソル位置を削除
+
                         },
                     },
                 },
@@ -80,12 +99,21 @@ return {
                 end
             end, { desc = "Live grep in dir" })
             vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Buffers" })
-            vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Help tags" })
+            vim.keymap.set("n", "<leader>fh", function()
+                builtin.oldfiles({ cwd_only = true })
+            end, { desc = "File history (oldfiles, cwd only)" })
+            vim.keymap.set("n", "<leader>f?", builtin.help_tags, { desc = "Help tags" })
             vim.keymap.set("n", "<leader>fk", builtin.keymaps, { desc = "Keymaps" })
             vim.keymap.set("n", "<leader>fd", builtin.diagnostics, { desc = "Diagnostics" })
             vim.keymap.set("n", "<leader>fs", builtin.lsp_document_symbols, { desc = "Document symbols" })
             vim.keymap.set("n", "<leader>fr", builtin.resume, { desc = "Resume last picker" })
             -- LSP
+            -- Neovim 0.11 標準の gr* マッピング (grr/gra/grn/gri/grt) を削除。
+            -- これらが残っていると "gr" が prefix 扱いになり、timeoutlen 待ちや
+            -- 素早い "grr" で標準動作 (quickfix) が暴発する。
+            for _, lhs in ipairs({ "grr", "gra", "grn", "gri", "grt" }) do
+                pcall(vim.keymap.del, "n", lhs)
+            end
             vim.keymap.set("n", "gr", builtin.lsp_references, { desc = "LSP references" })
             vim.keymap.set("n", "gd", builtin.lsp_definitions, { desc = "LSP definitions" })
             vim.keymap.set("n", "gi", builtin.lsp_implementations, { desc = "LSP implementations" })

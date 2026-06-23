@@ -30,7 +30,7 @@ vim.keymap.set("n", "<leader><C-l>", function()
         path = vim.fn.fnamemodify(file, ":.")
     end
     vim.fn.setreg("+", path)
-    vim.notify("Copied: ", .. path)
+    vim.notify("Copied: " .. path)
 end, { desc = "Cppy repo-relative file path" })
 
 -- Fold (nvim-ufo)

@@ -50,6 +50,21 @@ return {
         capabilities = capabilities,
       })
 
+      -- diffview:// など file:// 以外のスキームのバッファでは LSP を起動させない
+      -- （gopls 等が "DocumentURI scheme is not 'file'" エラーを返すのを防ぐ）
+      -- LspAttach で detach すると didOpen 送信後になり手遅れなので、
+      -- vim.lsp.start 自体をラップしてブロックする。
+      local orig_lsp_start = vim.lsp.start
+      vim.lsp.start = function(config, opts)
+          opts = opts or {}
+          local bufnr = opts.bufnr or vim.api.nvim_get_current_buf()
+          local bufname = vim.api.nvim_buf_get_name(bufnr)
+          if bufname:match("^%w+://") and not bufname:match("^file://") then
+            return nil
+          end
+          return orig_lsp_start(config, opts)
+      end
+
       -- Enable servers
       vim.lsp.enable({ "lua_ls", "gopls", "pyright" })
     end,
