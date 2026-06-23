@@ -21,7 +21,6 @@ LINKS="$(cat <<'EOF'
 .zshrc|.zshrc
 .p10k.zsh|.p10k.zsh
 .config/git/config|.config/git/config
-.gitconfig|.gitconfig
 .tmux.conf|.tmux.conf
 .tmux/ip_addr.sh|.tmux/ip_addr.sh
 .tmux/launch_project.sh|.tmux/launch_project.sh
