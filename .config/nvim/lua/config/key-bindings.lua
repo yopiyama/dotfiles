@@ -26,12 +26,12 @@ vim.keymap.set("n", "<leader><C-l>", function()
     end
     local result = vim.fn.systemlist({ "git", "-C", vim.fn.fnamemodify(file, ":h"), "ls-files", "--full-name", "--", file })
     local path = result[1]
-    if vim.v.shell_error ~= 0 or not path or paht == "" then
+    if vim.v.shell_error ~= 0 or not path or path == "" then
         path = vim.fn.fnamemodify(file, ":.")
     end
     vim.fn.setreg("+", path)
     vim.notify("Copied: " .. path)
-end, { desc = "Cppy repo-relative file path" })
+end, { desc = "Copy repo-relative file path" })
 
 -- Fold (nvim-ufo)
 vim.keymap.set("n", "zR", function() require("ufo").openAllFolds() end, { desc = "Fold: open all" })

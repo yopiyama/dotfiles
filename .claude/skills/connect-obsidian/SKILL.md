@@ -1,6 +1,6 @@
 ---
 name: connect-obsidian
-description: Read, write, search, manage, or open files in the user's Obsidian vault via the Obsidian CLI (obsidian command). Use this - instead of plain Read/Grep - whenever the user mentions Obsidian, their vault, notes, or daily notes, e.g. 「Obsidian のファイルを読んで」「vault を検索して」「デイリーノートに追記して」「ノートを開いて」. Also covers executing templates and opening notes in the app. Requires the Obsidian app runnning and obsidian in PATH.
+description: Read, write, search, manage, or open files in the user's Obsidian vault via the Obsidian CLI (obsidian command). Use this - instead of plain Read/Grep - whenever the user mentions Obsidian, their vault, notes, or daily notes, e.g. 「Obsidian のファイルを読んで」「vault を検索して」「デイリーノートに追記して」「ノートを開いて」. Also covers executing templates and opening notes in the app. Requires the Obsidian app running and obsidian in PATH.
 tools: Bash
 ---
 

@@ -10,7 +10,7 @@ return {
     -- `gh` CLI が認証済みであることが前提 (gh auth login)
     cmd = { "Octo", "OctoPRCurrent" },
     keys = {
-        { "<leader>oc", "<cmd>OctoPRCurrent<CR>", desc = "Octo: current branch PR" }
+        { "<leader>oc", "<cmd>OctoPRCurrent<CR>", desc = "Octo: current branch PR" },
         { "<leader>op", "<cmd>Octo pr list<CR>", desc = "Octo: PR list" },
         { "<leader>oP", "<cmd>Octo pr create<CR>", desc = "Octo: PR create" },
         { "<leader>oi", "<cmd>Octo issue list<CR>", desc = "Octo: issue list" },

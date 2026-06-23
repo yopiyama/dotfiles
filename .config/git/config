@@ -26,5 +26,5 @@
 # https://mergiraf.org/usage.html#registration-as-a-git-merge-driver
 [merge "mergiraf"]
     name = mergiraf
-    driver = mergiraf merge --git %0 %A %B -s %S -x %X -y %Y -p %P -l %L
+    driver = mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L
 
