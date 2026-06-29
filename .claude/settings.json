@@ -138,6 +138,16 @@
   "editorMode": "vim",
   "preferredNotifChannel": "iterm2",
   "hooks": {
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/allow-safe-pipes.sh"
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "hooks": [
