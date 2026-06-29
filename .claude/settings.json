@@ -78,6 +78,7 @@
       "Bash(uniq:*)",
       "Bash(wc:*)",
       "Bash(which:*)",
+      "Bash(~/.claude/skills/code-review/scripts/codex-review.sh:*)",
       "Bash(codex:*)",
       "Bash(whoami:*)",
       "mcp__context7__get-library-docs",
