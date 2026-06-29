@@ -50,7 +50,14 @@ local options = {
 	mouse = "",
 	-- Window 系
 	splitright = true,
-	splitbelow = true
+	splitbelow = true,
+	whichwrap = "b,s,h,l,<,>,[,]",
+	scrolloff = 8,
+	sidescrolloff = 8,
+	undofile = true,
+	swapfile = false,
+	breakindent = true,
+	inccommand = "split",
 	}
 
 for k, v in pairs(options) do
