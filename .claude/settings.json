@@ -138,16 +138,16 @@
   "editorMode": "vim",
   "preferredNotifChannel": "iterm2",
   "hooks": {
-      "UserPromptSubmit": [
+    "UserPromptSubmit": [
+      {
+        "hooks": [
           {
-              "hooks": [
-                  {
-                      "type": "command",
-                      "command": "~/.claude/hooks/obsidian-skill-reminder.sh"
-                  }
-              ]
+            "type": "command",
+            "command": "~/.claude/hooks/obsidian-skill-reminder.sh"
           }
-      ]
+        ]
+      }
+    ]
   },
   "tui": "fullscreen"
 }
