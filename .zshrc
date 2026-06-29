@@ -256,6 +256,10 @@ bindkey '^R' fzf-history
 bindkey '^F' fzf-file-list
 # C-l 時の挙動
 bindkey '^L' myclear
+# vi mode の Insert モードで起点より前の文字も Backspace で消せるようにする
+bindkey -v '^?' backward-delete-char
+# fn+Delete で forward delete
+bindkey '^[[3~' delete-char
 # Tab は cd のときだけ fzf、通常は補完
 bindkey -M viins '^I' smart-cd-tab
 bindkey -M emacs '^I' smart-cd-tab
