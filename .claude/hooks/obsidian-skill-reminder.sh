@@ -12,3 +12,4 @@ if printf '%s' "$prompt" | grep -qiE 'obsidian|vault|デイリーノート|daily
             additionalContext: "ユーザー発話に Obsidian 関連の語が含まれています。Obsidian vault の読み書き・検索・open・テンプレート実行は、素の Read/Grep ではなく connect-obsidian スキル（obsidian CLI）を使って行ってください。"
         }
     }'
+fi
