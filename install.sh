@@ -82,6 +82,27 @@ link_one() {
 
 echo "dotfiles repo: $REPO"
 [ "$DRY_RUN" -eq 1 ] && echo "(dry-run: 実際には変更しません)"
+
+# --- Homebrew & Brewfile ---
+echo "--- brew ---"
+if ! command -v brew >/dev/null 2>&1; then
+  echo "  Homebrew が見つかりません。インストールします..."
+  if [ "$DRY_RUN" -eq 1 ]; then
+    echo "  DRY: /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+  else
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    # Apple Silicon の場合 PATH を通す
+    if [ -x /opt/homebrew/bin/brew ]; then
+      eval "$(/opt/homebrew/bin/brew shellenv)"
+    fi
+  fi
+else
+  echo "  [OK]   Homebrew ($(brew --version | head -1))"
+fi
+
+echo "  brew bundle --file=$REPO/Brewfile"
+run brew bundle --file="$REPO/Brewfile"
+
 echo "--- symlinks ---"
 
 while IFS='|' read -r src dest; do
