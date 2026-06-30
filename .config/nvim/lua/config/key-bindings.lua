@@ -41,6 +41,8 @@ vim.keymap.set("n", "zK", function() require("ufo").peekFoldedLinesUnderCursor()
 -- Window split aliases
 vim.keymap.set("n", "<C-w>-", "<C-w>s", { desc = "Window: horizontal split" })
 vim.keymap.set("n", "<C-w>\\", "<C-w>v", { desc = "Window: vertical split" })
+vim.keymap.set("n", "<C-w>x", "<C-w>c", { desc = "Window: close" })
+vim.keymap.set("n", "<C-w><C-o>", "<C-w>x", { desc = "Window: exchange" })
 
 -- Window picker
 vim.keymap.set("n", "<leader>wl", function()

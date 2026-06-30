@@ -5,8 +5,7 @@ return {
     -- snacks.nvim はターミナル統合用 (README 推奨)
     dependencies = { "folke/snacks.nvim" },
     config = true,
-    -- cmd を列挙しておくと lazy.nvim がコマンドスタブを作るので、
-    -- キーマップを押す前でも `:ClaudeCode` 等が解決できる。
+    event = "VeryLazy",
     cmd = {
         "ClaudeCode",
         "ClaudeCodeFocus",
