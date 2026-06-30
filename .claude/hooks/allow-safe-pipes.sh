@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# PreToolUse hook: パイプ (|) を含む Bash コマンドを自動許可する。
-# settings.json の allow パターンはパイプ付きコマンドにマッチしにくいため、
+# PreToolUse hook: パイプ・リダイレクト・複合コマンド (&&, ||, ;) を含む
+# Bash コマンドを自動許可する。settings.json の allow パターンは
+# これらのシェル構文を含むコマンドにマッチしにくいため、
 # command-policy.conf のプレフィックスリストで全コマンドを検証し、
 # 安全なら permissionDecision: allow を返してパーミッション確認をスキップする。
 
@@ -17,13 +18,22 @@ tool_name="$(printf '%s' "$input" | jq -r '.tool_name // ""')"
 command="$(printf '%s' "$input" | jq -r '.tool_input.command // ""')"
 [[ -z "$command" ]] && exit 0
 
-# --- パイプ検出（クォート内・|| を除外） ---
+# --- クォート除去・正規化 ---
 oneline="$(printf '%s' "$command" | tr '\n' ' ')"
 cleaned="$(printf '%s' "$oneline" | sed -E 's/"[^"]*"//g')"
 cleaned="$(printf '%s' "$cleaned" | sed -E "s/'[^']*'//g")"
-cleaned="$(printf '%s' "$cleaned" | sed 's/||//g')"
+has_compound=false
+printf '%s' "$cleaned" | grep -qF '||' && has_compound=true
+printf '%s' "$cleaned" | grep -qF '&&' && has_compound=true
+printf '%s' "$cleaned" | grep -qF ';' && has_compound=true
+cleaned="$(printf '%s' "$cleaned" | sed 's/||/\&\&/g')"
 
-printf '%s' "$cleaned" | grep -qF '|' || exit 0
+has_pipe=false
+has_redirect=false
+printf '%s' "$cleaned" | grep -qF '|' && has_pipe=true
+printf '%s' "$cleaned" | grep -qE '(^|[[:space:]])[0-9]*>' && has_redirect=true
+
+[[ "$has_pipe" == "false" && "$has_redirect" == "false" && "$has_compound" == "false" ]] && exit 0
 
 # --- ポリシーファイル読み込み ---
 [[ -f "$POLICY_FILE" ]] || exit 0
@@ -53,6 +63,16 @@ matches_deny_pattern() {
   return 1
 }
 
+# --- リダイレクトを除去するヘルパー ---
+strip_redirects() {
+  printf '%s' "$1" | sed -E \
+    -e 's/[0-9]*>&[0-9]+ *//g' \
+    -e 's/[0-9]*>> *[^ ]* *//g' \
+    -e 's/[0-9]*> *[^ ]* *//g' \
+    -e 's/[0-9]*< *[^ ]* *//g' \
+    -e 's/[[:space:]]*$//'
+}
+
 # --- パイプチェーン内の全コマンドを検証 ---
 # &&, ; も | に統一してから IFS split（macOS sed の \n 非互換を回避）
 normalized="${cleaned//&&/|}"
@@ -61,7 +81,7 @@ IFS='|' read -ra segments <<< "$normalized"
 
 all_safe=true
 for segment in "${segments[@]}"; do
-  trimmed="$(printf '%s' "$segment" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+  trimmed="$(strip_redirects "$segment" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
   [[ -z "$trimmed" ]] && continue
 
   if matches_section "$trimmed" deny; then
