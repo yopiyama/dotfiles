@@ -8,9 +8,9 @@ return {
         },
         config = function()
             local telescope = require("telescope")
+            local actions = require("telescope.actions")
+            local action_state = require("telescope.actions.state")
 
-            -- プロンプト内でカーソル移動するための readline 風キー
-            -- （Telescope のプロンプトは挿入モードなので、特殊キーを feedkeys で送る）
             local function feed(keys)
                 return function()
                     vim.api.nvim_feedkeys(
@@ -21,8 +21,6 @@ return {
                 end
             end
 
-            -- ここに追記したパターンに一致するファイル/ディレクトリは検索結果から除外される
-            -- (Lua パターンで file_ignore_patterns に渡される。柔軟に増やせる)
             local ignore_patterns = {
                 "%.git/",
                 "node_modules/",
@@ -31,12 +29,8 @@ return {
 
             telescope.setup({
                 defaults = {
-                    -- ファイルパスを幅に合わせて切り詰めて表示する
                     path_display = { "truncate" },
-                    -- 隠しファイルも対象にしつつ上記パターンを除外する
                     file_ignore_patterns = ignore_patterns,
-                    -- live_grep / grep_string でも隠しファイルを検索対象にする
-                    -- (.git ディレクトリは rg 側でも除外して高速化)
                     vimgrep_arguments = {
                         "rg",
                         "--color=never",
@@ -52,21 +46,18 @@ return {
                         i = {
                             ["<C-j>"] = "move_selection_next",
                             ["<C-k>"] = "move_selection_previous",
-                            -- readline 風のカーソル移動 / 削除
-                            ["<C-a>"] = feed("<Home>"),  -- 行頭へ
-                            ["<C-e>"] = feed("<End>"),   -- 行末へ
-                            ["<C-b>"] = feed("<Left>"),  -- 1 文字戻る
-                            ["<C-f>"] = feed("<Right>"), -- 1 文字進む
-                            ["<C-d>"] = feed("<Del>"),   -- カーソル位置を削除
+                            ["<C-a>"] = feed("<Home>"),
+                            ["<C-e>"] = feed("<End>"),
+                            ["<C-b>"] = feed("<Left>"),
+                            ["<C-f>"] = feed("<Right>"),
+                            ["<C-d>"] = feed("<Del>"),
                         },
                     },
                 },
                 pickers = {
                     find_files = {
-                        -- 隠しファイル(ドットファイル)を表示する
                         hidden = true,
                     },
-                    -- ファイル名の表示幅を広げる （デフォルト 30）
                     lsp_reference = {
                         fname_width = 60
                     },
@@ -81,20 +72,179 @@ return {
             pcall(telescope.load_extension, "fzf")
 
             local builtin = require("telescope.builtin")
+            local sorters = require("telescope.sorters")
+
+            -- find_files 用: 単語境界で一致するソーター
+            local function get_word_sorter()
+                return sorters.Sorter:new({
+                    scoring_function = function(_, prompt, line)
+                        if prompt == "" then return 1 end
+                        local escaped = vim.pesc(prompt:lower())
+                        if line:lower():find("%f[%w]" .. escaped .. "%f[%W]") then
+                            return 0
+                        end
+                        return -1
+                    end,
+                    highlighter = function(_, prompt, display)
+                        if prompt == "" then return {} end
+                        local escaped = vim.pesc(prompt:lower())
+                        local start = display:lower():find("%f[%w]" .. escaped .. "%f[%W]")
+                        if not start then return {} end
+                        local hl = {}
+                        for i = start, start + #prompt - 1 do
+                            table.insert(hl, i)
+                        end
+                        return hl
+                    end,
+                })
+            end
+
+            -- Picker wrapper:
+            --   <C-s>  検索ディレクトリ変更
+            --   <C-g>  除外パターン追加
+            --   <C-w>  単語一致トグル
+            --   <C-l>  固定文字列トグル
+            local function open_with_scope(picker_fn, defaults, state)
+                state = state or {}
+                local search_dirs = state.search_dirs
+                local excludes = state.excludes or {}
+                local word_match = state.word_match or false
+                local fixed_strings = state.fixed_strings or false
+                local is_grep = (picker_fn == builtin.live_grep)
+
+                local opts = vim.tbl_deep_extend("force", defaults or {}, {})
+                if state.default_text then
+                    opts.default_text = state.default_text
+                end
+                if search_dirs then
+                    opts.search_dirs = search_dirs
+                end
+
+                if is_grep then
+                    if word_match then
+                        opts.word_match = "-w"
+                    end
+                    if fixed_strings then
+                        opts.additional_args = function()
+                            return { "--fixed-strings" }
+                        end
+                    end
+                else
+                    if word_match then
+                        opts.sorter = get_word_sorter()
+                    elseif fixed_strings then
+                        opts.sorter = sorters.get_substr_matcher()
+                    end
+                end
+
+                local info = {}
+                if search_dirs then
+                    for _, d in ipairs(search_dirs) do
+                        table.insert(info, "in:" .. vim.fn.fnamemodify(d, ":~:."))
+                    end
+                end
+                for _, ex in ipairs(excludes) do
+                    table.insert(info, "-" .. ex)
+                end
+                if word_match then
+                    table.insert(info, "[W]ord")
+                end
+                if fixed_strings then
+                    table.insert(info, "[F]ixed")
+                end
+                if #info > 0 then
+                    opts.prompt_title = table.concat(info, "  ")
+                end
+
+                if #excludes > 0 then
+                    local patterns = vim.deepcopy(ignore_patterns)
+                    vim.list_extend(patterns, excludes)
+                    opts.file_ignore_patterns = patterns
+                end
+
+                local function reopen(pb, new_state)
+                    local q = action_state.get_current_line()
+                    actions.close(pb)
+                    new_state.default_text = q
+                    vim.schedule(function()
+                        open_with_scope(picker_fn, defaults, new_state)
+                    end)
+                end
+
+                opts.attach_mappings = function(_, map)
+                    map("i", "<C-s>", function(pb)
+                        local q = action_state.get_current_line()
+                        actions.close(pb)
+                        vim.schedule(function()
+                            local dir = vim.fn.input("Search in: ", "", "dir")
+                            if dir ~= "" then
+                                open_with_scope(picker_fn, defaults, {
+                                    search_dirs = { dir },
+                                    excludes = excludes,
+                                    default_text = q,
+                                    word_match = word_match,
+                                    fixed_strings = fixed_strings,
+                                })
+                            end
+                        end)
+                    end)
+                    map("i", "<C-g>", function(pb)
+                        local q = action_state.get_current_line()
+                        actions.close(pb)
+                        vim.schedule(function()
+                            local pat = vim.fn.input("Exclude: ")
+                            if pat ~= "" then
+                                local new_ex = vim.deepcopy(excludes)
+                                table.insert(new_ex, pat)
+                                open_with_scope(picker_fn, defaults, {
+                                    search_dirs = search_dirs,
+                                    excludes = new_ex,
+                                    default_text = q,
+                                    word_match = word_match,
+                                    fixed_strings = fixed_strings,
+                                })
+                            end
+                        end)
+                    end)
+                    map("i", "<C-w>", function(pb)
+                        reopen(pb, {
+                            search_dirs = search_dirs,
+                            excludes = excludes,
+                            word_match = not word_match,
+                            fixed_strings = fixed_strings,
+                        })
+                    end)
+                    map("i", "<C-l>", function(pb)
+                        reopen(pb, {
+                            search_dirs = search_dirs,
+                            excludes = excludes,
+                            word_match = word_match,
+                            fixed_strings = not fixed_strings,
+                        })
+                    end)
+                    return true
+                end
+
+                picker_fn(opts)
+            end
+
             -- Find
-            vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "Find files" })
-            vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Live grep" })
-            -- Scoped search: ディレクトリを都度指定して検索
+            vim.keymap.set("n", "<leader>ff", function()
+                open_with_scope(builtin.find_files, {})
+            end, { desc = "Find files" })
+            vim.keymap.set("n", "<leader>fg", function()
+                open_with_scope(builtin.live_grep, {})
+            end, { desc = "Live grep" })
             vim.keymap.set("n", "<leader>fF", function()
                 local dir = vim.fn.input("Find files in: ", "", "dir")
                 if dir ~= "" then
-                    builtin.find_files({ search_dirs = { dir } })
+                    open_with_scope(builtin.find_files, {}, { search_dirs = { dir } })
                 end
             end, { desc = "Find files in dir" })
             vim.keymap.set("n", "<leader>fG", function()
                 local dir = vim.fn.input("Grep in: ", "", "dir")
                 if dir ~= "" then
-                    builtin.live_grep({ search_dirs = { dir } })
+                    open_with_scope(builtin.live_grep, {}, { search_dirs = { dir } })
                 end
             end, { desc = "Live grep in dir" })
             vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Buffers" })
