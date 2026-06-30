@@ -5,11 +5,14 @@ fi
 
 export TMUX_TMPDIR=$HOME/.tmux/tmp
 
-# iTerm で起動したときだけ tmux を自動起動する（VSCode/Kiro 等の統合ターミナルでは起動しない）
+# iTerm/Alacritty で起動したときだけ tmux を自動起動する（VSCode/Kiro 等の統合ターミナルでは起動しない）
 # NOTE: p10k instant prompt より前に置くこと。後に置くと stdio がパイプに差し替わり
 #       tmux が TTY を掴めず "open terminal failed: not a terminal" で落ちる。
 _is_iterm() {
   [[ -n "${ITERM_SESSION_ID:-}" || "${TERM_PROGRAM:-}" == "iTerm.app" ]]
+}
+_is_alacritty() {
+  [[ "${TERM_PROGRAM:-}" == "alacritty" || -n "${ALACRITTY_LOG:-}" ]]
 }
 _is_vscode() {
   [[ "${TERM_PROGRAM:-}" == "vscode" || -n "${VSCODE_IPC_HOOK_CLI:-}" ]]
@@ -18,24 +21,22 @@ _is_kiro() {
   [[ "${TERM_PROGRAM:-}" == "kiro" ]]
 }
 
-if [[ -z ${TMUX:-} ]] && [[ $- == *i* ]] && _is_iterm && ! _is_kiro && (( $+commands[tmux] )); then
-  rel="${PWD#$HOME}"
-  [[ -z "$rel" ]] && rel="/"
-  session_name="iTerm/$rel"
+if [[ -z ${TMUX:-} ]] && [[ $- == *i* ]] && (_is_iterm || _is_alacritty) && ! _is_kiro && (( $+commands[tmux] )); then
   sessions="$(tmux list-sessions -F '#S' 2>/dev/null)"
   if [[ -z "$sessions" ]]; then
-    # 既存セッションが無いときはプロジェクト別ウィンドウセットを選んで起動する
-    # (キャンセル時は launcher 側で素のセッション $session_name にフォールバック)
     if [[ -x "$HOME/.tmux/launch_project.sh" ]]; then
-      exec "$HOME/.tmux/launch_project.sh" --startup "$session_name"
+      exec "$HOME/.tmux/launch_project.sh" --startup "$(date +'%Y-%m-%d %H:%M:%S')"
     fi
-    exec tmux new-session -s "$session_name"
+    exec tmux new-session -s "$(date +'%Y-%m-%d %H:%M:%S')"
   elif [[ $(print -r -- "$sessions" | wc -l) -eq 1 ]]; then
     exec tmux attach-session -t "$sessions"
   else
-    ID="$(printf '+ new (%s)\n%s\n' "$session_name" "$sessions" | fzf --prompt='tmux> ' --height=40% --reverse --no-sort)"
-    if [[ "$ID" == "+ new "* ]]; then
-      exec tmux new-session -A -s "$session_name"
+    ID="$(printf '+ new session\n%s\n' "$sessions" | fzf --prompt='tmux> ' --height=40% --reverse --no-sort)"
+    if [[ "$ID" == "+ new session" ]]; then
+      printf 'session name: '
+      read -r new_name
+      [[ -z "$new_name" ]] && new_name="$(date +'%Y-%m-%d %H:%M:%S')"
+      exec tmux new-session -s "$new_name"
     elif [[ -n "$ID" ]]; then
       exec tmux attach-session -t "$ID"
     fi

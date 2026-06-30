@@ -33,6 +33,7 @@ LINKS="$(cat <<'EOF'
 .config/git/ignore|.config/git/ignore
 .config/git/attributes|.config/git/attributes
 lazygit/config.yml|Library/Application Support/lazygit/config.yml
+.config/alacritty/alacritty.toml|.config/alacritty/alacritty.toml
 EOF
 )"
 
