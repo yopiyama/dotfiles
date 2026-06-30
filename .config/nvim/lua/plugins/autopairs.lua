@@ -3,12 +3,30 @@ return {
     "windwp/nvim-autopairs",
     lazy = false,
     config = function()
-      require("nvim-autopairs").setup({
-        -- Keep it simple and always on; avoids timing issues with lazy loading
+      local npairs = require("nvim-autopairs")
+      local Rule = require("nvim-autopairs.rule")
+      local cond = require("nvim-autopairs.conds")
+
+      npairs.setup({
         check_ts = false,
       })
 
-      -- Integrate with nvim-cmp if available (auto-insert closing after completion)
+      -- {|} + space → { | }, so that typing " next gives { "|" }
+      npairs.add_rules({
+        Rule(" ", " ")
+          :with_pair(function(opts)
+            local pair = opts.line:sub(opts.col - 1, opts.col)
+            return vim.tbl_contains({ "()", "[]", "{}" }, pair)
+          end)
+          :with_move(cond.none())
+          :with_cr(cond.none())
+          :with_del(function(opts)
+            local col = vim.api.nvim_win_get_cursor(0)[2]
+            local context = opts.line:sub(col, col + 3)
+            return vim.tbl_contains({ "{  }", "[  ]", "(  )" }, context)
+          end),
+      })
+
       local ok_cmp, cmp = pcall(require, "cmp")
       if ok_cmp then
         local cmp_autopairs = require("nvim-autopairs.completion.cmp")
