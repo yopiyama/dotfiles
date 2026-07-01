@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
-# Stop hook: 会話ターンが完了するたびに、直前のフック実行以降に増えた
-# トランスクリプト行を Obsidian のノートに追記する。
+# Stop / SubagentStop hook: 会話ターンが完了するたびに、直前のフック実行
+# 以降に増えたトランスクリプト行を Obsidian のノートに追記する。
 #
-# 冪等性は $HOME/.claude/claude-obsidian-log/<session_id>.count に
+# サブエージェント（Task ツール）は session_id が親と同一のまま、別の
+# transcript_path（isSidechain: true の行のみ）で完了報告してくる。
+# session_id だけをキーにすると親と同じ state ファイル・同じノートを
+# 取り合って行番号ブックキーピングが壊れる（=会話が混ざる）ため、
+# SubagentStop のときは agent_id を使って親とは別の state/ノートに分ける。
+#
+# 冪等性は $HOME/.claude/claude-obsidian-log/<key>.count に
 # 「これまでに読み込んだトランスクリプト行数」を保存することで担保する
 # （このリポジトリの管理対象外＝git管理されないマシンローカル状態）。
 set -euo pipefail
@@ -11,12 +17,22 @@ input="$(cat)"
 session_id="$(jq -r '.session_id // empty' <<<"$input")"
 transcript_path="$(jq -r '.transcript_path // empty' <<<"$input")"
 cwd="$(jq -r '.cwd // empty' <<<"$input")"
+hook_event_name="$(jq -r '.hook_event_name // empty' <<<"$input")"
+agent_id="$(jq -r '.agent_id // empty' <<<"$input")"
+agent_type="$(jq -r '.agent_type // empty' <<<"$input")"
 
 [[ -n "$session_id" && -n "$transcript_path" && -f "$transcript_path" ]] || exit 0
 
+is_subagent=false
+[[ "$hook_event_name" == "SubagentStop" && -n "$agent_id" ]] && is_subagent=true
+
 state_dir="$HOME/.claude/claude-obsidian-log"
 mkdir -p "$state_dir"
-state_file="$state_dir/${session_id}.count"
+if [[ "$is_subagent" == "true" ]]; then
+  state_file="$state_dir/${session_id}_${agent_id}.count"
+else
+  state_file="$state_dir/${session_id}.count"
+fi
 
 # Stop フック起動時点では、直前のツール呼び出し後に続く
 # アシスタントの最終テキストがまだ transcript ファイルに
@@ -50,7 +66,7 @@ if (( total_lines <= last_synced )); then
   exit 0
 fi
 
-chunk="$(sed -n "$((last_synced + 1)),${total_lines}p" "$transcript_path" | jq -rs '
+chunk="$(sed -n "$((last_synced + 1)),${total_lines}p" "$transcript_path" | jq -rs --argjson is_subagent "$is_subagent" '
   def summarize_input:
     if has("command") then .command
     elif has("file_path") then .file_path
@@ -62,7 +78,7 @@ chunk="$(sed -n "$((last_synced + 1)),${total_lines}p" "$transcript_path" | jq -
 
   .[]
   | select(.type == "user" or .type == "assistant")
-  | select(.isSidechain != true)
+  | select($is_subagent or (.isSidechain != true))
   | select(.isMeta != true)
   | . as $line
   | ($line.timestamp // "" | if length >= 16 then .[11:16] else "" end) as $hhmm
@@ -92,14 +108,34 @@ fi
 
 project="$(basename "$cwd")"
 started_at="$(jq -r 'select(.timestamp != null) | .timestamp' "$transcript_path" | head -1)"
-date_part="${started_at:0:10}"
-[[ -z "$date_part" ]] && date_part="$(date +%F)"
+timestamp="${started_at:0:19}"
+timestamp="${timestamp//:/-}"
+[[ -z "$timestamp" ]] && timestamp="$(date +%Y-%m-%dT%H-%M-%S)"
 session_short="${session_id:0:8}"
-note_path="ClaudeCode/${project}/${date_part}_${session_short}.md"
+
+if [[ "$is_subagent" == "true" ]]; then
+  agent_short="${agent_id:0:8}"
+  note_path="ClaudeCode/${project}/${timestamp}_${session_short}_${agent_short}.md"
+else
+  note_path="ClaudeCode/${project}/${timestamp}_${session_short}.md"
+fi
 
 if [[ "$last_synced" -eq 0 ]]; then
   git_branch="$(jq -r 'select(.gitBranch != null) | .gitBranch' "$transcript_path" | head -1)"
-  frontmatter="---
+  if [[ "$is_subagent" == "true" ]]; then
+    frontmatter="---
+session_id: ${session_id}
+agent_id: ${agent_id}
+agent_type: ${agent_type}
+project: ${project}
+cwd: ${cwd}
+git_branch: ${git_branch}
+started_at: ${started_at}
+---
+
+"
+  else
+    frontmatter="---
 session_id: ${session_id}
 project: ${project}
 cwd: ${cwd}
@@ -108,6 +144,7 @@ started_at: ${started_at}
 ---
 
 "
+  fi
   obsidian create vault=obsidian path="$note_path" content="${frontmatter}${chunk}" >/dev/null 2>&1 || true
 else
   obsidian append vault=obsidian path="$note_path" content="$chunk" >/dev/null 2>&1 || true

@@ -169,6 +169,16 @@
           }
         ]
       }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/log-to-obsidian.sh"
+          }
+        ]
+      }
     ]
   },
   "tui": "fullscreen"
