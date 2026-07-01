@@ -27,3 +27,9 @@ style = "Bold"
 [mouse]
 hide_when_typing = false
 
+[bell]
+animation = "Ease"
+duration = 150
+color = "#ffffff"
+command = { program = "afplay", args = ["/System/Library/Sounds/Ping.aiff"] }
+
