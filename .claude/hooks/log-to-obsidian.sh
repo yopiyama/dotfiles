@@ -111,13 +111,30 @@ started_at="$(jq -r 'select(.timestamp != null) | .timestamp' "$transcript_path"
 timestamp="${started_at:0:19}"
 timestamp="${timestamp//:/-}"
 [[ -z "$timestamp" ]] && timestamp="$(date +%Y-%m-%dT%H-%M-%S)"
-session_short="${session_id:0:8}"
+
+# ノートファイル名は最初のユーザー発言(サブエージェントならタスク文)の
+# 先頭を要約として使う。Session ID っぽい無意味な suffix を避けるため。
+slug="$(jq -r --argjson is_subagent "$is_subagent" '
+  select(.type == "user")
+  | select($is_subagent or (.isSidechain != true))
+  | select(.isMeta != true)
+  | .message.content
+  | if type == "string" then .
+    else ([.[] | select(.type == "text") | .text] | join(" "))
+    end
+  | gsub("\\s+"; " ")
+  | gsub("/"; "_")
+  | sub("^ +"; "") | sub(" +$"; "")
+  | select(length > 0)
+  | if length > 30 then .[0:30] + "…" else . end
+' "$transcript_path" | head -1)"
+[[ -z "$slug" ]] && slug="無題"
 
 if [[ "$is_subagent" == "true" ]]; then
   agent_short="${agent_id:0:8}"
-  note_path="ClaudeCode/${project}/${timestamp}_${session_short}_${agent_short}.md"
+  note_path="ClaudeCode/${project}/${timestamp}_${slug}_${agent_short}.md"
 else
-  note_path="ClaudeCode/${project}/${timestamp}_${session_short}.md"
+  note_path="ClaudeCode/${project}/${timestamp}_${slug}.md"
 fi
 
 if [[ "$last_synced" -eq 0 ]]; then

@@ -158,8 +158,8 @@ run_hook "$(hook_input "$SESSION" "$TR_A" "$CWD" Stop)"
 
 assert_eq      "obsidian 呼び出しは1回"        "1" "$(call_count)"
 assert_eq      "1回目は create"                "create" "$(call_arg 0 0)"
-assert_eq      "note_path はタイムスタンプ_セッション8桁.md" \
-  "path=ClaudeCode/myproject/2026-07-01T09-00-00_aaaaaaaa.md" "$(call_arg 0 2)"
+assert_eq      "note_path はタイムスタンプ_最初のユーザー発言.md" \
+  "path=ClaudeCode/myproject/2026-07-01T09-00-00_こんにちは.md" "$(call_arg 0 2)"
 content_a="$(call_arg 0 3)"
 assert_contains "frontmatter に session_id"    "$content_a" "session_id: ${SESSION}"
 assert_contains "frontmatter に project"       "$content_a" "project: myproject"
@@ -182,7 +182,7 @@ run_hook "$(hook_input "$SESSION" "$TR_A" "$CWD" Stop)"
 assert_eq      "2回目の呼び出しで合計2回"      "2" "$(call_count)"
 assert_eq      "2回目は append"                "append" "$(call_arg 1 0)"
 assert_eq      "append 先の note_path は1回目と同じ" \
-  "path=ClaudeCode/myproject/2026-07-01T09-00-00_aaaaaaaa.md" "$(call_arg 1 2)"
+  "path=ClaudeCode/myproject/2026-07-01T09-00-00_こんにちは.md" "$(call_arg 1 2)"
 content_a2="$(call_arg 1 3)"
 assert_contains    "append 分に新しい発言を含む" "$content_a2" "ありがとう"
 assert_not_contains "append 分に前回分は重複しない" "$content_a2" "こんにちは"
@@ -200,8 +200,8 @@ run_hook "$(hook_input "$SESSION" "$TR_SUB" "$CWD" SubagentStop "$AGENT" "genera
 
 assert_eq      "サブエージェント分もあわせて3回目の呼び出し" "3" "$(call_count)"
 assert_eq      "サブエージェントの初回も create"              "create" "$(call_arg 2 0)"
-assert_eq      "note_path は親と別ファイル(agent 8桁付き)" \
-  "path=ClaudeCode/myproject/2026-07-01T09-05-00_aaaaaaaa_bbbbbbbb.md" "$(call_arg 2 2)"
+assert_eq      "note_path は最初のタスク文+agent 8桁" \
+  "path=ClaudeCode/myproject/2026-07-01T09-05-00_1+1は？_bbbbbbbb.md" "$(call_arg 2 2)"
 content_sub="$(call_arg 2 3)"
 assert_contains "frontmatter に agent_id"   "$content_sub" "agent_id: ${AGENT}"
 assert_contains "frontmatter に agent_type" "$content_sub" "agent_type: general-purpose"
