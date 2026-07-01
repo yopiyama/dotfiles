@@ -33,6 +33,7 @@ LINKS="$(cat <<'EOF'
 .config/nvim/lua|.config/nvim/lua
 .config/git/ignore|.config/git/ignore
 .config/git/attributes|.config/git/attributes
+.config/mise/config.toml|.config/mise/config.toml
 lazygit/config.yml|Library/Application Support/lazygit/config.yml
 .config/alacritty/alacritty.toml|.config/alacritty/alacritty.toml
 EOF

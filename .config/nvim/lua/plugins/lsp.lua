@@ -11,7 +11,7 @@ return {
     config = function()
       require("mason-lspconfig").setup({
         -- よく使うのを例示（必要に応じて追加）
-        ensure_installed = { "lua_ls", "gopls", "pyright" },
+        ensure_installed = { "lua_ls", "gopls", "pyright", "ts_ls", "yamlls", "marksman" },
       })
     end,
   },
@@ -50,6 +50,26 @@ return {
         capabilities = capabilities,
       })
 
+      vim.lsp.config("ts_ls", {
+        capabilities = capabilities,
+      })
+
+      vim.lsp.config("yamlls", {
+        capabilities = capabilities,
+        settings = {
+          yaml = {
+            -- GitHub Actions のワークフローに補完/検証スキーマを効かせる
+            schemas = {
+              ["https://json.schemastore.org/github-workflow.json"] = "/.github/workflows/*.{yml,yaml}",
+            },
+          },
+        },
+      })
+
+      vim.lsp.config("marksman", {
+        capabilities = capabilities,
+      })
+
       -- diffview:// など file:// 以外のスキームのバッファでは LSP を起動させない
       -- （gopls 等が "DocumentURI scheme is not 'file'" エラーを返すのを防ぐ）
       -- LspAttach で detach すると didOpen 送信後になり手遅れなので、
@@ -66,7 +86,7 @@ return {
       end
 
       -- Enable servers
-      vim.lsp.enable({ "lua_ls", "gopls", "pyright" })
+      vim.lsp.enable({ "lua_ls", "gopls", "pyright", "ts_ls", "yamlls", "marksman" })
     end,
   },
 }

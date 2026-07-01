@@ -9,6 +9,12 @@ return {
       go = { "goimports", "gofmt" },
       sh = { "shfmt" },
       json = { "jq" },
+      yaml = { "prettier" },
+      markdown = { "prettier" },
+      javascript = { "prettier" },
+      javascriptreact = { "prettier" },
+      typescript = { "prettier" },
+      typescriptreact = { "prettier" },
     },
     format_on_save = function(bufnr)
       -- 自動フォーマットを除外したいパスをここに追加 (Lua パターン)
