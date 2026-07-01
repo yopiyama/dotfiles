@@ -132,11 +132,13 @@
     "defaultMode": "default"
   },
   "model": "claude-sonnet-5",
+  "theme": "dark",
   "enableAllProjectMcpServers": true,
   "effortLevel": "high",
   "showThinkingSummaries": true,
   "editorMode": "vim",
   "preferredNotifChannel": "iterm2",
+  "inputNeededNotifEnabled": true,
   "hooks": {
     "PreToolUse": [
       {

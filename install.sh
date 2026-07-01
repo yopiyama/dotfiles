@@ -26,6 +26,7 @@ LINKS="$(cat <<'EOF'
 .tmux/launch_project.sh|.tmux/launch_project.sh
 .claude/keybindings.json|.claude/keybindings.json
 .claude/.mcp.json|.claude/.mcp.json
+.claude/settings.json|.claude/settings.json
 .claude/skills|.claude/skills
 .claude/hooks|.claude/hooks
 .config/nvim/init.lua|.config/nvim/init.lua
