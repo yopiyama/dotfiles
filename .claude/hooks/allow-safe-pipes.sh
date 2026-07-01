@@ -33,7 +33,73 @@ has_redirect=false
 printf '%s' "$cleaned" | grep -qF '|' && has_pipe=true
 printf '%s' "$cleaned" | grep -qE '(^|[[:space:]])[0-9]*>' && has_redirect=true
 
-[[ "$has_pipe" == "false" && "$has_redirect" == "false" && "$has_compound" == "false" ]] && exit 0
+# --- gh api の読み取り専用 (GET/HEAD) 判定 ---
+# `gh api` は同じサブコマンドでも -X/-f 等のフラグ次第で書き込みになるため、
+# command-policy.conf のプレフィックス方式（サブコマンド単位）では安全に許可できない。
+# 明示的に「書き込みを示すフラグが一切無い」ことを確認できた場合のみ許可する。
+is_readonly_gh_api() {
+  local cmd="$1"
+
+  [[ "$cmd" =~ ^gh[[:space:]]+api([[:space:]]|$) ]] || return 1
+
+  # コマンド置換・サブシェルを含む場合は判定不能として拒否（安全側）
+  [[ "$cmd" == *'$('* ]] && return 1
+  [[ "$cmd" == *'`'* ]] && return 1
+
+  # トークン単位で走査する。gh (pflag) は短縮オプションに
+  # `-X POST` (space) / `-X=POST` (equals) / `-XPOST` (attached, space無し)
+  # のいずれの形式も受け付けるため、正規表現の単純な区切り文字仮定では
+  # `-XPOST` のような attached 形式を見落とす（実際に発生した誤許可バグ）。
+  local -a tokens
+  read -ra tokens <<< "$cmd"
+  local n=${#tokens[@]}
+  local i tok method=""
+
+  for ((i = 0; i < n; i++)); do
+    tok="${tokens[$i]}"
+    case "$tok" in
+      # -f/-F/--field/--raw-field/--input は付随フラグ形式(attached/=)を問わず
+      # デフォルト method を POST に変えるため常に拒否
+      -f*|-F*|--field*|--raw-field*|--input*)
+        return 1
+        ;;
+      -X|--method)
+        # スペース区切り: 値は次のトークン。値が無い不完全なコマンドは安全側で拒否
+        (( i + 1 < n )) || return 1
+        method="${tokens[$((i + 1))]}"
+        ;;
+      -X?*)
+        method="${tok#-X}"
+        method="${method#=}"
+        ;;
+      --method=*)
+        method="${tok#--method=}"
+        ;;
+    esac
+  done
+
+  if [[ -n "$method" ]]; then
+    local method_upper
+    method_upper="$(printf '%s' "$method" | tr '[:lower:]' '[:upper:]')"
+    [[ "$method_upper" == "GET" || "$method_upper" == "HEAD" ]] || return 1
+  fi
+
+  return 0
+}
+
+if [[ "$has_pipe" == "false" && "$has_redirect" == "false" && "$has_compound" == "false" ]]; then
+  single_trimmed="$(printf '%s' "$cleaned" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+  if is_readonly_gh_api "$single_trimmed"; then
+    jq -n '{
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        permissionDecision: "allow",
+        permissionDecisionReason: "gh api read-only (GET/HEAD) call auto-approved"
+      }
+    }'
+  fi
+  exit 0
+fi
 
 # --- ポリシーファイル読み込み ---
 [[ -f "$POLICY_FILE" ]] || exit 0
@@ -90,7 +156,7 @@ for segment in "${segments[@]}"; do
   if matches_deny_pattern "$trimmed"; then
     exit 0
   fi
-  if ! matches_section "$trimmed" allow; then
+  if ! matches_section "$trimmed" allow && ! is_readonly_gh_api "$trimmed"; then
     all_safe=false
     break
   fi
