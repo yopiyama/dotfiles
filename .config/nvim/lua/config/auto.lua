@@ -37,6 +37,34 @@ autocmd({ "VimEnter", "ColorScheme" }, {
     callback = apply_whitespace_highlights,
 })
 
+-- フォーカス中のウィンドウを見分けやすくする
+local focus_group = augroup("FocusedWindowHighlight", { clear = true })
+
+local function apply_focus_highlights()
+    -- 非アクティブウィンドウの背景を tokyonight moon の bg_dark で沈める
+    vim.api.nvim_set_hl(0, "NormalNC", { bg = "#1e2030" })
+end
+
+autocmd({ "VimEnter", "ColorScheme" }, {
+    group = focus_group,
+    callback = apply_focus_highlights,
+})
+
+-- 全ウィンドウで cursorline が出ると見分けが付かないので、アクティブウィンドウのみ表示する
+autocmd({ "WinEnter", "BufWinEnter" }, {
+    group = focus_group,
+    callback = function()
+        vim.wo.cursorline = true
+    end,
+})
+
+autocmd("WinLeave", {
+    group = focus_group,
+    callback = function()
+        vim.wo.cursorline = false
+    end,
+})
+
 -- Neo-tree の root が変わったら、そのパスに Nvim 全体の cwd を合わせる
 vim.api.nvim_create_autocmd("User", {
     pattern = "NeoTreeRootChanged",
