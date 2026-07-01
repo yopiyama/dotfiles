@@ -277,6 +277,8 @@ alias bat='bat --color=always --show-all'
 alias tf='terraform'
 alias tf-p='terraform plan | tee >(grep -E "# \w|Plan:" > /tmp/_plan_abst.log) && cat /tmp/_plan_abst.log'
 alias ruff='uvx ruff'
+# obsidian CLI 実行時に "Obsidian" への訂正候補が出るのを抑制する
+alias obsidian='nocorrect obsidian'
 # nvim を引数無しで起動したらカレントディレクトリを開く
 nvim() {
   if (( $# == 0 )); then
