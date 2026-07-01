@@ -9,6 +9,7 @@ local options = {
 	pumheight = 10,
     pumwidth = 30,
 	showtabline = 2,
+	statusline = "%<%f %h%m%r%=%-14.(%l,%c%V%) %P",
 	background = "dark",
 	winblend = 0,
 	pumblend = 5,
