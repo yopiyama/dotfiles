@@ -85,9 +85,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
     vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, vim.tbl_extend("force", opts, { desc = "LSP: rename" }))
     vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, vim.tbl_extend("force", opts, { desc = "LSP: code action" }))
 
-    vim.keymap.set("n", "<leader>f", function()
-      vim.lsp.buf.format({ async = true })
-    end, vim.tbl_extend("force", opts, { desc = "LSP: format" }))
+    vim.keymap.set("n", "<leader>cf", function()
+      require("conform").format({ async = true, lsp_fallback = true })
+    end, vim.tbl_extend("force", opts, { desc = "Format buffer (conform, LSP fallback)" }))
   end,
 })
 
