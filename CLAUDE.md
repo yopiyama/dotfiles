@@ -13,4 +13,4 @@
 - Write 系ツールによっては symlink を unlink して新規ファイルで置き換えることがあり、その場合 `$HOME` 側で編集すると symlink が壊れてリポジトリと乖離する。
 - リポジトリパスで編集しないと `git diff`/`git status` に変更が乗らず、コミット・レビューの対象にならない。
 
-`~/.claude/settings.json`（グローバル設定）はこのリポジトリの管理対象外（symlink ではない）なので、グローバル設定を変更する場合は素直に `~/.claude/settings.json` を直接編集してよい。プロジェクト設定はこのリポジトリ直下の `.claude/settings.json` 自体が実体。
+`~/.claude/settings.json`（グローバル設定）も `install.sh` の `LINKS` に含まれており、このリポジトリ直下の `.claude/settings.json` への symlink になっている。つまりグローバル設定とこのリポジトリのプロジェクト設定は同一ファイルであり、変更する際は必ずこのリポジトリ直下の `.claude/settings.json` を編集すること。

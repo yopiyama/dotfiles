@@ -137,7 +137,7 @@
   "effortLevel": "high",
   "showThinkingSummaries": true,
   "editorMode": "vim",
-  "preferredNotifChannel": "iterm2",
+  "preferredNotifChannel": "terminal_bell",
   "inputNeededNotifEnabled": true,
   "hooks": {
     "PreToolUse": [
