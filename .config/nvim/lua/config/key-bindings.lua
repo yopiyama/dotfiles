@@ -17,6 +17,10 @@ end, { desc = "Clear search + LSP highlights" })
 vim.keymap.set("n", "<leader>q", "<cmd>cclose<CR>", { desc = "Close quickfix" })
 vim.keymap.set("n", "<leader>l", "<cmd>lclose<CR>", { desc = "Close loclist" })
 
+-- IME切り替え(Ctrl+Shift+S)が端末のフロー制御解除により生の^Sとして
+-- コマンドライン(検索含む)に紛れ込むのを防ぐ
+vim.keymap.set("c", "<C-s>", "<Nop>", { desc = "Ignore stray ^S in cmdline" })
+
 -- Copy current file's repo-relative path to clipboard
 vim.keymap.set("n", "<leader><C-l>", function()
     local file = vim.fn.expand("%:p")
