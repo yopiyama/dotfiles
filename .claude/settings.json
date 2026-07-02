@@ -1,185 +1,189 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(awk:*)",
-      "Bash(cat:*)",
-      "Bash(cut:*)",
-      "Bash(date:*)",
-      "Bash(eza:*)",
-      "Bash(file:*)",
-      "Bash(find:*)",
-      "Bash(gh issue view:*)",
-      "Bash(gh pr view:*)",
-      "Bash(gh pr list:*)",
-      "Bash(gh pr check:*)",
-      "Bash(gh pr diff:*)",
-      "Bash(gh release view:*)",
-      "Bash(gh repo view:*)",
-      "Bash(gh run list:*)",
-      "Bash(gh run view:*)",
-      "Bash(gh workflow view:*)",
-      "Bash(gh workflow list:*)",
-      "Bash(gh pr create:*)",
-      "Bash(gh pr edit:*)",
-      "Bash(gh pr comment:*)",
-      "Bash(git add:*)",
-      "Bash(git blame:*)",
-      "Bash(git branch:*)",
-      "Bash(git commit:*)",
-      "Bash(git describe:*)",
-      "Bash(git diff:*)",
-      "Bash(git fetch:*)",
-      "Bash(git grep:*)",
-      "Bash(git init:*)",
-      "Bash(git log:*)",
-      "Bash(git ls-files:*)",
-      "Bash(git remote:*)",
-      "Bash(git restore --staged:*)",
-      "Bash(git rev-parse:*)",
-      "Bash(git shortlog:*)",
-      "Bash(git show:*)",
-      "Bash(git stash)",
-      "Bash(git stash apply:*)",
-      "Bash(git stash list:*)",
-      "Bash(git stash pop:*)",
-      "Bash(git stash push:*)",
-      "Bash(git stash show:*)",
-      "Bash(git status:*)",
-      "Bash(git tag:*)",
-      "Bash(git worktree:*)",
-      "Bash(grep:*)",
-      "Bash(head:*)",
-      "Bash(jq:*)",
-      "Bash(ls:*)",
-      "Bash(obsidian files:*)",
-      "Bash(obsidian read:*)",
-      "Bash(obsidian file:*)",
-      "Bash(obsidian search:*)",
-      "Bash(obsidian vault:*)",
-      "Bash(obsidian version:*)",
-      "Bash(obsidian property:*)",
-      "Bash(obsidian template:*)",
-      "Bash(obsidian create:*)",
-      "Bash(obsidian append:*)",
-      "Bash(obsidian prepend:*)",
-      "Bash(obsidian daily:*)",
-      "Bash(obsidian tasks:*)",
-      "Bash(obsidian task:*)",
-      "Bash(obsidian open:*)",
-      "Bash(pwd:*)",
-      "Bash(rg:*)",
-      "Bash(sed -n:*)",
-      "Bash(sort:*)",
-      "Bash(stat:*)",
-      "Bash(tail:*)",
-      "Bash(tr:*)",
-      "Bash(type:*)",
-      "Bash(uname:*)",
-      "Bash(uniq:*)",
-      "Bash(wc:*)",
-      "Bash(which:*)",
-      "Bash(~/.claude/skills/code-review/scripts/codex-review.sh:*)",
-      "Bash(codex:*)",
-      "Bash(whoami:*)",
-      "mcp__context7__get-library-docs",
-      "mcp__context7__resolve-library-id",
-      "Edit(**)",
-      "Read(**)",
-      "Write(**)"
-    ],
-    "deny": [
-      "Bash(curl:*)",
-      "Bash(find * -delete*)",
-      "Bash(find * -exec*)",
-      "Bash(find * -execdir*)",
-      "Bash(find * -iwholename*/*)",
-      "Bash(find * -ok*)",
-      "Bash(find *|*xargs *)",
-      "Bash(git checkout:*)",
-      "Bash(git clean:*)",
-      "Bash(git config:*)",
-      "Bash(git filter-branch:*)",
-      "Bash(git push:*)",
-      "Bash(git reset:*)",
-      "Bash(git revert:*)",
-      "Bash(gh pr merge:*)",
-      "Bash(gh pr close:*)",
-      "Bash(git switch:*)",
-      "Bash(git update-ref:*)",
-      "Bash(perl -pi:*)",
-      "Bash(rm -rf:*)",
-      "Bash(sed -i:*)",
-      "Bash(sudo:*)",
-      "Bash(tee:*)",
-      "Bash(wget:*)",
-      "Bash(xargs:*)",
-      "Read(.env*)",
-      "Bash(cat *.env*)",
-      "Read(**/id_*)",
-      "Edit(**/id_*)",
-      "Write(**/id_*)",
-      "Read(**/*.pem)",
-      "Edit(**/*.pem)",
-      "Write(**/*.pem)",
-      "Read(**/*.key)",
-      "Edit(**/*.key)",
-      "Write(**/*.key)",
-      "Read(**/*.env)",
-      "Edit(**/*.env)",
-      "Write(**/*.env)",
-      "Write(.env*)"
-    ],
-    "defaultMode": "default"
-  },
-  "model": "claude-sonnet-5",
-  "theme": "dark",
-  "enableAllProjectMcpServers": true,
-  "effortLevel": "high",
-  "showThinkingSummaries": true,
-  "editorMode": "vim",
-  "preferredNotifChannel": "terminal_bell",
-  "inputNeededNotifEnabled": true,
-  "hooks": {
-    "PreToolUse": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/allow-safe-pipes.sh"
-          }
+    "permissions": {
+        "allow": [
+            "Bash(awk:*)",
+            "Bash(cat:*)",
+            "Bash(cut:*)",
+            "Bash(date:*)",
+            "Bash(eza:*)",
+            "Bash(file:*)",
+            "Bash(find:*)",
+            "Bash(gh issue view:*)",
+            "Bash(gh pr view:*)",
+            "Bash(gh pr list:*)",
+            "Bash(gh pr check:*)",
+            "Bash(gh pr diff:*)",
+            "Bash(gh release view:*)",
+            "Bash(gh repo view:*)",
+            "Bash(gh run list:*)",
+            "Bash(gh run view:*)",
+            "Bash(gh workflow view:*)",
+            "Bash(gh workflow list:*)",
+            "Bash(gh pr create:*)",
+            "Bash(gh pr edit:*)",
+            "Bash(gh pr comment:*)",
+            "Bash(git add:*)",
+            "Bash(git blame:*)",
+            "Bash(git branch:*)",
+            "Bash(git commit:*)",
+            "Bash(git describe:*)",
+            "Bash(git diff:*)",
+            "Bash(git fetch:*)",
+            "Bash(git grep:*)",
+            "Bash(git init:*)",
+            "Bash(git log:*)",
+            "Bash(git ls-files:*)",
+            "Bash(git remote:*)",
+            "Bash(git restore --staged:*)",
+            "Bash(git rev-parse:*)",
+            "Bash(git shortlog:*)",
+            "Bash(git show:*)",
+            "Bash(git stash)",
+            "Bash(git stash apply:*)",
+            "Bash(git stash list:*)",
+            "Bash(git stash pop:*)",
+            "Bash(git stash push:*)",
+            "Bash(git stash show:*)",
+            "Bash(git status:*)",
+            "Bash(git tag:*)",
+            "Bash(git worktree:*)",
+            "Bash(grep:*)",
+            "Bash(head:*)",
+            "Bash(jq:*)",
+            "Bash(ls:*)",
+            "Bash(obsidian files:*)",
+            "Bash(obsidian read:*)",
+            "Bash(obsidian file:*)",
+            "Bash(obsidian search:*)",
+            "Bash(obsidian vault:*)",
+            "Bash(obsidian version:*)",
+            "Bash(obsidian property:*)",
+            "Bash(obsidian template:*)",
+            "Bash(obsidian create:*)",
+            "Bash(obsidian append:*)",
+            "Bash(obsidian prepend:*)",
+            "Bash(obsidian daily:*)",
+            "Bash(obsidian tasks:*)",
+            "Bash(obsidian task:*)",
+            "Bash(obsidian open:*)",
+            "Bash(pwd:*)",
+            "Bash(rg:*)",
+            "Bash(sed -n:*)",
+            "Bash(sort:*)",
+            "Bash(stat:*)",
+            "Bash(tail:*)",
+            "Bash(tr:*)",
+            "Bash(type:*)",
+            "Bash(uname:*)",
+            "Bash(uniq:*)",
+            "Bash(wc:*)",
+            "Bash(which:*)",
+            "Bash(~/.claude/skills/code-review/scripts/codex-review.sh:*)",
+            "Bash(codex:*)",
+            "Bash(whoami:*)",
+            "mcp__context7__get-library-docs",
+            "mcp__context7__resolve-library-id",
+            "Edit(**)",
+            "Read(**)",
+            "Write(**)"
+        ],
+        "deny": [
+            "Bash(curl:*)",
+            "Bash(find * -delete*)",
+            "Bash(find * -exec*)",
+            "Bash(find * -execdir*)",
+            "Bash(find * -iwholename*/*)",
+            "Bash(find * -ok*)",
+            "Bash(find *|*xargs *)",
+            "Bash(git checkout:*)",
+            "Bash(git clean:*)",
+            "Bash(git config:*)",
+            "Bash(git filter-branch:*)",
+            "Bash(git push:*)",
+            "Bash(git reset:*)",
+            "Bash(git revert:*)",
+            "Bash(gh pr merge:*)",
+            "Bash(gh pr close:*)",
+            "Bash(git switch:*)",
+            "Bash(git update-ref:*)",
+            "Bash(perl -pi:*)",
+            "Bash(rm -rf:*)",
+            "Bash(sed -i:*)",
+            "Bash(sudo:*)",
+            "Bash(tee:*)",
+            "Bash(wget:*)",
+            "Bash(xargs:*)",
+            "Read(.env*)",
+            "Bash(cat *.env*)",
+            "Read(**/id_*)",
+            "Edit(**/id_*)",
+            "Write(**/id_*)",
+            "Read(**/*.pem)",
+            "Edit(**/*.pem)",
+            "Write(**/*.pem)",
+            "Read(**/*.key)",
+            "Edit(**/*.key)",
+            "Write(**/*.key)",
+            "Read(**/*.env)",
+            "Edit(**/*.env)",
+            "Write(**/*.env)",
+            "Write(.env*)"
+        ],
+        "defaultMode": "default"
+    },
+    "model": "claude-sonnet-5",
+    "enableAllProjectMcpServers": true,
+    "statusLine": {
+        "type": "command",
+        "command": "bash ~/.claude/hooks/statusline.sh"
+    },
+    "hooks": {
+        "PreToolUse": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "~/.claude/hooks/allow-safe-pipes.sh"
+                    }
+                ]
+            }
+        ],
+        "UserPromptSubmit": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "~/.claude/hooks/obsidian-skill-reminder.sh"
+                    }
+                ]
+            }
+        ],
+        "Stop": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "~/.claude/hooks/log-to-obsidian.sh"
+                    }
+                ]
+            }
+        ],
+        "SubagentStop": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "~/.claude/hooks/log-to-obsidian.sh"
+                    }
+                ]
+            }
         ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/obsidian-skill-reminder.sh"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/log-to-obsidian.sh"
-          }
-        ]
-      }
-    ],
-    "SubagentStop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/log-to-obsidian.sh"
-          }
-        ]
-      }
-    ]
-  },
-  "tui": "fullscreen"
+    },
+    "effortLevel": "high",
+    "tui": "fullscreen",
+    "showThinkingSummaries": true,
+    "theme": "dark",
+    "editorMode": "vim",
+    "preferredNotifChannel": "terminal_bell",
+    "inputNeededNotifEnabled": true
 }
