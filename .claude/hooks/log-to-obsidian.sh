@@ -11,6 +11,8 @@
 # 冪等性は $HOME/.claude/claude-obsidian-log/<key>.count に
 # 「これまでに読み込んだトランスクリプト行数」を保存することで担保する
 # （このリポジトリの管理対象外＝git管理されないマシンローカル状態）。
+# 同ディレクトリの <key>.slug には Claude によるノート名要約のキャッシュ
+# (obsidian-note-lib.sh の session_note_basename) も置かれる。
 #
 # 書き込みは obsidian CLI ではなく vault への直接ファイル書き込みで行う。
 # obsidian CLI は GUI バイナリそのもので、呼び出しごとにフル Electron
@@ -37,13 +39,13 @@ agent_type="$(jq -r '.agent_type // empty' <<<"$input")"
 is_subagent=false
 [[ "$hook_event_name" == "SubagentStop" && -n "$agent_id" ]] && is_subagent=true
 
-state_dir="$HOME/.claude/claude-obsidian-log"
-mkdir -p "$state_dir"
+state_dir="$(obsidian_state_dir)"
 if [[ "$is_subagent" == "true" ]]; then
-  state_file="$state_dir/${session_id}_${agent_id}.count"
+  cache_key="${session_id}_${agent_id}"
 else
-  state_file="$state_dir/${session_id}.count"
+  cache_key="$session_id"
 fi
+state_file="$state_dir/${cache_key}.count"
 
 # Stop フック起動時点では、直前のツール呼び出し後に続く
 # アシスタントの最終テキストがまだ transcript ファイルに
@@ -121,8 +123,7 @@ project="$(resolve_project "$transcript_path" "$cwd")"
 started_at="$(jq -rn 'first(inputs | .timestamp // empty)' "$transcript_path")"
 timestamp="$(note_stamp "$started_at")"
 [[ -z "$timestamp" ]] && timestamp="$(date +%Y-%m-%dT%H-%M-%S)"
-slug="$(note_slug "$transcript_path" "$is_subagent")"
-[[ -z "$slug" ]] && slug="無題"
+basename_stem="$(session_note_basename "$transcript_path" "$is_subagent" "$cache_key" "$state_dir" "$timestamp")"
 
 # サブエージェントのノートは SubAgent/ 配下に分け、プロジェクトフォルダ
 # 直下がメインセッションのノートだけになるようにする (横並びだと見づらい)。
@@ -130,9 +131,9 @@ slug="$(note_slug "$transcript_path" "$is_subagent")"
 conv_dir="ClaudeCode/${project}/Conversations/$(note_yyyymm "$timestamp")"
 if [[ "$is_subagent" == "true" ]]; then
   agent_short="${agent_id:0:8}"
-  note_path="${conv_dir}/SubAgent/${timestamp}_${slug}_${agent_short}.md"
+  note_path="${conv_dir}/SubAgent/${basename_stem}_${agent_short}.md"
 else
-  note_path="${conv_dir}/${timestamp}_${slug}.md"
+  note_path="${conv_dir}/${basename_stem}.md"
 fi
 
 # サブエージェントのノート冒頭には親セッションのノートへの wikilink を入れ、
@@ -148,12 +149,12 @@ if [[ "$is_subagent" == "true" ]]; then
   parent_transcript="${transcript_path%/subagents/*}.jsonl"
   if [[ "$parent_transcript" != "$transcript_path" && -f "$parent_transcript" ]]; then
     parent_stamp="$(note_stamp "$(jq -rn 'first(inputs | .timestamp // empty)' "$parent_transcript")")"
-    parent_slug="$(note_slug "$parent_transcript" false)"
-    if [[ -n "$parent_stamp" && -n "$parent_slug" ]]; then
+    if [[ -n "$parent_stamp" ]]; then
+      parent_basename="$(session_note_basename "$parent_transcript" false "$session_id" "$state_dir" "$parent_stamp")"
       # タスクノート (Tasks/ 配下) がセッションノートと同名なため、
       # basename ではなくフルパスで修飾して曖昧さを避ける。
-      parent_note="ClaudeCode/${project}/Conversations/$(note_yyyymm "$parent_stamp")/${parent_stamp}_${parent_slug}"
-      parent_link="親セッション: [[${parent_note}|${parent_stamp}_${parent_slug}]]"
+      parent_note="ClaudeCode/${project}/Conversations/$(note_yyyymm "$parent_stamp")/${parent_basename}"
+      parent_link="親セッション: [[${parent_note}|${parent_basename}]]"
     fi
   fi
 fi

@@ -9,7 +9,8 @@
 # タスク削除（JSON ファイルの消滅）も自動で反映される。
 #
 # ノートは ClaudeCode/<project>/Tasks/<YYYYMM>/<session_id>/ 配下に
-# <stamp>_<slug>.md として置き、冒頭でセッションログノート
+# <stamp>_<branch>_<slug>.md (session_note_basename の出力) として置き、
+# 冒頭でセッションログノート
 # (ClaudeCode/<project>/Conversations/<YYYYMM>/ 配下) へ wikilink する。
 # タスクノートとセッションログノートは basename が同一（suffix なし）で
 # 衝突するため、リンクは basename ではなく vault ルートからのフルパスで
@@ -83,13 +84,14 @@ fi
 project="$(resolve_project "$session_transcript" "$cwd")"
 started_at="$(jq -rn 'first(inputs | .timestamp // empty)' "$session_transcript")"
 stamp="$(note_stamp "$started_at")"
-slug="$(note_slug "$session_transcript" false)"
-[[ -n "$stamp" && -n "$slug" ]] || exit 0
+[[ -n "$stamp" ]] || exit 0
 
 vault_root="$(resolve_vault_root)"
 [[ -n "$vault_root" && -d "$vault_root" ]] || exit 0
 
-session_note="${stamp}_${slug}"
+state_dir="$(obsidian_state_dir)"
+session_note="$(session_note_basename "$session_transcript" false "$session_id" "$state_dir" "$stamp")"
+[[ -n "$session_note" ]] || exit 0
 yyyymm="$(note_yyyymm "$stamp")"
 conv_note="ClaudeCode/${project}/Conversations/${yyyymm}/${session_note}"
 note_file="$vault_root/ClaudeCode/${project}/Tasks/${yyyymm}/${session_id}/${session_note}.md"
