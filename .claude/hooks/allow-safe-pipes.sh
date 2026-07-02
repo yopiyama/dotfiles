@@ -18,6 +18,8 @@ tool_name="$(printf '%s' "$input" | jq -r '.tool_name // ""')"
 command="$(printf '%s' "$input" | jq -r '.tool_input.command // ""')"
 [[ -z "$command" ]] && exit 0
 
+cwd="$(printf '%s' "$input" | jq -r '.cwd // ""')"
+
 # --- クォート除去・正規化 ---
 oneline="$(printf '%s' "$command" | tr '\n' ' ')"
 cleaned="$(printf '%s' "$oneline" | sed -E 's/"[^"]*"//g')"
@@ -32,6 +34,76 @@ has_pipe=false
 has_redirect=false
 printf '%s' "$cleaned" | grep -qF '|' && has_pipe=true
 printf '%s' "$cleaned" | grep -qE '(^|[[:space:]])[0-9]*>' && has_redirect=true
+
+# --- 冗長な `git -C <path>` の検出 ---
+# settings.json / command-policy.conf の allow は `git diff` 等の前方一致なので、
+# `git -C <path> diff` はマッチせず毎回パーミッション確認になる。
+# path が cwd（または cwd のリポジトリルート）を指していて -C が不要な場合は
+# deny + 理由を返し、`-C` 無しで実行し直すよう促す（サブエージェントにも効く）。
+expand_tilde() {
+  local p="$1"
+  [[ "$p" == "~" ]] && p="$HOME"
+  [[ "$p" == "~/"* ]] && p="$HOME/${p#\~/}"
+  printf '%s' "$p"
+}
+
+# base からの相対も考慮してディレクトリを物理パスに解決。失敗時は空文字。
+resolve_dir() {
+  local base="$1" p="$2"
+  p="$(expand_tilde "$p")"
+  if [[ "$p" == /* ]]; then
+    (cd "$p" 2>/dev/null && pwd -P) || true
+  else
+    (cd "$base" 2>/dev/null && cd "$p" 2>/dev/null && pwd -P) || true
+  fi
+}
+
+check_redundant_git_c() {
+  [[ -n "$cwd" ]] || return 1
+  printf '%s' "$oneline" | grep -qE 'git[[:space:]]+-C[[:space:]]' || return 1
+
+  local cwd_real toplevel
+  cwd_real="$(resolve_dir / "$cwd")"
+  [[ -n "$cwd_real" ]] || return 1
+  toplevel="$(git -C "$cwd_real" rev-parse --show-toplevel 2>/dev/null || true)"
+
+  # `git -C` 直後のトークンを path として抽出する。クォート付きでも
+  # 空白を含まない path なら剥がして解決できる。空白入り path は
+  # トークンが途中で切れて解決に失敗し、安全側（noop）に倒れる。
+  local -a paths
+  local p
+  while IFS= read -r p; do
+    [[ -z "$p" ]] && continue
+    paths+=("$p")
+  done < <(printf '%s\n' "$oneline" \
+    | grep -oE 'git[[:space:]]+-C[[:space:]]+[^[:space:];|&]+' \
+    | sed -E "s/^git[[:space:]]+-C[[:space:]]+//; s/^\"(.*)\"\$/\1/; s/^'(.*)'\$/\1/")
+
+  [[ "${#paths[@]}" -gt 0 ]] || return 1
+
+  # 全ての -C が cwd と同一リポジトリを指す場合のみ「冗長」と判定する。
+  # 別リポジトリ向けが1つでも混ざれば通常のパーミッション確認に委ねる。
+  local resolved
+  for p in "${paths[@]}"; do
+    resolved="$(resolve_dir "$cwd_real" "$p")"
+    [[ -n "$resolved" ]] || return 1
+    if [[ "$resolved" != "$cwd_real" ]] && { [[ -z "$toplevel" ]] || [[ "$resolved" != "$toplevel" ]]; }; then
+      return 1
+    fi
+  done
+  return 0
+}
+
+if check_redundant_git_c; then
+  jq -n --arg cwd "$cwd" '{
+    hookSpecificOutput: {
+      hookEventName: "PreToolUse",
+      permissionDecision: "deny",
+      permissionDecisionReason: ("`git -C <path>` の path は cwd (" + $cwd + ") と同じリポジトリを指しており -C は不要です。`-C <path>` を付けると許可済みパターン (git diff, git log 等) に一致せず毎回確認が必要になるため、`-C <path>` を外して実行し直してください。")
+    }
+  }'
+  exit 0
+fi
 
 # --- gh api の読み取り専用 (GET/HEAD) 判定 ---
 # `gh api` は同じサブコマンドでも -X/-f 等のフラグ次第で書き込みになるため、

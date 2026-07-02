@@ -19,15 +19,20 @@ pass=0
 fail=0
 fail_names=()
 
-# check <説明> <tool_name> <command> <expected: allow|noop>
+# check <説明> <tool_name> <command> <expected: allow|deny|noop>
+# 第5引数に cwd を渡すと hook 入力 JSON に cwd を含める（省略時は cwd 無し）。
 check() {
-  local desc="$1" tool="$2" cmd="$3" expected="$4"
+  local desc="$1" tool="$2" cmd="$3" expected="$4" cwd="${5:-}"
   local output actual
 
-  output="$(jq -n --arg tool "$tool" --arg cmd "$cmd" '{tool_name: $tool, tool_input: {command: $cmd}}' | "$HOOK" 2>&1)"
+  output="$(jq -n --arg tool "$tool" --arg cmd "$cmd" --arg cwd "$cwd" \
+    '{tool_name: $tool, tool_input: {command: $cmd}} + (if $cwd == "" then {} else {cwd: $cwd} end)' \
+    | "$HOOK" 2>&1)"
 
   if printf '%s' "$output" | grep -q '"permissionDecision"[[:space:]]*:[[:space:]]*"allow"'; then
     actual="allow"
+  elif printf '%s' "$output" | grep -q '"permissionDecision"[[:space:]]*:[[:space:]]*"deny"'; then
+    actual="deny"
   elif [[ -z "$output" ]]; then
     actual="noop"
   else
@@ -99,6 +104,20 @@ check "クォート内のパイプ文字は複合コマンド扱いしない"   
 check "リダイレクトのみ (>) は許可対象のコマンドなら許可"      "Bash" "git log > /tmp/out.txt" allow
 check "追記リダイレクト (>>) も許可対象なら許可"               "Bash" "git log >> /tmp/out.txt" allow
 check "stderr リダイレクト (2>&1) も許可対象なら許可"          "Bash" "git status 2>&1" allow
+
+echo
+echo "=== 冗長な git -C は deny で -C 無し再実行を促す ==="
+repo_root="$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel)"
+check "git -C <cwd> diff は deny"                              "Bash" "git -C $repo_root diff" deny "$repo_root"
+check "git -C . status も deny"                                "Bash" "git -C . status" deny "$repo_root"
+check "ダブルクォート付き path も deny"                        "Bash" "git -C \"$repo_root\" log --oneline" deny "$repo_root"
+check "cwd がサブディレクトリでも repo root 指定なら deny"     "Bash" "git -C $repo_root log" deny "$SCRIPT_DIR"
+check "複合コマンドでも全て冗長なら deny"                      "Bash" "git -C $repo_root status && git -C $repo_root diff" deny "$repo_root"
+check "別ディレクトリへの -C は noop"                          "Bash" "git -C /usr diff" noop "$repo_root"
+check "存在しない path への -C は noop"                        "Bash" "git -C /nonexistent-dir-xyz diff" noop "$repo_root"
+check "変数入り path は判定不能につき noop"                    "Bash" 'git -C $PWD diff' noop "$repo_root"
+check "冗長でない -C が混ざれば noop"                          "Bash" "git -C /usr diff && git -C $repo_root status" noop "$repo_root"
+check "cwd 情報が無い入力では従来通り noop"                    "Bash" "git -C /tmp diff" noop
 
 echo
 echo "=== 既知の限界 (未対応・意図的にスキップ) ==="
