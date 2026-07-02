@@ -12,6 +12,8 @@ return {
     },
     keys = {
         { "<leader>gd", "<cmd>DiffviewOpen<CR>", desc = "Diffview: open (working tree)" },
+        -- 上流ブランチ (origin/xxx) とローカルの差分
+        { "<leader>gu", "<cmd>DiffviewOpen @{u}<CR>", desc = "Diffview: diff vs upstream" },
         { "<leader>gc", "<cmd>DiffviewClose<CR>", desc = "Diffview: close" },
         -- 現在のファイルのコミット履歴
         { "<leader>gh", "<cmd>DiffviewFileHistory %<CR>", desc = "Diffview: file history (current)" },
