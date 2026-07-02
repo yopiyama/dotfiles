@@ -115,16 +115,42 @@ done <<EOF
 $LINKS
 EOF
 
-# tmux プロジェクト設定の bootstrap (git 管理外の実ファイル。無ければ example からコピー)
-echo "--- tmux projects.json ---"
-proj="$HOME/.tmux/projects.json"
-if [ -e "$proj" ]; then
-  echo "  [OK]   ~/.tmux/projects.json (既存。上書きしません)"
-else
-  echo "  [COPY] ~/.tmux/projects.json <- .tmux/projects.example.json"
-  run mkdir -p "$HOME/.tmux"
-  run cp "$REPO/.tmux/projects.example.json" "$proj"
-fi
+# sample からの bootstrap (git 管理外の実ファイル。無ければコピー、既存なら触らない)
+# "repo 内 sample の相対パス|$HOME からの相対パス"
+COPIES="$(cat <<'EOF'
+.tmux/projects.json.sample|.tmux/projects.json
+.zshenv.sample|.zshenv
+EOF
+)"
+
+copy_one() {
+  local src="$REPO/$1" dest="$HOME/$2"
+
+  if [ ! -e "$src" ]; then
+    echo "  [SKIP] repo に無い: $1"
+    n_skipped=$((n_skipped + 1))
+    return
+  fi
+
+  if [ -e "$dest" ] || [ -L "$dest" ]; then
+    echo "  [OK]   $2  (既存。上書きしません)"
+    n_skipped=$((n_skipped + 1))
+    return
+  fi
+
+  echo "  [COPY] $2 <- $1"
+  local parent; parent="$(dirname "$dest")"
+  [ -d "$parent" ] || run mkdir -p "$parent"
+  run cp "$src" "$dest"
+}
+
+echo "--- bootstrap (sample copy) ---"
+while IFS='|' read -r src dest; do
+  [ -n "$src" ] || continue
+  copy_one "$src" "$dest"
+done <<EOF
+$COPIES
+EOF
 
 echo "--- done ---"
 echo "linked: $n_linked / skipped: $n_skipped / backed-up: $n_backed"

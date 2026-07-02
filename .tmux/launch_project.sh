@@ -21,7 +21,7 @@ startup_fallback() { exec tmux new-session -A -s "$STARTUP_SESSION"; }
 if [ -n "$STARTUP_SESSION" ]; then
   { [ -f "$CONFIG" ] && command -v jq >/dev/null && command -v fzf >/dev/null; } || startup_fallback
 else
-  [ -f "$CONFIG" ] || die "$CONFIG が見つかりません (projects.example.json をコピーしてください)"
+  [ -f "$CONFIG" ] || die "$CONFIG が見つかりません (projects.json.sample をコピーしてください)"
   command -v jq  >/dev/null || die "jq が必要です"
   command -v fzf >/dev/null || die "fzf が必要です"
 fi
