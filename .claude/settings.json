@@ -66,6 +66,7 @@
             "Bash(obsidian tasks:*)",
             "Bash(obsidian task:*)",
             "Bash(obsidian open:*)",
+            "Bash(ps:*)",
             "Bash(pwd:*)",
             "Bash(rg:*)",
             "Bash(sed -n:*)",
@@ -79,13 +80,22 @@
             "Bash(wc:*)",
             "Bash(which:*)",
             "Bash(~/.claude/skills/code-review/scripts/codex-review.sh:*)",
+            "Bash(~/.claude/skills/code-review/scripts/check-prereqs.sh:*)",
             "Bash(codex:*)",
             "Bash(whoami:*)",
             "mcp__context7__get-library-docs",
             "mcp__context7__resolve-library-id",
             "Edit(**)",
             "Read(**)",
-            "Write(**)"
+            "Write(**)",
+            "Read(//tmp/**)",
+            "Edit(//tmp/**)",
+            "Write(//tmp/**)",
+            "Read(//private/tmp/**)",
+            "Edit(//private/tmp/**)",
+            "Write(//private/tmp/**)",
+            "Read(~/.claude/**)",
+            "Read(~/ghq/github.com/yopiyama/dotfiles/.claude/**)"
         ],
         "deny": [
             "Bash(curl:*)",
@@ -144,6 +154,17 @@
                     {
                         "type": "command",
                         "command": "~/.claude/hooks/allow-safe-pipes.sh"
+                    }
+                ]
+            }
+        ],
+        "PostToolUse": [
+            {
+                "matcher": "TaskCreate|TaskUpdate",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "~/.claude/hooks/sync-tasks-to-obsidian.sh"
                     }
                 ]
             }
