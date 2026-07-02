@@ -141,7 +141,7 @@
         ],
         "defaultMode": "default"
     },
-    "model": "claude-sonnet-5",
+    "model": "claude-fable-5[1m]",
     "enableAllProjectMcpServers": true,
     "statusLine": {
         "type": "command",
