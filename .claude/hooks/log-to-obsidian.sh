@@ -11,7 +11,18 @@
 # 冪等性は $HOME/.claude/claude-obsidian-log/<key>.count に
 # 「これまでに読み込んだトランスクリプト行数」を保存することで担保する
 # （このリポジトリの管理対象外＝git管理されないマシンローカル状態）。
+#
+# 書き込みは obsidian CLI ではなく vault への直接ファイル書き込みで行う。
+# obsidian CLI は GUI バイナリそのもので、呼び出しごとにフル Electron
+# インスタンスが cold boot する上、アプリ未起動時は GUI 本体を起動させ、
+# 並行呼び出し時は single-instance lock の奪い合いで稼働中のアプリが
+# SIGKILL され得る（Obsidian が落ちて起動を繰り返す原因になった）。
+# vault はただのディレクトリなので直接書けばアプリには一切触れない。
 set -euo pipefail
+
+# ノート命名・保存先解決は sync-tasks-to-obsidian.sh と共通
+# (タスクノート→セッションノートの wikilink が名前一致で成立する前提)。
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/obsidian-note-lib.sh"
 
 input="$(cat)"
 session_id="$(jq -r '.session_id // empty' <<<"$input")"
@@ -106,39 +117,55 @@ if [[ -z "$chunk" ]]; then
   exit 0
 fi
 
-project="$(basename "$cwd")"
-started_at="$(jq -r 'select(.timestamp != null) | .timestamp' "$transcript_path" | head -1)"
-timestamp="${started_at:0:19}"
-timestamp="${timestamp//:/-}"
+project="$(resolve_project "$transcript_path" "$cwd")"
+started_at="$(jq -rn 'first(inputs | .timestamp // empty)' "$transcript_path")"
+timestamp="$(note_stamp "$started_at")"
 [[ -z "$timestamp" ]] && timestamp="$(date +%Y-%m-%dT%H-%M-%S)"
-
-# ノートファイル名は最初のユーザー発言(サブエージェントならタスク文)の
-# 先頭を要約として使う。Session ID っぽい無意味な suffix を避けるため。
-slug="$(jq -r --argjson is_subagent "$is_subagent" '
-  select(.type == "user")
-  | select($is_subagent or (.isSidechain != true))
-  | select(.isMeta != true)
-  | .message.content
-  | if type == "string" then .
-    else ([.[] | select(.type == "text") | .text] | join(" "))
-    end
-  | gsub("\\s+"; " ")
-  | gsub("/"; "_")
-  | sub("^ +"; "") | sub(" +$"; "")
-  | select(length > 0)
-  | if length > 30 then .[0:30] + "…" else . end
-' "$transcript_path" | head -1)"
+slug="$(note_slug "$transcript_path" "$is_subagent")"
 [[ -z "$slug" ]] && slug="無題"
 
+# サブエージェントのノートは SubAgent/ 配下に分け、プロジェクトフォルダ
+# 直下がメインセッションのノートだけになるようにする (横並びだと見づらい)。
+# 親子のリンクは wikilink (basename 解決) なのでフォルダが違っても機能する。
+conv_dir="ClaudeCode/${project}/Conversations/$(note_yyyymm "$timestamp")"
 if [[ "$is_subagent" == "true" ]]; then
   agent_short="${agent_id:0:8}"
-  note_path="ClaudeCode/${project}/${timestamp}_${slug}_${agent_short}.md"
+  note_path="${conv_dir}/SubAgent/${timestamp}_${slug}_${agent_short}.md"
 else
-  note_path="ClaudeCode/${project}/${timestamp}_${slug}.md"
+  note_path="${conv_dir}/${timestamp}_${slug}.md"
 fi
 
-if [[ "$last_synced" -eq 0 ]]; then
-  git_branch="$(jq -r 'select(.gitBranch != null) | .gitBranch' "$transcript_path" | head -1)"
+# サブエージェントのノート冒頭には親セッションのノートへの wikilink を入れ、
+# 親ノート側の Backlinks からサブエージェントのログを辿れるようにする。
+# 親の transcript は <projects>/<session_id>.jsonl、サブエージェントの
+# transcript は <projects>/<session_id>/subagents/agent-<id>.jsonl に置かれる
+# ため、transcript_path から親 transcript を導出できる。親ノート名は
+# transcript の内容 (先頭 timestamp + 最初のユーザー発話) だけから決定的に
+# 決まるので、親の Stop がまだ発火しておらず親ノートが未作成でも同じ名前を
+# 計算してリンクできる (Obsidian の wikilink はノート作成時点で解決される)。
+parent_link=""
+if [[ "$is_subagent" == "true" ]]; then
+  parent_transcript="${transcript_path%/subagents/*}.jsonl"
+  if [[ "$parent_transcript" != "$transcript_path" && -f "$parent_transcript" ]]; then
+    parent_stamp="$(note_stamp "$(jq -rn 'first(inputs | .timestamp // empty)' "$parent_transcript")")"
+    parent_slug="$(note_slug "$parent_transcript" false)"
+    if [[ -n "$parent_stamp" && -n "$parent_slug" ]]; then
+      # タスクノート (Tasks/ 配下) がセッションノートと同名なため、
+      # basename ではなくフルパスで修飾して曖昧さを避ける。
+      parent_note="ClaudeCode/${project}/Conversations/$(note_yyyymm "$parent_stamp")/${parent_stamp}_${parent_slug}"
+      parent_link="親セッション: [[${parent_note}|${parent_stamp}_${parent_slug}]]"
+    fi
+  fi
+fi
+
+vault_root="$(resolve_vault_root)"
+[[ -n "$vault_root" && -d "$vault_root" ]] || exit 0
+
+note_file="$vault_root/$note_path"
+mkdir -p "$(dirname "$note_file")"
+
+if [[ "$last_synced" -eq 0 && ! -e "$note_file" ]]; then
+  git_branch="$(jq -rn 'first(inputs | .gitBranch // empty)' "$transcript_path")"
   if [[ "$is_subagent" == "true" ]]; then
     frontmatter="---
 session_id: ${session_id}
@@ -151,6 +178,11 @@ started_at: ${started_at}
 ---
 
 "
+    if [[ -n "$parent_link" ]]; then
+      frontmatter+="${parent_link}
+
+"
+    fi
   else
     frontmatter="---
 session_id: ${session_id}
@@ -162,9 +194,9 @@ started_at: ${started_at}
 
 "
   fi
-  obsidian create vault=obsidian path="$note_path" content="${frontmatter}${chunk}" >/dev/null 2>&1 || true
+  printf '%s\n' "${frontmatter}${chunk}" > "$note_file"
 else
-  obsidian append vault=obsidian path="$note_path" content="$chunk" >/dev/null 2>&1 || true
+  printf '\n%s\n' "$chunk" >> "$note_file"
 fi
 
 echo "$total_lines" > "$state_file"
