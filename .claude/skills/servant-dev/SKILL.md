@@ -1,7 +1,7 @@
 ---
 name: servant-dev
 description: "トークン効率を重視した実装作業のオーケストレーション。モデルを使い分けた 4 体のサーヴァント（Explorer/Researcher/Implementer/Verifier）にタスクを分解・委任し、Main のコンテキストを薄く保つ。'サーヴァントで' '/servant-dev' と言われたとき、または複数ファイルにまたがる中規模以上の実装タスクを開始するときに起動。"
-tools: Agent, SendMessage, Bash, Read, TaskCreate, TaskUpdate
+allowed-tools: Agent, SendMessage, Bash, Read, TaskCreate, TaskUpdate
 ---
 
 # Servant Dev — トークン効率実装オーケストレーション
@@ -47,12 +47,12 @@ Main（統括 = Lord El-Melloi II）がタスクを分解し、`.claude/agents/`
 
 ## Main のモデル運用
 
-Main は **Sonnet 常用**。以下の局面ではユーザーに `/model opus` への切替を提案する（スキルからは変更できない）:
+Main は **Sonnet 常用**。Main 自体を opus に切り替えると、以降の全ターンで会話履歴の再読込が opus 価格になる（戻し忘れリスクもある）ため、高い推論力が必要な局面は **opus のサブエージェントに委任**して Main は sonnet のまま保つ:
 
-- アーキテクチャ判断・トレードオフの検討が主となる計画フェーズ
-- 複数回の修正ループで解決しない難バグ
+- **計画フェーズ**（アーキテクチャ判断・トレードオフの検討が主となる場合）: built-in の `Plan` agent を `model: opus` で spawn し、計画書だけを受け取る
+- **難バグ**（修正 → 再検証ループ 3 回で解消しない場合）: ユーザーへのエスカレーションの際、経緯の要約と失敗抜粋を添えて `model: opus` のサブエージェントに原因調査を委任する選択肢を提示する
 
-計画が固まったら `/model sonnet` に戻すことも忘れず提案する。
+委任でも解決しない場合に限り、ユーザーに `/model opus` への一時切替を提案する（スキルからは変更できない）。切替した場合、解決後に `/model sonnet` へ戻すことも忘れず提案する。
 
 ## Obsidian vault の扱い
 
