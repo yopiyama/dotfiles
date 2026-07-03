@@ -1,14 +1,14 @@
 ---
-name: resume
-description: "Handoff ノートからのセッション再開。/handoff で書き出された Obsidian の引き継ぎノート（最新 or 指定されたもの）を読み、残タスクと現在のリポジトリ状態を突き合わせて作業を継続する。"
+name: resume-handoff
+description: "Handoff ノートからのセッション再開。/handoff で書き出された Obsidian の引き継ぎノート（最新 or 指定されたもの）を読み、残タスクと現在のリポジトリ状態を突き合わせて作業を継続する。built-in の /resume（会話履歴の復元）とは別物。"
 disable-model-invocation: true
 argument-hint: "[ノート名の一部（省略時は最新）]"
 allowed-tools: Bash(obsidian files:*), Bash(obsidian read:*), Bash(git status:*), Bash(git log:*), Bash(git branch:*), Bash(git rev-parse:*)
 ---
 
-# Resume — Handoff ノートからのセッション再開
+# Resume Handoff — Handoff ノートからのセッション再開
 
-`/handoff` が書き出した引き継ぎノートを読み、前セッションの続きから作業する。
+`/handoff` が書き出した引き継ぎノートを読み、前セッションの続きから作業する。built-in の `/resume`（同一会話履歴の復元）とは異なり、履歴は引き継がず要約ノートだけで再開する。
 
 ## 手順
 

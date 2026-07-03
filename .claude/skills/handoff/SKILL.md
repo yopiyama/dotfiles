@@ -1,13 +1,13 @@
 ---
 name: handoff
-description: "セッション引き継ぎノートの書き出し。現在のセッションの目的・決定事項・残タスク・関連 file:line を Obsidian の Handoff ノートに要約し、新しいセッションが /resume で読んで再開できるようにする。コンテキストが肥大化したセッションを畳むときに使う。"
+description: "セッション引き継ぎノートの書き出し。現在のセッションの目的・決定事項・残タスク・関連 file:line を Obsidian の Handoff ノートに要約し、新しいセッションが /resume-handoff で読んで再開できるようにする。コンテキストが肥大化したセッションを畳むときに使う。"
 disable-model-invocation: true
 allowed-tools: Bash(obsidian create:*), Bash(obsidian files:*), Bash(git status:*), Bash(git log:*), Bash(git diff:*), Bash(git branch:*), Bash(git rev-parse:*), Bash(date:*)
 ---
 
 # Handoff — セッション引き継ぎノートの書き出し
 
-現在のセッションの状態を Obsidian の Handoff ノートに要約する。目的は、コンテキストが肥大化したセッションを安全に捨て、新しいセッションが `/resume` でこのノートだけを読んで作業を再開できるようにすること（会話履歴は毎ターン再読込されるため、長寿命セッションを畳むことが最大のトークン節約になる）。
+現在のセッションの状態を Obsidian の Handoff ノートに要約する。目的は、コンテキストが肥大化したセッションを安全に捨て、新しいセッションが `/resume-handoff` でこのノートだけを読んで作業を再開できるようにすること（会話履歴は毎ターン再読込されるため、長寿命セッションを畳むことが最大のトークン節約になる）。
 
 ## 保存先
 
@@ -27,7 +27,7 @@ allowed-tools: Bash(obsidian create:*), Bash(obsidian files:*), Bash(git status:
 3. `obsidian create path="ClaudeCode/<プロジェクト名>/Handoff/<ファイル名>.md" content='<本文>'` で書き込む
    - content はシングルクォートで囲み、実改行をそのまま使う（`\n` エスケープ不要）
    - 本文にバッククォートや `$` を含めても、シングルクォート内なら展開されない。本文にシングルクォート自体は使わない
-4. 作成したノートのパスをユーザーに提示し、「新しいセッションで `/resume` を実行すれば再開できる」と案内する
+4. 作成したノートのパスをユーザーに提示し、「新しいセッションで `/resume-handoff` を実行すれば再開できる」と案内する（built-in の `/resume` ではない点に注意）
 
 ## ノートテンプレート
 
