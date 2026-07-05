@@ -28,6 +28,7 @@ LINKS="$(cat <<'EOF'
 .claude/.mcp.json|.claude/.mcp.json
 .claude/settings.json|.claude/settings.json
 .claude/skills|.claude/skills
+.claude/agents|.claude/agents
 .claude/hooks|.claude/hooks
 .config/nvim/init.lua|.config/nvim/init.lua
 .config/nvim/lua|.config/nvim/lua
