@@ -27,6 +27,19 @@ style = "Bold"
 [mouse]
 hide_when_typing = false
 
+# IME 切り替えキー (Ctrl+Space → Karabiner → Ctrl+Shift+S / IME 側の Ctrl+Alt+S) が
+# ^S として pty に流れ、nvim/Telescope の <C-s> マッピングを誤爆させるのを防ぐ。
+# 修飾キー付きの組み合わせのみ握りつぶし、素の Ctrl+S はそのまま通る。
+[[keyboard.bindings]]
+key = "S"
+mods = "Control|Shift"
+action = "None"
+
+[[keyboard.bindings]]
+key = "S"
+mods = "Control|Alt"
+action = "None"
+
 [bell]
 animation = "Ease"
 duration = 150

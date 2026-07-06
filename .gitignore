@@ -1,6 +1,9 @@
 .DS_Store
 .vim/dein
 
+# 社内プロジェクト向けレビュー観点（公開リポジトリに含めない）
+.claude/skills/code-review/references/private/
+
 # Node
 
 # Logs
