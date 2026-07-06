@@ -109,8 +109,6 @@
             "Bash(git clean:*)",
             "Bash(git config:*)",
             "Bash(git filter-branch:*)",
-            "Bash(git push:*)",
-            "Bash(git reset:*)",
             "Bash(git revert:*)",
             "Bash(gh pr merge:*)",
             "Bash(gh pr close:*)",
@@ -139,6 +137,10 @@
             "Write(**/*.env)",
             "Write(.env*)"
         ],
+        "ask": [
+            "Bash(git push:*)",
+            "Bash(git reset:*)"
+        ],
         "defaultMode": "default"
     },
     "model": "claude-fable-5[1m]",
@@ -154,6 +156,15 @@
                     {
                         "type": "command",
                         "command": "~/.claude/hooks/allow-safe-pipes.sh"
+                    }
+                ]
+            },
+            {
+                "matcher": "Bash",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "~/.claude/hooks/git-guard.sh"
                     }
                 ]
             }
