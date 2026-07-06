@@ -120,10 +120,10 @@ git grep -l "from ['\"].*<変更モジュール名>['\"]" -- '*.py'
 
 ### ステップ 6: レビュー観点の読み込みと分配
 
-`references/` ディレクトリ配下のプロジェクト固有レビュー観点ファイルを読み込む。
+`references/` ディレクトリ配下のプロジェクト固有レビュー観点ファイルを読み込む。社内プロジェクト向けの観点は git 管理外の `references/private/` に置かれているため、両方を探索する。
 
 ```bash
-ls ~/.claude/skills/code-review/references/
+ls ~/.claude/skills/code-review/references/ ~/.claude/skills/code-review/references/private/ 2>/dev/null
 ```
 
 現在の作業ディレクトリのプロジェクト名に一致するファイルがあれば Read ツールで内容を読み込み、以下のマッピングに従って各エージェントのプロンプトに含めるセクションを抽出する。
