@@ -1,6 +1,6 @@
 ---
 name: pr-comments
-description: "GitHub PR のレビューコメントの洗い出しとタスク化。固定スクリプトで reviews / review threads / issue comments をまとめて取得し、分類して Obsidian のタスクノートに書き出す。「PR コメントをリストアップして」「レビューコメントをタスク化して」「PR の指摘を洗い出して」と言われたときに起動。"
+description: "GitHub PR のレビューコメントの洗い出しとタスク化、および対応状況の更新。固定スクリプトで reviews / review threads / issue comments をまとめて取得し、分類して Obsidian のタスクノートに書き出す。「PR コメントをリストアップして」「レビューコメントをタスク化して」「PR の指摘を洗い出して」「対応状況を更新して」「ステータスを同期して」と言われたときに起動。"
 allowed-tools: Bash(~/.claude/skills/pr-comments/scripts/fetch-pr-comments.sh:*), Bash(gh pr view:*), Bash(git rev-parse:*), Bash(date:*), Bash(obsidian read:*), Bash(obsidian create:*), Bash(obsidian files:*), Bash(obsidian open:*)
 ---
 
@@ -65,6 +65,19 @@ updated: <YYYY-MM-DD>
 - 1 スレッド = 1 タスク。チェックボックスの行に `path:line`・ラベル・要約・指摘者・コメント URL を必ず含める
 - 「対応不要」セクションはチェックボックスにしない
 - 書き出し後、ノートのパスをユーザーに伝える（必要なら `obsidian open` で開く）
+
+### 4. 対応状況の更新（再実行時）
+
+「対応状況を更新して」「ステータスを同期して」と言われた場合、または既存タスクノートがある PR に対して再度洗い出しを行う場合はこちら。
+
+1. `obsidian read` で既存ノートを読み込み、各タスク行末尾の `([comment](URL))` から URL を抽出する
+2. スクリプトを `--include-resolved` 付きで再取得し、GitHub 側の最新状態を得る
+3. 既存タスクは必ずコメント URL をキーにスレッドと突き合わせる（`path:line` だけでは同じ行に複数スレッドが立つケースを区別できない）
+4. 突き合わせたスレッドが resolved なら、そのタスク行を `- [x]` に更新する（既にチェック済みならそのまま）
+5. 突き合わせたスレッドに新しい返信が付いていれば、要約の末尾に議論の要点を追記する（例: `— 返信あり: 要約`）
+6. 手動でチェック済みだが GitHub 側がまだ resolved でない行はそのまま維持する（resolved 化を強制しない。ユーザーの先行判断を優先する）
+7. 新規スレッド・新規コメントは手順2・3の分類基準に従って追記する
+8. 更新後、変更点（resolved になった件数・新規追加件数）をユーザーに要約して報告する
 
 ## 注意
 
