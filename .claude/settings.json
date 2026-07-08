@@ -81,6 +81,7 @@
             "Bash(which:*)",
             "Bash(~/.claude/skills/code-review/scripts/codex-review.sh:*)",
             "Bash(~/.claude/skills/code-review/scripts/check-prereqs.sh:*)",
+            "Bash(~/.claude/skills/pr-comments/scripts/fetch-pr-comments.sh:*)",
             "Bash(codex:*)",
             "Bash(whoami:*)",
             "mcp__context7__get-library-docs",
