@@ -1,3 +1,5 @@
+tap "daipeihust/tap"
+
 brew "awscli"
 brew "bat"
 brew "eza"
@@ -9,6 +11,7 @@ brew "gh"
 brew "ghq"
 brew "git-delta"
 brew "gnu-sed"
+brew "daipeihust/tap/im-select"
 brew "iproute2mac"
 brew "jq"
 brew "lazygit"
