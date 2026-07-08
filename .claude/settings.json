@@ -66,6 +66,7 @@
             "Bash(obsidian tasks:*)",
             "Bash(obsidian task:*)",
             "Bash(obsidian open:*)",
+            "Bash(obsidian help:*)",
             "Bash(ps:*)",
             "Bash(pwd:*)",
             "Bash(rg:*)",
