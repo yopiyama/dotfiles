@@ -106,7 +106,6 @@
             "Bash(find * -iwholename*/*)",
             "Bash(find * -ok*)",
             "Bash(find *|*xargs *)",
-            "Bash(git checkout:*)",
             "Bash(git clean:*)",
             "Bash(git config:*)",
             "Bash(git filter-branch:*)",
@@ -146,10 +145,6 @@
     },
     "model": "claude-fable-5[1m]",
     "enableAllProjectMcpServers": true,
-    "statusLine": {
-        "type": "command",
-        "command": "bash ~/.claude/hooks/statusline.sh"
-    },
     "hooks": {
         "PreToolUse": [
             {
@@ -211,6 +206,10 @@
                 ]
             }
         ]
+    },
+    "statusLine": {
+        "type": "command",
+        "command": "bash ~/.claude/hooks/statusline.sh"
     },
     "effortLevel": "high",
     "tui": "fullscreen",
