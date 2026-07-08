@@ -66,6 +66,7 @@
             "Bash(obsidian tasks:*)",
             "Bash(obsidian task:*)",
             "Bash(obsidian open:*)",
+            "Bash(obsidian help:*)",
             "Bash(ps:*)",
             "Bash(pwd:*)",
             "Bash(rg:*)",
@@ -81,6 +82,7 @@
             "Bash(which:*)",
             "Bash(~/.claude/skills/code-review/scripts/codex-review.sh:*)",
             "Bash(~/.claude/skills/code-review/scripts/check-prereqs.sh:*)",
+            "Bash(~/.claude/skills/pr-comments/scripts/fetch-pr-comments.sh:*)",
             "Bash(codex:*)",
             "Bash(whoami:*)",
             "mcp__context7__get-library-docs",
@@ -105,7 +107,6 @@
             "Bash(find * -iwholename*/*)",
             "Bash(find * -ok*)",
             "Bash(find *|*xargs *)",
-            "Bash(git checkout:*)",
             "Bash(git clean:*)",
             "Bash(git config:*)",
             "Bash(git filter-branch:*)",
@@ -145,10 +146,6 @@
     },
     "model": "claude-fable-5[1m]",
     "enableAllProjectMcpServers": true,
-    "statusLine": {
-        "type": "command",
-        "command": "bash ~/.claude/hooks/statusline.sh"
-    },
     "hooks": {
         "PreToolUse": [
             {
@@ -210,6 +207,10 @@
                 ]
             }
         ]
+    },
+    "statusLine": {
+        "type": "command",
+        "command": "bash ~/.claude/hooks/statusline.sh"
     },
     "effortLevel": "high",
     "tui": "fullscreen",

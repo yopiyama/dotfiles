@@ -8,7 +8,7 @@
 # ディレクトリ全体を読み直してノートを全量書き換える。差分追跡が不要になり、
 # タスク削除（JSON ファイルの消滅）も自動で反映される。
 #
-# ノートは ClaudeCode/<project>/Tasks/<YYYYMM>/<session_id>/ 配下に
+# ノートは ClaudeCode/<project>/Tasks/<YYYYMM>/ 配下に
 # <stamp>_<branch>_<slug>.md (session_note_basename の出力) として置き、
 # 冒頭でセッションログノート
 # (ClaudeCode/<project>/Conversations/<YYYYMM>/ 配下) へ wikilink する。
@@ -94,7 +94,7 @@ session_note="$(session_note_basename "$session_transcript" false "$session_id" 
 [[ -n "$session_note" ]] || exit 0
 yyyymm="$(note_yyyymm "$stamp")"
 conv_note="ClaudeCode/${project}/Conversations/${yyyymm}/${session_note}"
-note_file="$vault_root/ClaudeCode/${project}/Tasks/${yyyymm}/${session_id}/${session_note}.md"
+note_file="$vault_root/ClaudeCode/${project}/Tasks/${yyyymm}/${session_note}.md"
 mkdir -p "$(dirname "$note_file")"
 
 tmp_file="$(mktemp "${note_file}.XXXXXX")"

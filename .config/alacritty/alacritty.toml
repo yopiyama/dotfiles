@@ -40,6 +40,23 @@ key = "S"
 mods = "Control|Alt"
 action = "None"
 
+# tmux leader (Ctrl-p) を押した瞬間に ATOK を英字モードに強制切り替えしてから
+# Ctrl-p を pty に転送する。tmux のプレフィックスキー入力中に IME が有効なままだと
+# 後続のキー入力が誤変換されるのを防ぐ。
+# ATOK は「あ」「英字」を独立した入力ソースではなく単一ソース内のモードとして
+# 扱っているため、`com.apple.keylayout.ABC` (別の入力ソース) ではなく
+# ATOK 内の英字モード ID `com.justsystems.inputmethod.atok35.Roman` を指定する
+# (`im-select` を英字モード中に引数なし実行して確認した実際の ID)。
+[[keyboard.bindings]]
+key = "P"
+mods = "Control"
+command = { program = "/opt/homebrew/bin/im-select", args = ["com.justsystems.inputmethod.atok35.Roman"] }
+
+[[keyboard.bindings]]
+key = "P"
+mods = "Control"
+chars = "\u0010"
+
 [bell]
 animation = "Ease"
 duration = 150
