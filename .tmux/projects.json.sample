@@ -1,5 +1,6 @@
 {
   "//": "git 管理外の ~/.tmux/projects.json にコピーして使う。projects[].windows を省略すると defaults.windows が使われる。",
+  "//panes": "windows[].panes で 1 ウィンドウ内の追加ペインを定義できる。cmd はウィンドウ最初のペインで実行され、panes は上から順に直前のペインを分割して作られる。split: right (右に開く) / bottom (下に開く、デフォルト)。size は省略可で tmux の -l に渡る ('30%' や '20')。分割後は最初のペインにフォーカスが戻る。",
   "defaults": {
     "windows": [
       { "name": "editor", "cmd": "nvim ." },
@@ -18,7 +19,14 @@
       "name": "example-with-custom-windows",
       "path": "~/ghq/github.com/yopiyama/example",
       "windows": [
-        { "name": "editor", "cmd": "nvim ." },
+        {
+          "name": "editor",
+          "cmd": "nvim .",
+          "panes": [
+            { "split": "right", "size": "30%", "cmd": "npm run dev" },
+            { "split": "bottom", "cmd": "" }
+          ]
+        },
         { "name": "test", "cmd": "" },
         { "name": "claude", "cmd": "claude" }
       ]
