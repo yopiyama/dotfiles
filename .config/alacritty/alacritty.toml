@@ -45,12 +45,12 @@ action = "None"
 # 後続のキー入力が誤変換されるのを防ぐ。
 # ATOK は「あ」「英字」を独立した入力ソースではなく単一ソース内のモードとして
 # 扱っているため、`com.apple.keylayout.ABC` (別の入力ソース) ではなく
-# ATOK 内の英字モード ID `com.justsystems.inputmethod.atok35.Roman` を指定する
+# ATOK 内の英字モード ID `com.justsystems.inputmethod.atok36.Roman` を指定する
 # (`im-select` を英字モード中に引数なし実行して確認した実際の ID)。
 [[keyboard.bindings]]
 key = "P"
 mods = "Control"
-command = { program = "/opt/homebrew/bin/im-select", args = ["com.justsystems.inputmethod.atok35.Roman"] }
+command = { program = "/opt/homebrew/bin/im-select", args = ["com.justsystems.inputmethod.atok36.Roman"] }
 
 [[keyboard.bindings]]
 key = "P"
