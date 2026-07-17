@@ -62,7 +62,7 @@ THREADS_QUERY='query($owner:String!,$name:String!,$number:Int!,$endCursor:String
       pageInfo{hasNextPage endCursor}
       nodes{ isResolved isOutdated path line
         comments(first:100){ nodes{
-          author{login} body createdAt url pullRequestReview{databaseId}
+          author{login} body createdAt url diffHunk pullRequestReview{databaseId}
         } } }
     } } } }'
 
@@ -125,6 +125,8 @@ def published_at: $review_time[.pullRequestReview.databaseId | tostring] // .cre
     | select($include_resolved or (.isResolved | not))
     | select($since_time == "" or ([.comments.nodes[] | published_at] | max) >= $since_time)
     | { path, line, resolved: .isResolved, outdated: .isOutdated,
+        # スレッド先頭コメントの diff hunk (指摘対象コードの抜粋)
+        diff_hunk: (.comments.nodes[0].diffHunk // null),
         comments: [ .comments.nodes[]
           | { author: login, created_at: .createdAt, body, url,
               review_id: .pullRequestReview.databaseId } ] } ],
@@ -155,6 +157,7 @@ def flags: [ (if .resolved then "[resolved]" else empty end),
 + (if (.threads | length) > 0 then
     ["## Review threads (\(.threads | length))"]
     + [ .threads[] | "### " + loc + flags + "\n"
+        + (if .diff_hunk then "```diff\n\(.diff_hunk)\n```\n" else "" end)
         + ([ .comments[] | "- @\(.author) (\(.created_at)) \(.url)\n" + quote ] | join("\n"))
         + "\n" ]
   else [] end)
