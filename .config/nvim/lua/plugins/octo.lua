@@ -20,6 +20,15 @@ return {
         { "<leader>oo", "<cmd>Octo actions<CR>", desc = "Octo: actions" },
     },
     config = function()
+        -- コメントの長い行を折り返して読みやすくする
+        vim.api.nvim_create_autocmd("FileType", {
+            pattern = "octo",
+            callback = function()
+                vim.opt_local.wrap = true
+                vim.opt_local.linebreak = true
+                vim.opt_local.conceallevel = 2
+            end,
+        })
         vim.api.nvim_create_user_command("OctoPRCurrent", function()
             local pr_number = vim.trim(vim.fn.system("gh pr view --json number -q .number 2>/dev/null"))
             if pr_number ~= "" then
