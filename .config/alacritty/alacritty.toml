@@ -27,6 +27,34 @@ style = "Bold"
 [mouse]
 hide_when_typing = false
 
+# Cmd を押している間 URL がハイライトされ、Cmd+Click で open される。
+# tmux のマウスモード有効時はデフォルト (修飾キーなし) だとクリックが
+# tmux に食われるため、Command を明示的に割り当てる。
+# regex は Alacritty デフォルトの URL 検出パターンと同じもの。
+# 注意: マウスモードを掴むアプリ (tmux 等) の中では Alacritty の仕様で
+# Shift の同時押しが必須になる (display/hint.rs の highlighted_at:
+# `!mouse_mode || mods.contains(SHIFT)`)。つまり tmux 内では
+# Cmd+Shift+Click / Ctrl+Shift+Click で開く。
+[[hints.enabled]]
+command = "open"
+hyperlinks = true
+post_processing = true
+persist = false
+mouse = { enabled = true, mods = "Command" }
+binding = { key = "O", mods = "Control|Shift" }
+regex = "(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:|file:|git://|ssh:|ftp://)[^\\u0000-\\u001F\\u007F-\\u009F<>\"\\s{-}\\^⟨⟩`\\\\]+"
+
+# 同じ URL オープンを Ctrl+Click でも使えるようにする。
+# mouse.mods は 1 エントリに 1 つしか指定できないため、修飾キー違いで
+# 同内容のエントリを重ねている (regex も同一)。
+[[hints.enabled]]
+command = "open"
+hyperlinks = true
+post_processing = true
+persist = false
+mouse = { enabled = true, mods = "Control" }
+regex = "(ipfs:|ipns:|magnet:|mailto:|gemini://|gopher://|https://|http://|news:|file:|git://|ssh:|ftp://)[^\\u0000-\\u001F\\u007F-\\u009F<>\"\\s{-}\\^⟨⟩`\\\\]+"
+
 # IME 切り替えキー (Ctrl+Space → Karabiner → Ctrl+Shift+S / IME 側の Ctrl+Alt+S) が
 # ^S として pty に流れ、nvim/Telescope の <C-s> マッピングを誤爆させるのを防ぐ。
 # 修飾キー付きの組み合わせのみ握りつぶし、素の Ctrl+S はそのまま通る。
