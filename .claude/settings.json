@@ -12,6 +12,7 @@
             "Bash(gh pr view:*)",
             "Bash(gh pr list:*)",
             "Bash(gh pr check:*)",
+            "Bash(gh pr checks:*)",
             "Bash(gh pr diff:*)",
             "Bash(gh release view:*)",
             "Bash(gh repo view:*)",
@@ -22,6 +23,7 @@
             "Bash(gh pr create:*)",
             "Bash(gh pr edit:*)",
             "Bash(gh pr comment:*)",
+            "Bash(ghq list *)",
             "Bash(git add:*)",
             "Bash(git blame:*)",
             "Bash(git branch:*)",
@@ -97,7 +99,9 @@
             "Edit(//private/tmp/**)",
             "Write(//private/tmp/**)",
             "Read(~/.claude/**)",
-            "Read(~/ghq/github.com/yopiyama/dotfiles/.claude/**)"
+            "Read(~/ghq/github.com/yopiyama/dotfiles/.claude/**)",
+            "Bash(obsidian --help)",
+            "Skill(*)"
         ],
         "deny": [
             "Bash(curl:*)",
@@ -145,6 +149,9 @@
         "defaultMode": "default"
     },
     "model": "claude-fable-5[1m]",
+    "env": {
+        "CLAUDE_CODE_DISABLE_MOUSE_CLICKS": "1"
+    },
     "enableAllProjectMcpServers": true,
     "hooks": {
         "PreToolUse": [
