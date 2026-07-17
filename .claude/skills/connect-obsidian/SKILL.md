@@ -17,7 +17,9 @@ Obsidian の操作を CLI (`obsidian` コマンド) を使って行う。Obsidia
 - `file=<name>` はファイル名での解決（拡張子・フルパス不要）
 - `path=<path>` は vault ルートからの正確なパス（例: `folder/note.md`）
 - ファイル指定なしの場合はアクティブファイルが対象になる
-- 複数行コンテンツは `\n` を使う（例: `content="# Title\n\nBody text"`）
+- 複数行コンテンツは `\n` を使う（例: `content="# Title\n\nBody text"`）。長い本文は一時ファイルに書いて `content="$(cat <file>)"` で実改行のまま渡す方が安全
+- **`create` / `append` の `content` はリテラル `\n`・`\t` を無条件に実改行・タブへ変換する**。本文にリテラル `\n` を残したい場合（シェルコードの引用等）は CLI では表現不能（`\\n` も `\` + 実改行になる）。その場合はそのファイルだけ vault へ直接書き込む。書き込み後に `obsidian read path=<path> | diff - <元ファイル>` で検証すると化けを検出できる
+- Obsidian 設定の Files and links → Excluded files に含まれるフォルダは、検索だけでなく **Bases の集計からも落ちる**（base ビューが 0 results になる）
 - 出力をクリップボードにコピーするには `--copy` フラグを使う
 - **`obsidian help` / `obsidian --help`（サブコマンド無し）を `head` などで早期 close するパイプに繋ぐとハングする**（例: `obsidian help | head -5`）。仕様確認は `obsidian help <subcommand>` で具体名を指定するか、 `obsidian help | grep PATTERN` のように全出力を消費する形にする。他のサブコマンドは早期 close パイプでも問題無い。
 

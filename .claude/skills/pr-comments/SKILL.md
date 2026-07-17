@@ -178,5 +178,6 @@ updated: <YYYY-MM-DD>
 ## 注意
 
 - スクリプトは gh CLI の認証を前提とする。失敗したら stderr をそのまま提示する
+- `obsidian create` の `content` はリテラル `\n`・`\t` を実改行・タブへ変換する。ノート本文は一時ファイルに書いて `content="$(cat <file>)"` で渡し、書き込み後に `obsidian read | diff` で一致を検証する。コメント本文にリテラル `\n` が含まれて CLI で忠実に書けない場合のみ、そのファイルを vault へ直接書き込む
 - 親ノートの base ビューが「0 results」になる場合、Obsidian 設定の Files and links → Excluded files に `ClaudeCode` 配下が含まれていないか確認する（除外されたファイルは Bases の集計からも落ちる）
 - タスク管理先の変更（TaskCreate / Notion 等）をユーザーが明示した場合のみ、そちらに切り替える
