@@ -68,7 +68,7 @@ vim.keymap.set("n", "<leader>ws", function()
     vim.api.nvim_win_set_buf(win, cur_buf)
   end
 end, { desc = "Window: pick and swap" })
-vim.keymap.set("n", "<leader>wt", "<cmd>Neotree toggle<CR>", { desc = "Window: toggle neo-tree" })
+vim.keymap.set("n", "<leader>wt", "<cmd>Neotree toggle float<CR>", { desc = "Window: toggle neo-tree (float)" })
 vim.keymap.set("n", "<leader>wo", "<cmd>only<CR>", { desc = "Window: close others" })
 vim.keymap.set("n", "<leader>w=", "<C-w>=", { desc = "Window: equalize size" })
 

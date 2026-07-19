@@ -10,6 +10,12 @@ return {
     config = function()
       require("neo-tree").setup({
         window = {
+            position = "float",
+            -- float のサイズ・位置を調整する場合はここ
+            -- popup = {
+            --     size = { width = "60%", height = "80%" },
+            --     position = "50%",
+            -- },
             mappings = {
                 -- デフォルトの f (fuzzy_finder) を / に逃がし、<leader>f* を telescope 用に空ける
                 ["f"] = "none",

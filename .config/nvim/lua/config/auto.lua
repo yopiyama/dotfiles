@@ -118,49 +118,52 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
     end,
 })
 
--- :q でファイルを閉じて neo-tree だけになったら、右にペインを復元
-vim.api.nvim_create_autocmd("WinClosed", {
-    nested = true,
-    callback = function()
-        vim.schedule(function()
-            local wins = vim.api.nvim_list_wins()
-            -- フローティングウィンドウ（telescope 等）を除外して判定
-            local normal_wins = vim.tbl_filter(function(w)
-                local cfg = vim.api.nvim_win_get_config(w)
-                return not cfg.relative or cfg.relative == ""
-            end, wins)
-            if #normal_wins ~= 1 then
-                return
-            end
-            local tree_win = normal_wins[1]
-            if vim.bo[vim.api.nvim_win_get_buf(tree_win)].filetype ~= "neo-tree" then
-                return
-            end
-            -- listed バッファが残っていればそれを表示、なければ空バッファ
-            local listed = vim.tbl_filter(function(b)
-                return vim.bo[b].buflisted
-            end, vim.api.nvim_list_bufs())
-            if #listed > 0 then
-                vim.cmd("rightbelow vertical sbuffer " .. listed[1])
-            else
-                vim.cmd("rightbelow vnew")
-            end
-            -- neo-tree のデフォルト幅 (40) に戻す
-            vim.api.nvim_win_set_width(tree_win, 40)
-            -- カーソルを neo-tree 側へ戻す
-            vim.api.nvim_set_current_win(tree_win)
-        end)
-    end,
-})
-
--- neo-tree 上で :q / :wq したら nvim 全体を終了
-vim.api.nvim_create_autocmd("FileType", {
-    pattern = "neo-tree",
-    callback = function()
-        vim.cmd("cnoreabbrev <buffer> q qa")
-        vim.cmd("cnoreabbrev <buffer> wq wqa")
-    end,
-})
+-- NOTE: neo-tree を float 運用に移行したため、常駐サイドバー前提の以下 2 つの
+-- autocmd は無効化中。サイドバー常駐に戻す場合はコメント解除する。
+--
+-- -- :q でファイルを閉じて neo-tree だけになったら、右にペインを復元
+-- vim.api.nvim_create_autocmd("WinClosed", {
+--     nested = true,
+--     callback = function()
+--         vim.schedule(function()
+--             local wins = vim.api.nvim_list_wins()
+--             -- フローティングウィンドウ（telescope 等）を除外して判定
+--             local normal_wins = vim.tbl_filter(function(w)
+--                 local cfg = vim.api.nvim_win_get_config(w)
+--                 return not cfg.relative or cfg.relative == ""
+--             end, wins)
+--             if #normal_wins ~= 1 then
+--                 return
+--             end
+--             local tree_win = normal_wins[1]
+--             if vim.bo[vim.api.nvim_win_get_buf(tree_win)].filetype ~= "neo-tree" then
+--                 return
+--             end
+--             -- listed バッファが残っていればそれを表示、なければ空バッファ
+--             local listed = vim.tbl_filter(function(b)
+--                 return vim.bo[b].buflisted
+--             end, vim.api.nvim_list_bufs())
+--             if #listed > 0 then
+--                 vim.cmd("rightbelow vertical sbuffer " .. listed[1])
+--             else
+--                 vim.cmd("rightbelow vnew")
+--             end
+--             -- neo-tree のデフォルト幅 (40) に戻す
+--             vim.api.nvim_win_set_width(tree_win, 40)
+--             -- カーソルを neo-tree 側へ戻す
+--             vim.api.nvim_set_current_win(tree_win)
+--         end)
+--     end,
+-- })
+--
+-- -- neo-tree 上で :q / :wq したら nvim 全体を終了
+-- vim.api.nvim_create_autocmd("FileType", {
+--     pattern = "neo-tree",
+--     callback = function()
+--         vim.cmd("cnoreabbrev <buffer> q qa")
+--         vim.cmd("cnoreabbrev <buffer> wq wqa")
+--     end,
+-- })
 
 -- bufferline 対応: :q でバッファを閉じる
 --   複数バッファ → 現バッファ削除、次のバッファへ
@@ -168,6 +171,21 @@ vim.api.nvim_create_autocmd("FileType", {
 --   [No Name] のみ → Neovim 終了
 local function smart_quit(bang)
     local bang_str = bang and "!" or ""
+
+    -- コマンドラインウィンドウ (q: 等) では bprevious 系が E11 になるので素の quit
+    if vim.fn.getcmdwintype() ~= "" then
+        vim.cmd("quit" .. bang_str)
+        return
+    end
+
+    -- floating window (neo-tree float 等) や特殊バッファ (help, quickfix 等) は
+    -- バッファ整理をせずウィンドウを閉じるだけにする
+    local win_cfg = vim.api.nvim_win_get_config(0)
+    if (win_cfg.relative and win_cfg.relative ~= "") or vim.bo.buftype ~= "" then
+        vim.cmd("quit" .. bang_str)
+        return
+    end
+
     local listed = vim.tbl_filter(function(b)
         return vim.bo[b].buflisted
     end, vim.api.nvim_list_bufs())
@@ -194,13 +212,14 @@ local function smart_quit(bang)
     vim.cmd("enew")
     vim.cmd("bdelete" .. bang_str .. " " .. buf)
 
-    -- neo-tree があればフォーカスを移す
-    for _, win in ipairs(vim.api.nvim_list_wins()) do
-        if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "neo-tree" then
-            vim.api.nvim_set_current_win(win)
-            break
-        end
-    end
+    -- NOTE: サイドバー常駐時の挙動。float 運用中は不要なので無効化（戻す場合はコメント解除）
+    -- -- neo-tree があればフォーカスを移す
+    -- for _, win in ipairs(vim.api.nvim_list_wins()) do
+    --     if vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "neo-tree" then
+    --         vim.api.nvim_set_current_win(win)
+    --         break
+    --     end
+    -- end
 end
 
 vim.api.nvim_create_user_command("BufQ", function(opts)
