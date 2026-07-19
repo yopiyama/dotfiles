@@ -27,6 +27,7 @@ allowed-tools: Bash(obsidian create:*), Bash(obsidian files:*), Bash(git status:
 3. `obsidian create path="ClaudeCode/<プロジェクト名>/Handoff/<ファイル名>.md" content='<本文>'` で書き込む
    - content はシングルクォートで囲み、実改行をそのまま使う（`\n` エスケープ不要）
    - 本文にバッククォートや `$` を含めても、シングルクォート内なら展開されない。本文にシングルクォート自体は使わない
+   - 本文にリテラル `\n`・`\t` を書くと CLI が実改行・タブへ変換してしまう（`\\n` でも回避不能）。含める必要がある場合はそのノートだけ vault へ直接書き込む
 4. 作成したノートのパスをユーザーに提示し、「新しいセッションで `/resume-handoff` を実行すれば再開できる」と案内する（built-in の `/resume` ではない点に注意）
 
 ## ノートテンプレート

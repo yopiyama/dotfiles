@@ -6,6 +6,12 @@ set -euo pipefail
 # これらのシェル構文を含むコマンドにマッチしにくいため、
 # command-policy.conf のプレフィックスリストで全コマンドを検証し、
 # 安全なら permissionDecision: allow を返してパーミッション確認をスキップする。
+#
+# 加えて、auto-allow できず通常のパーミッション確認に落ちるケースのうち
+# 「複数の cd を含む複合コマンド」は deny + 理由を返し、ディレクトリごとの
+# 分割実行を促す。Claude Code 本体が複数 cd の複合コマンドを強制確認に
+# するため、プロジェクト settings で許可済みのコマンド（gotestsum 等）でも
+# 1 つに繋げると自動承認されなくなるのを防ぐ。
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 POLICY_FILE="${SCRIPT_DIR}/command-policy.conf"
@@ -241,4 +247,29 @@ if [[ "$all_safe" == "true" ]]; then
       permissionDecision: "allow"
     }
   }'
+  exit 0
+fi
+
+# --- 複数 cd を含む複合コマンドは分割実行を促す ---
+# ここに到達するのは auto-allow できず通常のパーミッション確認に落ちるケース。
+# 複数 cd のチェーンは Claude Code 本体が強制確認にするため、プロジェクト
+# settings で許可済みのコマンドでも自動承認されない。deny + 理由を返して
+# 「ディレクトリごとに 1 コマンドずつ」に分割し直させる。
+cd_count=0
+for segment in "${segments[@]}"; do
+  trimmed="$(strip_redirects "$segment" | sed 's/^[[:space:](]*//;s/[[:space:]]*$//')"
+  if [[ "$trimmed" == "cd" || "$trimmed" == "cd "* ]]; then
+    cd_count=$((cd_count + 1))
+  fi
+done
+
+if (( cd_count >= 2 )); then
+  jq -n '{
+    hookSpecificOutput: {
+      hookEventName: "PreToolUse",
+      permissionDecision: "deny",
+      permissionDecisionReason: "複数の cd を 1 つの複合コマンドに繋げると Claude Code が強制的にパーミッション確認を出すため、プロジェクトで許可済みのコマンドでも自動承認されません。ディレクトリごとにコマンドを分割し、`cd <dir> && <command>` の形で 1 回ずつ別々の Bash 呼び出しとして実行し直してください。"
+    }
+  }'
+  exit 0
 fi

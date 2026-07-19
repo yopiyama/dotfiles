@@ -79,6 +79,17 @@ done < <(
 [ "${#records[@]}" -gt 0 ] || die "$name のウィンドウ定義が空です"
 
 US=$'\x1f'
+
+# detached で作るセッションは既定 80x24 になり、%指定の分割サイズがその幅で計算される。
+# attach 時のリサイズで tmux は増分をペインへほぼ均等に配り比率を保存しないため、
+# 作成時点で実クライアントのサイズを渡しておく。
+if [ -n "${TMUX:-}" ]; then
+  # popup 内の tput は popup サイズを返すため、外側クライアントのサイズを tmux に問い合わせる
+  size_args=(-x "$(tmux display-message -p '#{client_width}')" -y "$(tmux display-message -p '#{client_height}')")
+else
+  size_args=(-x "$(tput cols)" -y "$(tput lines)")
+fi
+
 first_name=""
 win_pane=""     # 現在のウィンドウの最初のペイン id
 panes_added=""  # 現在のウィンドウで分割したか
@@ -97,7 +108,7 @@ for rec in "${records[@]}"; do
       panes_added=""
       if [ -z "$first_name" ]; then
         # -n で名前を明示すると automatic-rename はそのウィンドウで自動的に無効化される
-        win_pane="$(tmux new-session -d -s "$name" -n "$wname" -c "$path" -P -F '#{pane_id}')"
+        win_pane="$(tmux new-session -d "${size_args[@]}" -s "$name" -n "$wname" -c "$path" -P -F '#{pane_id}')"
         first_name="$wname"
       else
         win_pane="$(tmux new-window -t "=$name:" -n "$wname" -c "$path" -P -F '#{pane_id}')"
