@@ -82,7 +82,7 @@
         ]
     },
     "inputNeededNotifEnabled": true,
-    "model": "claude-fable-5[1m]",
+    "model": "sonnet",
     "permissions": {
         "allow": [
             "Bash(awk:*)",
