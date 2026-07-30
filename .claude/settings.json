@@ -183,7 +183,8 @@
             "Read(~/.claude/**)",
             "Read(~/ghq/github.com/yopiyama/dotfiles/.claude/**)",
             "Bash(obsidian --help)",
-            "Skill(*)"
+            "Skill(*)",
+            "Bash(crit:*)"
         ],
         "ask": [
             "Bash(git push:*)",
