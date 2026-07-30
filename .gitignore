@@ -4,6 +4,10 @@
 # 社内プロジェクト向けレビュー観点（公開リポジトリに含めない）
 .claude/skills/code-review/references/private/
 
+# nvim: この端末だけで使うプラグイン定義（README のみ追跡）
+.config/nvim/lua/plugins_local/*
+!.config/nvim/lua/plugins_local/README.md
+
 # Node
 
 # Logs
