@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# vendoring した外部スキルと上流 gist の差分を表示する。
+#
+# .claude/skills/*/UPSTREAM.md を読み、そこに書かれた gist-id / file / revision を元に
+# 上流の最新版を取得してローカルの実体と比較する。差分の適用はしない (取り込むかは目で判断する)。
+#
+# 終了ステータス: 0 = 全て最新, 1 = 差分あり, 2 = 実行エラー
+
+set -euo pipefail
+
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SKILLS_DIR="$REPO/.claude/skills"
+
+for cmd in gh jq; do
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo "エラー: $cmd が見つからない" >&2
+    exit 2
+  fi
+done
+
+tmp="$(mktemp)"
+trap 'rm -f "$tmp"' EXIT
+
+# UPSTREAM.md から "- key: value" 形式のメタ情報を取り出す
+meta() {
+  sed -n "s/^- $2: *//p" "$1" | head -1
+}
+
+status=0
+found=0
+
+for upstream in "$SKILLS_DIR"/*/UPSTREAM.md; do
+  [ -e "$upstream" ] || continue
+
+  skill_dir="$(dirname "$upstream")"
+  skill="$(basename "$skill_dir")"
+
+  gist_id="$(meta "$upstream" gist-id)"
+  file="$(meta "$upstream" file)"
+  revision="$(meta "$upstream" revision)"
+
+  if [ -z "$gist_id" ] || [ -z "$file" ]; then
+    echo "[SKIP] $skill: UPSTREAM.md に gist-id / file が無い"
+    continue
+  fi
+  if [ ! -f "$skill_dir/$file" ]; then
+    echo "[SKIP] $skill: $file が無い"
+    continue
+  fi
+
+  found=$((found + 1))
+  echo "== $skill ($file)"
+
+  json="$(gh api "gists/$gist_id")"
+  latest="$(jq -r '.history[0].version' <<<"$json")"
+  committed="$(jq -r '.history[0].committed_at' <<<"$json")"
+
+  if ! jq -er --arg f "$file" '.files[$f].content' <<<"$json" > "$tmp"; then
+    echo "  エラー: 上流の gist に $file が無い" >&2
+    status=2
+    continue
+  fi
+
+  if diff -u -L "vendored ($revision)" -L "upstream ($latest / $committed)" \
+      "$skill_dir/$file" "$tmp"; then
+    if [ "$revision" = "$latest" ]; then
+      echo "  最新 (revision $revision)"
+    else
+      # 同一 gist 内の他ファイル更新などで revision だけ進むことがある
+      echo "  内容は同じだが revision が進んでいる: $revision -> $latest"
+      echo "  UPSTREAM.md の revision / fetched-at を更新してよい"
+      status=1
+    fi
+  else
+    echo "  上流が更新されている: $revision -> $latest"
+    echo "  取り込む場合は $skill_dir/UPSTREAM.md の「更新手順」に従う"
+    status=1
+  fi
+done
+
+if [ "$found" -eq 0 ]; then
+  echo "vendoring されたスキルが無い ($SKILLS_DIR/*/UPSTREAM.md)"
+fi
+
+exit "$status"
