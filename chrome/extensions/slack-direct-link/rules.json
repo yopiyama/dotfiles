@@ -1,0 +1,64 @@
+[
+  {
+    "id": 1,
+    "priority": 10,
+    "action": { "type": "allow" },
+    "condition": {
+      "regexFilter": "^https://[a-z0-9-]+\\.slack\\.com/.*[?&]skip_today=",
+      "requestDomains": ["slack.com"],
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 2,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": { "regexSubstitution": "https://\\1/messages/\\2/\\3?\\4&skip_today=1" }
+    },
+    "condition": {
+      "regexFilter": "^https://([a-z0-9-]+\\.slack\\.com)/archives/([^/?#]+)/(p\\d+)\\?(.*)$",
+      "requestDomains": ["slack.com"],
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 3,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": { "regexSubstitution": "https://\\1/messages/\\2/\\3?skip_today=1" }
+    },
+    "condition": {
+      "regexFilter": "^https://([a-z0-9-]+\\.slack\\.com)/archives/([^/?#]+)/(p\\d+)$",
+      "requestDomains": ["slack.com"],
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 4,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": { "regexSubstitution": "https://\\1/messages/\\2?\\3&skip_today=1" }
+    },
+    "condition": {
+      "regexFilter": "^https://([a-z0-9-]+\\.slack\\.com)/archives/([^/?#]+)\\?(.*)$",
+      "requestDomains": ["slack.com"],
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 5,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": { "regexSubstitution": "https://\\1/messages/\\2?skip_today=1" }
+    },
+    "condition": {
+      "regexFilter": "^https://([a-z0-9-]+\\.slack\\.com)/archives/([^/?#]+)$",
+      "requestDomains": ["slack.com"],
+      "resourceTypes": ["main_frame"]
+    }
+  }
+]
