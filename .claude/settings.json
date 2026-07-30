@@ -82,7 +82,7 @@
         ]
     },
     "inputNeededNotifEnabled": true,
-    "model": "sonnet",
+    "model": "opus[1m]",
     "permissions": {
         "allow": [
             "Bash(awk:*)",
@@ -133,6 +133,7 @@
             "Bash(git status:*)",
             "Bash(git tag:*)",
             "Bash(git worktree:*)",
+            "Bash(git switch:*)",
             "Bash(grep:*)",
             "Bash(head:*)",
             "Bash(jq:*)",
@@ -175,17 +176,15 @@
             "mcp__context7__resolve-library-id",
             "Edit(**)",
             "Read(**)",
-            "Write(**)",
             "Read(//tmp/**)",
             "Edit(//tmp/**)",
-            "Write(//tmp/**)",
             "Read(//private/tmp/**)",
             "Edit(//private/tmp/**)",
-            "Write(//private/tmp/**)",
             "Read(~/.claude/**)",
             "Read(~/ghq/github.com/yopiyama/dotfiles/.claude/**)",
             "Bash(obsidian --help)",
-            "Skill(*)"
+            "Skill(*)",
+            "Bash(crit:*)"
         ],
         "ask": [
             "Bash(git push:*)",
@@ -206,7 +205,6 @@
             "Bash(git revert:*)",
             "Bash(gh pr merge:*)",
             "Bash(gh pr close:*)",
-            "Bash(git switch:*)",
             "Bash(git update-ref:*)",
             "Bash(perl -pi:*)",
             "Bash(rm -rf:*)",
@@ -216,20 +214,16 @@
             "Bash(wget:*)",
             "Bash(xargs:*)",
             "Read(.env*)",
+            "Edit(.env*)",
             "Bash(cat *.env*)",
             "Read(**/id_*)",
             "Edit(**/id_*)",
-            "Write(**/id_*)",
             "Read(**/*.pem)",
             "Edit(**/*.pem)",
-            "Write(**/*.pem)",
             "Read(**/*.key)",
             "Edit(**/*.key)",
-            "Write(**/*.key)",
             "Read(**/*.env)",
-            "Edit(**/*.env)",
-            "Write(**/*.env)",
-            "Write(.env*)"
+            "Edit(**/*.env)"
         ]
     },
     "preferredNotifChannel": "terminal_bell",
