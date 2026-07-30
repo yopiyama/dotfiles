@@ -14,3 +14,8 @@
 - リポジトリパスで編集しないと `git diff`/`git status` に変更が乗らず、コミット・レビューの対象にならない。
 
 `~/.claude/settings.json`（グローバル設定）も `install.sh` の `LINKS` に含まれており、このリポジトリ直下の `.claude/settings.json` への symlink になっている。つまりグローバル設定とこのリポジトリのプロジェクト設定は同一ファイルであり、変更する際は必ずこのリポジトリ直下の `.claude/settings.json` を編集すること。
+
+## コミットメッセージ規約
+
+- 日本語で書く。件名に conventional prefix（`feat:` / `fix:` / `refactor:` / `chore:`。必要ならスコープ付きで `feat(hooks):` 等）を付ける
+- 件名は変更内容の要約。補足が必要な場合は本文に箇条書きで「何を・なぜ」を書く

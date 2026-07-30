@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>URL Time Blocker</title>
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <h1>URL Time Blocker</h1>
+    <p class="hint">URL は正規表現でマッチします。例: <code>^https://www\.youtube\.com/shorts/</code></p>
+  </header>
+
+  <section id="rules-list"></section>
+
+  <section class="add-form">
+    <h2>新しいルールを追加</h2>
+    <label>
+      URL パターン (正規表現)
+      <input type="text" id="new-pattern" placeholder="^https://www\.youtube\.com/shorts/" />
+    </label>
+    <div class="row">
+      <label>
+        猶予時間 (分)
+        <input type="number" id="new-grace" min="0" step="1" value="10" />
+      </label>
+      <label>
+        制限時間 (分)
+        <input type="number" id="new-block" min="1" step="1" value="60" />
+      </label>
+    </div>
+    <button id="add-btn" class="primary">追加</button>
+  </section>
+
+  <footer>
+    <button id="reset-today" class="ghost">本日の累積をリセット</button>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>

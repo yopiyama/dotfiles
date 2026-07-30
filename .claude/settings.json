@@ -1,4 +1,88 @@
 {
+    "attribution": {
+        "pr": "🤖 Generated with [Claude Code](https://claude.com/claude-code)"
+    },
+    "editorMode": "vim",
+    "effortLevel": "high",
+    "enableAllProjectMcpServers": true,
+    "enabledPlugins": {
+        "crit@crit": true
+    },
+    "env": {
+        "CLAUDE_CODE_DISABLE_MOUSE_CLICKS": "1"
+    },
+    "extraKnownMarketplaces": {
+        "crit": {
+            "source": {
+                "repo": "tomasz-tomczyk/crit",
+                "source": "github"
+            }
+        }
+    },
+    "hooks": {
+        "PostToolUse": [
+            {
+                "hooks": [
+                    {
+                        "command": "~/.claude/hooks/sync-tasks-to-obsidian.sh",
+                        "type": "command"
+                    }
+                ],
+                "matcher": "TaskCreate|TaskUpdate"
+            }
+        ],
+        "PreToolUse": [
+            {
+                "hooks": [
+                    {
+                        "command": "~/.claude/hooks/allow-safe-pipes.sh",
+                        "type": "command"
+                    }
+                ]
+            },
+            {
+                "hooks": [
+                    {
+                        "command": "~/.claude/hooks/git-guard.sh",
+                        "type": "command"
+                    }
+                ],
+                "matcher": "Bash"
+            }
+        ],
+        "Stop": [
+            {
+                "hooks": [
+                    {
+                        "command": "~/.claude/hooks/log-to-obsidian.sh",
+                        "type": "command"
+                    }
+                ]
+            }
+        ],
+        "SubagentStop": [
+            {
+                "hooks": [
+                    {
+                        "command": "~/.claude/hooks/log-to-obsidian.sh",
+                        "type": "command"
+                    }
+                ]
+            }
+        ],
+        "UserPromptSubmit": [
+            {
+                "hooks": [
+                    {
+                        "command": "~/.claude/hooks/obsidian-skill-reminder.sh",
+                        "type": "command"
+                    }
+                ]
+            }
+        ]
+    },
+    "inputNeededNotifEnabled": true,
+    "model": "opus",
     "permissions": {
         "allow": [
             "Bash(awk:*)",
@@ -12,6 +96,7 @@
             "Bash(gh pr view:*)",
             "Bash(gh pr list:*)",
             "Bash(gh pr check:*)",
+            "Bash(gh pr checks:*)",
             "Bash(gh pr diff:*)",
             "Bash(gh release view:*)",
             "Bash(gh repo view:*)",
@@ -22,6 +107,7 @@
             "Bash(gh pr create:*)",
             "Bash(gh pr edit:*)",
             "Bash(gh pr comment:*)",
+            "Bash(ghq list *)",
             "Bash(git add:*)",
             "Bash(git blame:*)",
             "Bash(git branch:*)",
@@ -47,6 +133,7 @@
             "Bash(git status:*)",
             "Bash(git tag:*)",
             "Bash(git worktree:*)",
+            "Bash(git switch:*)",
             "Bash(grep:*)",
             "Bash(head:*)",
             "Bash(jq:*)",
@@ -66,6 +153,7 @@
             "Bash(obsidian tasks:*)",
             "Bash(obsidian task:*)",
             "Bash(obsidian open:*)",
+            "Bash(obsidian help:*)",
             "Bash(ps:*)",
             "Bash(pwd:*)",
             "Bash(rg:*)",
@@ -81,22 +169,28 @@
             "Bash(which:*)",
             "Bash(~/.claude/skills/code-review/scripts/codex-review.sh:*)",
             "Bash(~/.claude/skills/code-review/scripts/check-prereqs.sh:*)",
+            "Bash(~/.claude/skills/pr-comments/scripts/fetch-pr-comments.sh:*)",
             "Bash(codex:*)",
             "Bash(whoami:*)",
             "mcp__context7__get-library-docs",
             "mcp__context7__resolve-library-id",
             "Edit(**)",
             "Read(**)",
-            "Write(**)",
             "Read(//tmp/**)",
             "Edit(//tmp/**)",
-            "Write(//tmp/**)",
             "Read(//private/tmp/**)",
             "Edit(//private/tmp/**)",
-            "Write(//private/tmp/**)",
             "Read(~/.claude/**)",
-            "Read(~/ghq/github.com/yopiyama/dotfiles/.claude/**)"
+            "Read(~/ghq/github.com/yopiyama/dotfiles/.claude/**)",
+            "Bash(obsidian --help)",
+            "Skill(*)",
+            "Bash(crit:*)"
         ],
+        "ask": [
+            "Bash(git push:*)",
+            "Bash(git reset:*)"
+        ],
+        "defaultMode": "default",
         "deny": [
             "Bash(curl:*)",
             "Bash(find * -delete*)",
@@ -105,16 +199,12 @@
             "Bash(find * -iwholename*/*)",
             "Bash(find * -ok*)",
             "Bash(find *|*xargs *)",
-            "Bash(git checkout:*)",
             "Bash(git clean:*)",
             "Bash(git config:*)",
             "Bash(git filter-branch:*)",
-            "Bash(git push:*)",
-            "Bash(git reset:*)",
             "Bash(git revert:*)",
             "Bash(gh pr merge:*)",
             "Bash(gh pr close:*)",
-            "Bash(git switch:*)",
             "Bash(git update-ref:*)",
             "Bash(perl -pi:*)",
             "Bash(rm -rf:*)",
@@ -124,87 +214,24 @@
             "Bash(wget:*)",
             "Bash(xargs:*)",
             "Read(.env*)",
+            "Edit(.env*)",
             "Bash(cat *.env*)",
             "Read(**/id_*)",
             "Edit(**/id_*)",
-            "Write(**/id_*)",
             "Read(**/*.pem)",
             "Edit(**/*.pem)",
-            "Write(**/*.pem)",
             "Read(**/*.key)",
             "Edit(**/*.key)",
-            "Write(**/*.key)",
             "Read(**/*.env)",
-            "Edit(**/*.env)",
-            "Write(**/*.env)",
-            "Write(.env*)"
-        ],
-        "defaultMode": "default"
-    },
-    "model": "claude-fable-5[1m]",
-    "enableAllProjectMcpServers": true,
-    "statusLine": {
-        "type": "command",
-        "command": "bash ~/.claude/hooks/statusline.sh"
-    },
-    "hooks": {
-        "PreToolUse": [
-            {
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "~/.claude/hooks/allow-safe-pipes.sh"
-                    }
-                ]
-            }
-        ],
-        "PostToolUse": [
-            {
-                "matcher": "TaskCreate|TaskUpdate",
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "~/.claude/hooks/sync-tasks-to-obsidian.sh"
-                    }
-                ]
-            }
-        ],
-        "UserPromptSubmit": [
-            {
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "~/.claude/hooks/obsidian-skill-reminder.sh"
-                    }
-                ]
-            }
-        ],
-        "Stop": [
-            {
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "~/.claude/hooks/log-to-obsidian.sh"
-                    }
-                ]
-            }
-        ],
-        "SubagentStop": [
-            {
-                "hooks": [
-                    {
-                        "type": "command",
-                        "command": "~/.claude/hooks/log-to-obsidian.sh"
-                    }
-                ]
-            }
+            "Edit(**/*.env)"
         ]
     },
-    "effortLevel": "high",
-    "tui": "fullscreen",
-    "showThinkingSummaries": true,
-    "theme": "dark",
-    "editorMode": "vim",
     "preferredNotifChannel": "terminal_bell",
-    "inputNeededNotifEnabled": true
+    "showThinkingSummaries": true,
+    "statusLine": {
+        "command": "bash ~/.claude/hooks/statusline.sh",
+        "type": "command"
+    },
+    "theme": "dark",
+    "tui": "fullscreen"
 }

@@ -9,7 +9,29 @@ return {
     },
     config = function()
       require("neo-tree").setup({
+        event_handlers = {
+          {
+            -- neo-tree を開いたら自動で preview mode に入る。
+            -- preview mode は use_float = true でカーソル行のファイルを
+            -- floating window に追従表示する（P = toggle_preview をエミュレート）。
+            event = "neo_tree_window_after_open",
+            handler = function(args)
+              vim.schedule(function()
+                if args.winid and vim.api.nvim_win_is_valid(args.winid) then
+                  vim.api.nvim_set_current_win(args.winid)
+                  vim.api.nvim_feedkeys("P", "m", false)
+                end
+              end)
+            end,
+          },
+        },
         window = {
+            position = "float",
+            -- float のサイズ・位置を調整する場合はここ
+            -- popup = {
+            --     size = { width = "60%", height = "80%" },
+            --     position = "50%",
+            -- },
             mappings = {
                 -- デフォルトの f (fuzzy_finder) を / に逃がし、<leader>f* を telescope 用に空ける
                 ["f"] = "none",

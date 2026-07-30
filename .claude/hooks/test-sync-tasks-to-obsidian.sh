@@ -137,7 +137,7 @@ note_count() {
   find "$VAULT_DIR" -name '*.md' -type f | wc -l | tr -d ' '
 }
 
-NOTE_REL="ClaudeCode/myproject/Tasks/202607/$SESSION/2026-07-02T09-00-00_タスク管理のテスト.md"
+NOTE_REL="ClaudeCode/myproject/Tasks/202607/2026-07-02T09-00-00_タスク管理のテスト.md"
 
 note_content() {
   cat "$VAULT_DIR/$NOTE_REL" 2>/dev/null
@@ -157,7 +157,7 @@ task_json 3 pending     "テストする"
 run_hook "$(hook_input)"
 
 assert_eq          "作成されるノートは1つ" "1" "$(note_count)"
-assert_file_exists "ノートは Tasks/YYYYMM/session_id/ 配下にセッションノートと同名" "$VAULT_DIR/$NOTE_REL"
+assert_file_exists "ノートは Tasks/YYYYMM/ 配下にセッションノートと同名" "$VAULT_DIR/$NOTE_REL"
 content="$(note_content)"
 assert_contains "frontmatter に session_id"        "$content" "session_id: ${SESSION}"
 assert_contains "frontmatter に project"           "$content" "project: myproject"

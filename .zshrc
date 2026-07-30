@@ -193,10 +193,21 @@ function fzf-file-list() {
 zle -N fzf-file-list
 
 function fzf-history() {
-  # BUFFER=$(history -n -r 1 | cut -d ' ' -f 4- | fzf --query "$LBUFFER" --reverse)
-  BUFFER=$(history -n -r 1 | fzf --query "$LBUFFER" --reverse | cut -d ' ' -f 4-)
+  zmodload -F zsh/parameter p:history 2> /dev/null
+  local k selected
+  # NUL 区切り + --read0 で複数行コマンドを 1 アイテムとして渡す
+  # （fc -l 経由だと改行が \n 表記に潰れて復元できない）
+  selected=$(
+    for k in ${(kOn)history}; do printf '%s\0' "${history[$k]}"; done |
+      fzf --read0 --query "$LBUFFER" --reverse --highlight-line \
+          --preview 'printf %s {} | bat --color=always --style=plain --language zsh' \
+          --preview-window 'right,55%,wrap'
+  )
+  if [[ -n "$selected" ]]; then
+    BUFFER="$selected"
+    CURSOR=${#BUFFER}
+  fi
   tput cup $LINES
-  CURSOR=${#BUFFER}
   zle .redisplay
 }
 zle -N fzf-history

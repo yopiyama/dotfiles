@@ -23,12 +23,20 @@ vim.opt.rtp:prepend(lazypath)
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
+local spec = {
+  -- import your plugins
+  { import = "plugins" },
+}
+
+-- この端末だけで使うプラグイン (git 管理外。lua/plugins_local/README.md 参照)
+-- spec が 0 件の状態で import するとエラー通知が出るため、*.lua がある時だけ追加する
+if vim.fn.glob(vim.fn.stdpath("config") .. "/lua/plugins_local/*.lua") ~= "" then
+  table.insert(spec, { import = "plugins_local" })
+end
+
 -- Setup lazy.nvim
 require("lazy").setup({
-  spec = {
-    -- import your plugins
-    { import = "plugins" },
-  },
+  spec = spec,
   -- Configure any other settings here. See the documentation for more details.
   -- colorscheme that will be used when installing plugins.
   install = { colorscheme = { "habamax" } },

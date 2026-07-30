@@ -120,6 +120,16 @@ check "冗長でない -C が混ざれば noop"                          "Bash" 
 check "cwd 情報が無い入力では従来通り noop"                    "Bash" "git -C /tmp diff" noop
 
 echo
+echo "=== 複数 cd を含む複合コマンドは deny で分割実行を促す ==="
+check "cd 2回 + policy 外コマンド (gotestsum) は deny"         "Bash" "cd /repo/a && gotestsum --format testname -- ./x && cd /repo/b && gotestsum --format testname -- ./y" deny
+check "cd 2回 (;区切り) + policy 外コマンドも deny"            "Bash" "cd /repo/a; npm test; cd /repo/b; npm test" deny
+check "cd 1回 + policy 外コマンドは従来通り noop"              "Bash" "cd /repo/a && gotestsum ./x" noop
+check "cd 2回でも全 segment が policy allow なら allow"        "Bash" "cd /repo/a && ls && cd /repo/b && ls" allow
+check "deny コマンドを含む場合は cd 2回でも noop (settings に委ねる)" "Bash" "cd /repo/a && rm -rf x && cd /repo/b && npm test" noop
+check "サブシェル内の cd もカウントして deny"                  "Bash" "(cd /repo/a && gotestsum ./x) && (cd /repo/b && gotestsum ./y)" deny
+check "cdrom 等 cd 前方一致の誤爆はしない"                     "Bash" "cdrom-tool /a && cdrom-tool /b" noop
+
+echo
 echo "=== 既知の限界 (未対応・意図的にスキップ) ==="
 echo "  skip 短縮フラグのクラスタリング (例: -iX POST) は未対応。"
 echo "       gh api での実利用頻度が低いため、正規表現/トークン走査では追わず"

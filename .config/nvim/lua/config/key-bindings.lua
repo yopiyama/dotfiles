@@ -17,6 +17,9 @@ end, { desc = "Clear search + LSP highlights" })
 vim.keymap.set("n", "<leader>q", "<cmd>cclose<CR>", { desc = "Close quickfix" })
 vim.keymap.set("n", "<leader>l", "<cmd>lclose<CR>", { desc = "Close loclist" })
 
+-- Diff unsaved buffer against the file on disk
+vim.keymap.set("n", "<leader>do", "<cmd>DiffOrig<CR>", { desc = "Diff: buffer vs saved file" })
+
 -- IME切り替え(Ctrl+Shift+S)が端末のフロー制御解除により生の^Sとして
 -- コマンドライン(検索含む)に紛れ込むのを防ぐ
 vim.keymap.set("c", "<C-s>", "<Nop>", { desc = "Ignore stray ^S in cmdline" })
@@ -65,7 +68,7 @@ vim.keymap.set("n", "<leader>ws", function()
     vim.api.nvim_win_set_buf(win, cur_buf)
   end
 end, { desc = "Window: pick and swap" })
-vim.keymap.set("n", "<leader>wt", "<cmd>Neotree toggle<CR>", { desc = "Window: toggle neo-tree" })
+vim.keymap.set("n", "<leader>wt", "<cmd>Neotree toggle float<CR>", { desc = "Window: toggle neo-tree (float)" })
 vim.keymap.set("n", "<leader>wo", "<cmd>only<CR>", { desc = "Window: close others" })
 vim.keymap.set("n", "<leader>w=", "<C-w>=", { desc = "Window: equalize size" })
 
