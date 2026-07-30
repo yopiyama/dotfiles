@@ -40,6 +40,8 @@ It also bootstraps untracked real files from `*.sample` files (e.g.
 - `.zshenv.sample`: Sample Zsh environment file (実体 `~/.zshenv` は untracked)。
 - `.zshrc`: Zsh configuration.
 - `Brewfile`: Homebrew package manifest (taps, formulae, casks) for `brew bundle`.
+- `chrome/extensions/`: 自作 Chrome 拡張 (unpacked で読み込む。symlink 不要なので `install.sh` の管理対象外)。
+- `chrome/extensions/slack-direct-link/`: Slack のパーマリンクをブラウザ直リンクへ書き換え、アプリ起動の中間ページをスキップする拡張。
 - `iterm_main_profile.json`: iTerm2 profile export.
 
 ## Homebrew packages

@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Slack Direct Link",
+  "version": "1.0.0",
+  "description": "slack.com の /archives/ パーマリンクを /messages/ 直リンクへ書き換え、アプリ起動の中間ページをスキップしてブラウザで直接開く。",
+  "permissions": ["declarativeNetRequest"],
+  "host_permissions": ["*://*.slack.com/*"],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "slack_direct_link",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  }
+}
