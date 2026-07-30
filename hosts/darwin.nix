@@ -18,15 +18,24 @@
       autoUpdate = true;
       cleanup = "none";
     };
+    taps = [
+      "daipeihust/tap"
+    ];
+    # nixpkgs に無いもの (crit, im-select) のみ Homebrew で管理
+    brews = [
+      "crit"
+      "daipeihust/tap/im-select"
+    ];
     casks = [
+      "1password-cli"
       "alacritty"
       "alt-tab"
       "codex"
       "font-hack-nerd-font"
-      "iterm2"
       "karabiner-elements"
       "linearmouse"
       "raycast"
+      "shottr"
     ];
   };
 }

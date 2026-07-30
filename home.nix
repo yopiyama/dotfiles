@@ -19,12 +19,15 @@
     iproute2
     jq
     lazygit
+    markdownlint-cli
     mergiraf
     mise
     neovim
+    prettier
     ripgrep
     tmux
     uv
+    yamllint
     yq-go
     zsh
   ];
