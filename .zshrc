@@ -287,7 +287,6 @@ alias ll='eza --long --icons --git -F --group-directories-first --time-style=lon
 alias bat='bat --color=always --show-all'
 alias tf='terraform'
 alias tf-p='terraform plan | tee >(grep -E "# \w|Plan:" > /tmp/_plan_abst.log) && cat /tmp/_plan_abst.log'
-alias ruff='uvx ruff'
 # obsidian CLI 実行時に "Obsidian" への訂正候補が出るのを抑制する
 alias obsidian='nocorrect obsidian'
 # nvim を引数無しで起動したらカレントディレクトリを開く
@@ -359,4 +358,4 @@ if [[ "${TERM_PROGRAM:-}" == "kiro" ]]; then
 fi
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
-eval "$( /opt/homebrew/bin/mise activate zsh)"
+eval "$(mise activate zsh)"

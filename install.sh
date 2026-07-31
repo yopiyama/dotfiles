@@ -20,7 +20,6 @@ DRY_RUN=0
 LINKS="$(cat <<'EOF'
 .zshrc|.zshrc
 .p10k.zsh|.p10k.zsh
-.config/git/config|.config/git/config
 .tmux.conf|.tmux.conf
 .tmux/ip_addr.sh|.tmux/ip_addr.sh
 .tmux/launch_project.sh|.tmux/launch_project.sh
@@ -32,11 +31,6 @@ LINKS="$(cat <<'EOF'
 .claude/hooks|.claude/hooks
 .config/nvim/init.lua|.config/nvim/init.lua
 .config/nvim/lua|.config/nvim/lua
-.config/git/ignore|.config/git/ignore
-.config/git/attributes|.config/git/attributes
-.config/mise/config.toml|.config/mise/config.toml
-lazygit/config.yml|Library/Application Support/lazygit/config.yml
-.config/alacritty/alacritty.toml|.config/alacritty/alacritty.toml
 EOF
 )"
 
@@ -87,7 +81,10 @@ link_one() {
 echo "dotfiles repo: $REPO"
 [ "$DRY_RUN" -eq 1 ] && echo "(dry-run: 実際には変更しません)"
 
-# --- Homebrew & Brewfile ---
+# --- Homebrew ---
+# cask/brew の中身は nix-darwin (nix/nix-darwin/homebrew.nix) が
+# `darwin-rebuild switch` 実行時に宣言的にインストールする。
+# ここでは nix-darwin がそれを呼び出せるように Homebrew 本体だけ用意する。
 echo "--- brew ---"
 if ! command -v brew >/dev/null 2>&1; then
   echo "  Homebrew が見つかりません。インストールします..."
@@ -103,9 +100,6 @@ if ! command -v brew >/dev/null 2>&1; then
 else
   echo "  [OK]   Homebrew ($(brew --version | head -1))"
 fi
-
-echo "  brew bundle --file=$REPO/Brewfile"
-run brew bundle --file="$REPO/Brewfile"
 
 echo "--- symlinks ---"
 
