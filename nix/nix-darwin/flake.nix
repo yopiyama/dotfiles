@@ -28,6 +28,9 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
+            # install.sh の symlink 等、既存ファイルと衝突した場合はエラーで止めず
+            # *.bak にリネームしてから home-manager 管理下に置き換える
+            home-manager.backupFileExtension = "bak";
             home-manager.extraSpecialArgs = { inherit username; };
             home-manager.users.${username} = import ../home-manager/home.nix;
           }

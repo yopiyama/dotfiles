@@ -20,7 +20,6 @@ DRY_RUN=0
 LINKS="$(cat <<'EOF'
 .zshrc|.zshrc
 .p10k.zsh|.p10k.zsh
-.config/git/config|.config/git/config
 .tmux.conf|.tmux.conf
 .tmux/ip_addr.sh|.tmux/ip_addr.sh
 .tmux/launch_project.sh|.tmux/launch_project.sh
@@ -32,10 +31,6 @@ LINKS="$(cat <<'EOF'
 .claude/hooks|.claude/hooks
 .config/nvim/init.lua|.config/nvim/init.lua
 .config/nvim/lua|.config/nvim/lua
-.config/git/ignore|.config/git/ignore
-.config/git/attributes|.config/git/attributes
-.config/mise/config.toml|.config/mise/config.toml
-lazygit/config.yml|Library/Application Support/lazygit/config.yml
 .config/alacritty/alacritty.toml|.config/alacritty/alacritty.toml
 EOF
 )"

@@ -1,11 +1,18 @@
 { pkgs, username, ... }:
 
 {
+  imports = [
+    ./programs/git.nix
+    ./programs/lazygit.nix
+    ./programs/mise.nix
+  ];
+
   home.stateVersion = "25.05";
   home.username = username;
   home.homeDirectory = "/Users/${username}";
 
   # Brewfile の brew 行に対応するパッケージ
+  # mise/lazygit は programs.mise / programs.lazygit が自動で追加するのでここには書かない
   home.packages = with pkgs; [
     alacritty
     awscli2
@@ -23,10 +30,8 @@
     golangci-lint
     iproute2mac
     jq
-    lazygit
     markdownlint-cli
     mergiraf
-    mise
     neovim
     nerd-fonts.hack
     prettier
