@@ -18,7 +18,8 @@ local options = {
 	signcolumn = "yes",
 	list = true,
 	listchars = {
-		space = "·",
+		-- space は指定しない: 行頭の空白が全部ドットで埋まり
+		-- indent-blankline のインデントガイドと二重表示になるため
 		tab = "»·",
 		eol = "↴",
 		extends = "›",
