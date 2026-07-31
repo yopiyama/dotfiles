@@ -1,24 +1,47 @@
 # DotFiles
 
 This repository manages shell and tool configuration files.
-It is intended to be used by creating symbolic links from files in this repo to locations such as `$HOME`, so the local environment loads these settings.
+設定は Nix (パッケージと `programs.*`) と `$HOME` へのシンボリックリンクの
+二層で適用する。操作の入口は `Makefile` (`make help`)。
+
+## 構成 (二層)
+
+設定の管理は 2 層に分かれており、これは移行途中の暫定ではなく確定した方針。
+
+| 層 | 管理対象 | 適用 |
+| --- | --- | --- |
+| Nix | パッケージ全般と、`programs.*` で素直に書ける設定 (git/lazygit/mise/alacritty) | `make rebuild` |
+| symlink | nvim の lua や zsh/tmux など、生の設定ファイルのまま持ちたいもの | `make link` |
+
+**同じパスを両方に管理させないこと。** home-manager は `backupFileExtension = "bak"`
+なので、衝突すると symlink が黙って `*.bak` にリネームされ nix store のリンクに
+差し替わる。nvim については `programs.neovim.enable` を有効にしないこと
+(有効にすると init.lua が home-manager 管理下に入り symlink と衝突する)。
+neovim 本体は `home.packages` で入れるだけに留めている。
 
 ## Install
 
-Run `install.sh` (or `make install`) to create all symlinks. It resolves the
-link source from the script's own location, so the repository can live
-anywhere.
+```sh
+make setup      # 初回。前提チェック → link → rebuild
+make link       # symlink 作成 + Homebrew 本体の準備
+make link-dry   # 何も変更せず、実行内容だけ表示
+make doctor     # 前提コマンドと symlink の状態を確認
+```
 
-- `make install-dry-run` / `./install.sh --dry-run` — show what would change without touching anything
-- `make install` / `./install.sh` — create the symlinks (existing real files are backed up to `*.backup-<timestamp>`; symlinks pointing elsewhere are re-pointed)
+`make help` で全ターゲットを表示する。nix 本体だけは自動インストールしないので、
+未導入の場合は `make setup` が案内するインストーラを先に実行する。
 
-The link targets are a mix of file-level and directory-level links (e.g.
-`.claude/skills` and `.config/nvim/lua` are linked as whole directories), so
-edit the `LINKS` list in `install.sh` when adding new managed files.
-It also bootstraps untracked real files from `*.sample` files (e.g.
-`~/.tmux/projects.json` from `.tmux/projects.json.sample`, `~/.zshenv` from
-`.zshenv.sample`) if they do not already exist — see the `COPIES` list in
-`install.sh`.
+symlink 作成の実体は `scripts/link.sh`。単体実行 (`scripts/link.sh`,
+`scripts/link.sh --dry-run`) もできる。リンク元はスクリプト自身の場所から
+解決するので、リポジトリはどこに clone してもよい。既存の実ファイルは
+`*.backup-<timestamp>` にバックアップし、別の場所を指す symlink は張り替える。
+
+リンク対象はファイル単位とディレクトリ単位が混在する (`.claude/skills` や
+`.config/nvim/lua` はディレクトリ丸ごと) ので、管理対象を増やすときは
+`scripts/link.sh` の `LINKS` を編集する。
+`*.sample` から untracked な実ファイルを bootstrap する仕組みもあり
+(`~/.tmux/projects.json` ← `.tmux/projects.json.sample`、`~/.zshenv` ←
+`.zshenv.sample`)、既存の場合は触らない — `COPIES` を参照。
 
 ## Directory Structure
 
@@ -39,11 +62,13 @@ It also bootstraps untracked real files from `*.sample` files (e.g.
 - `.vimrc`: Vim configuration.
 - `.zshenv.sample`: Sample Zsh environment file (実体 `~/.zshenv` は untracked)。
 - `.zshrc`: Zsh configuration.
-- `Makefile`: `install.sh`/`darwin-rebuild` をまとめたショートカット (`make help` 参照)。
+- `Makefile`: 全操作の入口 (`make help` 参照)。
+- `scripts/link.sh`: symlink 作成 + Homebrew 本体の準備 (`make link` の実体)。
+- `scripts/vendored-skill-diff`: vendored な skill の差分確認スクリプト。
 - `nix/nix-darwin/`: nix-darwin flake (system 設定・Homebrew cask/brew の宣言的管理)。
 - `nix/home-manager/`: home-manager (ユーザーレベルのパッケージ管理)。
-- `nix/home-manager/config/<tool>/default.nix`: 個別アプリ設定 (git/lazygit/mise 等) を `programs.*` で宣言的に管理。install.sh の symlink から順次移行中。
-- `chrome/extensions/`: 自作 Chrome 拡張 (unpacked で読み込む。symlink 不要なので `install.sh` の管理対象外)。
+- `nix/home-manager/programs/<name>.nix`: 個別アプリ設定 (git/lazygit/mise/alacritty) を `programs.*` で宣言的に管理。上流 home-manager の `modules/programs/<name>.nix` に命名を揃えている。
+- `chrome/extensions/`: 自作 Chrome 拡張 (unpacked で読み込む。symlink 不要なので symlink 管理の対象外)。
 - `chrome/extensions/slack-direct-link/`: Slack のパーマリンクをブラウザ直リンクへ書き換え、アプリ起動の中間ページをスキップする拡張。
 - `iterm_main_profile.json`: iTerm2 profile export.
 

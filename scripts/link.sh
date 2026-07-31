@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
 #
-# dotfiles install: このリポジトリの設定ファイルへ $HOME からシンボリックリンクを張る。
+# dotfiles link: このリポジトリの設定ファイルへ $HOME からシンボリックリンクを張る。
 #
-#   ./install.sh            実際にリンクを作成 (既存の実ファイルはバックアップ)
-#   ./install.sh --dry-run  何もせず、実行内容だけ表示
+#   make link                  実際にリンクを作成 (既存の実ファイルはバックアップ)
+#   make link-dry              何もせず、実行内容だけ表示
+#   scripts/link.sh            単体実行も可 (新規マシンで clone 直後など)
+#   scripts/link.sh --dry-run
 #
-# - リンク元はこのスクリプト自身の場所から解決するので、clone 先パスに依存しない。
+# - リンク元はこのスクリプト自身の場所 (scripts/) の親から解決するので、clone 先パスに依存しない。
 # - 一部はディレクトリ単位のリンク (.claude/skills, .config/nvim/lua) なので注意。
 # - $HOME/.claude, $HOME/.config, $HOME/.tmux 自体は実ディレクトリのまま、中身を選択的にリンクする。
 # - macOS 標準の bash 3.2 でも動くように書いている。
 set -euo pipefail
 
-REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DRY_RUN=0
 [ "${1:-}" = "--dry-run" ] && DRY_RUN=1
 

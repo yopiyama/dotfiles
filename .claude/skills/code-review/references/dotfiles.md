@@ -1,6 +1,6 @@
 # dotfiles プロジェクト固有レビュー観点
 
-対象: yopiyama/dotfiles（install.sh による symlink 配布型の dotfiles 管理）。
+対象: yopiyama/dotfiles（Nix と `scripts/link.sh` の symlink による二層の dotfiles 管理）。
 
 このファイルのセクション見出しには `[Logic]` / `[Design]` タグを付けている。
 SKILL.md ステップ 6 の固定マッピングに該当セクション名はないため、
@@ -20,10 +20,11 @@ SKILL.md ステップ 6 の固定マッピングに該当セクション名は�
 - ノート命名・保存先ロジックは `obsidian-note-lib.sh` に一元化する。各スクリプトへコピーしない（wikilink がノート名の完全一致で成立しているため、片方だけ変えるとリンクが黙って切れる）
 - フック内から `claude` CLI を呼ぶ場合は `--safe-mode --no-session-persistence` を付ける（Stop フックの再発火防止）
 
-## [Design] install.sh / 配布
+## [Design] scripts/link.sh / 配布
 
-- トップレベルの新規ファイル・ディレクトリを追加したとき、`install.sh` の `LINKS` への追随漏れがないか（`.claude/skills` 等ディレクトリ丸ごとリンクの配下に置くファイルは不要）
+- トップレベルの新規ファイル・ディレクトリを追加したとき、`scripts/link.sh` の `LINKS` への追随漏れがないか（`.claude/skills` 等ディレクトリ丸ごとリンクの配下に置くファイルは不要）
 - 配布するサンプルファイルの命名は `<名前>.sample` に統一
+- 同じパスを `LINKS` と home-manager (`nix/home-manager/programs/*.nix`) の両方が管理していないか（衝突すると home-manager が symlink を `*.bak` へ退避してしまう）
 
 ## [Design] Claude Code 設定（skills / agents / settings.json）
 
