@@ -31,7 +31,6 @@ LINKS="$(cat <<'EOF'
 .claude/hooks|.claude/hooks
 .config/nvim/init.lua|.config/nvim/init.lua
 .config/nvim/lua|.config/nvim/lua
-.config/alacritty/alacritty.toml|.config/alacritty/alacritty.toml
 EOF
 )"
 

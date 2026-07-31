@@ -2,6 +2,7 @@
 
 {
   imports = [
+    ./config/alacritty
     ./config/git
     ./config/lazygit
     ./config/mise
@@ -12,9 +13,8 @@
   home.homeDirectory = "/Users/${username}";
 
   # Brewfile の brew 行に対応するパッケージ
-  # mise/lazygit は programs.mise / programs.lazygit が自動で追加するのでここには書かない
+  # alacritty/mise/lazygit は programs.* が自動で追加するのでここには書かない
   home.packages = with pkgs; [
-    alacritty
     awscli2
     bat
     codex
