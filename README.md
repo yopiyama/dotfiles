@@ -5,11 +5,12 @@ It is intended to be used by creating symbolic links from files in this repo to 
 
 ## Install
 
-Run `install.sh` to create all symlinks. It resolves the link source from the
-script's own location, so the repository can live anywhere.
+Run `install.sh` (or `make install`) to create all symlinks. It resolves the
+link source from the script's own location, so the repository can live
+anywhere.
 
-- `./install.sh --dry-run` — show what would change without touching anything
-- `./install.sh` — create the symlinks (existing real files are backed up to `*.backup-<timestamp>`; symlinks pointing elsewhere are re-pointed)
+- `make install-dry-run` / `./install.sh --dry-run` — show what would change without touching anything
+- `make install` / `./install.sh` — create the symlinks (existing real files are backed up to `*.backup-<timestamp>`; symlinks pointing elsewhere are re-pointed)
 
 The link targets are a mix of file-level and directory-level links (e.g.
 `.claude/skills` and `.config/nvim/lua` are linked as whole directories), so
@@ -39,6 +40,7 @@ It also bootstraps untracked real files from `*.sample` files (e.g.
 - `.vimrc`: Vim configuration.
 - `.zshenv.sample`: Sample Zsh environment file (実体 `~/.zshenv` は untracked)。
 - `.zshrc`: Zsh configuration.
+- `Makefile`: `install.sh`/`darwin-rebuild` をまとめたショートカット (`make help` 参照)。
 - `nix/nix-darwin/`: nix-darwin flake (system 設定・Homebrew cask/brew の宣言的管理)。
 - `nix/home-manager/`: home-manager (ユーザーレベルのパッケージ管理)。
 - `chrome/extensions/`: 自作 Chrome 拡張 (unpacked で読み込む。symlink 不要なので `install.sh` の管理対象外)。
@@ -54,6 +56,14 @@ Packages are declared in Nix and applied with `darwin-rebuild`.
 - 環境ごと (personal/work) の差分 → `nix/nix-darwin/hosts/{profile}.nix`
 
 適用:
+
+```sh
+make rebuild                  # PROFILE=personal (デフォルト)
+make rebuild PROFILE=work
+make dry-run                  # activate せず評価だけ確認
+```
+
+または直接:
 
 ```sh
 cd nix/nix-darwin
