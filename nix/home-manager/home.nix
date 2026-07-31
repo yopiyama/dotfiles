@@ -7,8 +7,10 @@
 
   # Brewfile の brew 行に対応するパッケージ
   home.packages = with pkgs; [
+    alacritty
     awscli2
     bat
+    codex
     delta
     eza
     fd
@@ -25,6 +27,7 @@
     mergiraf
     mise
     neovim
+    nerd-fonts.hack
     prettier
     ripgrep
     tmux

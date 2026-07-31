@@ -18,12 +18,13 @@
       "crit"
       "daipeihust/tap/im-select"
     ];
+    # alacritty/codex/font-hack-nerd-font は home.nix (nixpkgs) へ移行済み。
+    # raycast/shottr は auto_updates (自己更新が Nix store の read-only と衝突するため),
+    # karabiner-elements はカーネル拡張/権限まわりのリスクのため brew を継続。
+    # 1password-cli は 1Password.app の CLI 統合 (署名検証) が壊れる懸念があるため継続。
     casks = [
       "1password-cli"
-      "alacritty"
       "alt-tab"
-      "codex"
-      "font-hack-nerd-font"
       "karabiner-elements"
       "linearmouse"
       "raycast"
