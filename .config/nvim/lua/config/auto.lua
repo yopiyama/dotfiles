@@ -186,29 +186,31 @@ local function smart_quit(bang)
         return
     end
 
+    local buf = vim.api.nvim_get_current_buf()
+
+    -- 未保存のバッファは bdelete が E89 を投げるので、先に E37 相当で止める
+    if vim.bo[buf].modified and not bang then
+        vim.notify("E37: No write since last change (add ! to override)", vim.log.levels.ERROR)
+        return
+    end
+
     local listed = vim.tbl_filter(function(b)
         return vim.bo[b].buflisted
     end, vim.api.nvim_list_bufs())
 
     if #listed > 1 then
-        local cur = vim.api.nvim_get_current_buf()
         vim.cmd("bprevious")
-        vim.cmd("bdelete" .. bang_str .. " " .. cur)
+        vim.cmd("bdelete" .. bang_str .. " " .. buf)
         return
     end
 
-    local buf = vim.api.nvim_get_current_buf()
-    if vim.api.nvim_buf_get_name(buf) == "" and not vim.bo[buf].modified then
+    if vim.api.nvim_buf_get_name(buf) == "" then
         -- [No Name] からバッファのみ → 終了
         vim.cmd("qall" .. bang_str)
         return
     end
 
     -- 最後の実ファイルバッファ → 空バッファに差し替え
-    if vim.bo[buf].modified and not bang then
-        vim.notify("E37: No write since last change (add ! to override)", vim.log.levels.ERROR)
-        return
-    end
     vim.cmd("enew")
     vim.cmd("bdelete" .. bang_str .. " " .. buf)
 
