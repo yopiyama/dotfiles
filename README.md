@@ -10,7 +10,7 @@ This repository manages shell and tool configuration files.
 
 | 層 | 管理対象 | 適用 |
 | --- | --- | --- |
-| Nix | パッケージ全般と、`programs.*` で素直に書ける設定 (git/lazygit/mise/alacritty) | `make rebuild` |
+| Nix | パッケージ全般と `programs.*` で書ける設定 (git/lazygit/mise 等) | `make rebuild` |
 | symlink | nvim の lua や zsh/tmux など、生の設定ファイルのまま持ちたいもの | `make link` |
 
 **同じパスを両方に管理させないこと。** home-manager は `backupFileExtension = "bak"`
@@ -45,39 +45,34 @@ symlink 作成の実体は `scripts/link.sh`。単体実行 (`scripts/link.sh`,
 
 ## Directory Structure
 
-- `.claude/`: Claude app settings.
-- `.config/`: XDG config directory.
-- `.config/nvim/`: Neovim configuration.
-- `.p10k.zsh`: Powerlevel10k Zsh prompt configuration.
-- `.pylintrc`: Pylint configuration.
-- `.pythonrc.py`: Python REPL startup configuration.
-- `.tmux/`: Tmux helper scripts.
-- `.tmux/ip_addr.sh`: Script used by Tmux config.
-- `.tmux/launch_project.sh`: `prefix + C-p` で fzf からプロジェクト別ウィンドウセットを起動するランチャー (`~/.tmux/projects.json` を参照)。
-- `.tmux/projects.json.sample`: プロジェクト定義のサンプル (実体 `~/.tmux/projects.json` は untracked)。
-- `.tmux.conf`: Tmux configuration.
-- `.vim/`: Vim runtime directory.
-- `.vim/colors/`: Vim color schemes.
-- `.vim/dein/`: Dein plugin manager directory.
-- `.vimrc`: Vim configuration.
-- `.zshenv.sample`: Sample Zsh environment file (実体 `~/.zshenv` は untracked)。
-- `.zshrc`: Zsh configuration.
-- `Makefile`: 全操作の入口 (`make help` 参照)。
-- `scripts/link.sh`: symlink 作成 + Homebrew 本体の準備 (`make link` の実体)。
-- `scripts/vendored-skill-diff`: vendored な skill の差分確認スクリプト。
-- `nix/nix-darwin/`: nix-darwin flake (system 設定・Homebrew cask/brew の宣言的管理)。
-- `nix/home-manager/`: home-manager (ユーザーレベルのパッケージ管理)。
-- `nix/home-manager/programs/<name>.nix`: 個別アプリ設定 (git/lazygit/mise/alacritty) を `programs.*` で宣言的に管理。上流 home-manager の `modules/programs/<name>.nix` に命名を揃えている。
-- `chrome/extensions/`: 自作 Chrome 拡張 (unpacked で読み込む。symlink 不要なので symlink 管理の対象外)。
-- `chrome/extensions/slack-direct-link/`: Slack のパーマリンクをブラウザ直リンクへ書き換え、アプリ起動の中間ページをスキップする拡張。
-- `iterm_main_profile.json`: iTerm2 profile export.
+全ファイルは列挙しない。迷いやすい場所と、置き場所の判断が要るものだけ書く。
+
+```text
+nix/
+  nix-darwin/          system 設定と Homebrew の宣言。hosts/ が personal|work の差分
+  home-manager/
+    home.nix           home.packages (パッケージはここ)
+    programs/<name>.nix  個別アプリ設定。上流 home-manager の modules/programs/<name>.nix に命名を揃える
+scripts/
+  link.sh              symlink 作成 + Homebrew 本体の準備 (make link の実体)
+.config/nvim/          Neovim。init.lua + lua/ を丸ごと symlink (Nix 管理下に置かない)
+.claude/               Claude Code 設定。skills/ agents/ hooks/ はディレクトリ丸ごと symlink
+.tmux/                 tmux から呼ぶヘルパー (launch_project.sh = prefix + C-p のプロジェクトランチャー)
+chrome/extensions/     自作 Chrome 拡張。unpacked で直接読み込むので symlink 対象外
+raycast/               自作 Raycast 拡張 (extensions/) と script command (script/)
+```
+
+トップレベルには他に `.zshrc` / `.p10k.zsh` / `.tmux.conf` などの単一設定ファイルがあり、
+いずれも `scripts/link.sh` の `LINKS` 経由で `$HOME` にリンクされる。
+`*.sample` は untracked な実ファイルの雛形 (`.zshenv.sample`, `.tmux/projects.json.sample`)。
 
 ## Packages (Nix)
 
 Packages are declared in Nix and applied with `darwin-rebuild`.
 
 - CLI/GUI packages available via nixpkgs → `nix/home-manager/home.nix` (`home.packages`)
-- macOS-only or self-updating apps (Homebrew cask のまま管理するもの) → `nix/nix-darwin/homebrew.nix` (`homebrew.taps` / `homebrew.brews` / `homebrew.casks`)
+- macOS-only or self-updating apps (Homebrew cask のまま管理するもの) →
+  `nix/nix-darwin/homebrew.nix` (`homebrew.taps` / `brews` / `casks`)
 - 環境ごと (personal/work) の差分 → `nix/nix-darwin/hosts/{profile}.nix`
 
 適用:
