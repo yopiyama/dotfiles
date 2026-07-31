@@ -20,6 +20,7 @@
     gh
     ghq
     gnused
+    golangci-lint
     iproute2mac
     jq
     lazygit
@@ -30,6 +31,8 @@
     nerd-fonts.hack
     prettier
     ripgrep
+    ruff
+    shellcheck
     tmux
     uv
     yamllint
