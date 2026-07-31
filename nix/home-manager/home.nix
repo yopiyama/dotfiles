@@ -2,10 +2,10 @@
 
 {
   imports = [
-    ./config/alacritty
-    ./config/git
-    ./config/lazygit
-    ./config/mise
+    ./programs/alacritty.nix
+    ./programs/git.nix
+    ./programs/lazygit.nix
+    ./programs/mise.nix
   ];
 
   home.stateVersion = "25.05";
