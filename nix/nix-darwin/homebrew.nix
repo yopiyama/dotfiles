@@ -1,23 +1,9 @@
-{ profile, ... }:
+{ ... }:
 
-let
-  commonCasks = [
-    "1password-cli"
-    "alacritty"
-    "alt-tab"
-    "codex"
-    "font-hack-nerd-font"
-    "karabiner-elements"
-    "linearmouse"
-    "raycast"
-    "shottr"
-  ];
-  # 仕事用 Mac にのみ入れる cask をここに追加する
-  workCasks = [ ];
-  personalCasks = [ ];
-in
 {
   # nix-darwin が Homebrew の cask / mas を宣言的に管理する
+  # profile 固有の追加は hosts/{profile}.nix 側で homebrew.casks / homebrew.brews に
+  # 書き足す (Nix のモジュールシステムがリストを自動でマージする)
   homebrew = {
     enable = true;
     onActivation = {
@@ -32,6 +18,16 @@ in
       "crit"
       "daipeihust/tap/im-select"
     ];
-    casks = commonCasks ++ (if profile == "work" then workCasks else personalCasks);
+    casks = [
+      "1password-cli"
+      "alacritty"
+      "alt-tab"
+      "codex"
+      "font-hack-nerd-font"
+      "karabiner-elements"
+      "linearmouse"
+      "raycast"
+      "shottr"
+    ];
   };
 }
