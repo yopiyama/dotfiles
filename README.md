@@ -42,7 +42,7 @@ It also bootstraps untracked real files from `*.sample` files (e.g.
 - `Makefile`: `install.sh`/`darwin-rebuild` をまとめたショートカット (`make help` 参照)。
 - `nix/nix-darwin/`: nix-darwin flake (system 設定・Homebrew cask/brew の宣言的管理)。
 - `nix/home-manager/`: home-manager (ユーザーレベルのパッケージ管理)。
-- `nix/home-manager/programs/`: 個別アプリ設定 (git/lazygit/mise 等) を `programs.*` で宣言的に管理。install.sh の symlink から順次移行中。
+- `nix/home-manager/config/<tool>/default.nix`: 個別アプリ設定 (git/lazygit/mise 等) を `programs.*` で宣言的に管理。install.sh の symlink から順次移行中。
 - `chrome/extensions/`: 自作 Chrome 拡張 (unpacked で読み込む。symlink 不要なので `install.sh` の管理対象外)。
 - `chrome/extensions/slack-direct-link/`: Slack のパーマリンクをブラウザ直リンクへ書き換え、アプリ起動の中間ページをスキップする拡張。
 - `iterm_main_profile.json`: iTerm2 profile export.

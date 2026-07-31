@@ -2,9 +2,9 @@
 
 {
   imports = [
-    ./programs/git.nix
-    ./programs/lazygit.nix
-    ./programs/mise.nix
+    ./config/git
+    ./config/lazygit
+    ./config/mise
   ];
 
   home.stateVersion = "25.05";
