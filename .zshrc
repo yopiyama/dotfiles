@@ -359,4 +359,4 @@ if [[ "${TERM_PROGRAM:-}" == "kiro" ]]; then
 fi
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
-eval "$( /opt/homebrew/bin/mise activate zsh)"
+eval "$(mise activate zsh)"
