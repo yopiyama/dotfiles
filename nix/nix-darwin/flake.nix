@@ -17,12 +17,13 @@
 
   outputs = { nixpkgs, nix-darwin, home-manager, ... }:
     let
-      mkSystem = hostFile: nix-darwin.lib.darwinSystem {
+      mkSystem = profile: nix-darwin.lib.darwinSystem {
         system = "aarch64-darwin";
+        specialArgs = { inherit profile; };
         modules = [
           ./system.nix
           ./homebrew.nix
-          hostFile
+          ./hosts/${profile}.nix
           home-manager.darwinModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
@@ -33,8 +34,8 @@
       };
     in {
       darwinConfigurations = {
-        personal = mkSystem ./hosts/personal.nix;
-        work = mkSystem ./hosts/work.nix;
+        personal = mkSystem "personal";
+        work = mkSystem "work";
       };
     };
 }
