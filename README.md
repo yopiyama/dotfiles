@@ -39,16 +39,23 @@ It also bootstraps untracked real files from `*.sample` files (e.g.
 - `.vimrc`: Vim configuration.
 - `.zshenv.sample`: Sample Zsh environment file (実体 `~/.zshenv` は untracked)。
 - `.zshrc`: Zsh configuration.
-- `Brewfile`: Homebrew package manifest (taps, formulae, casks) for `brew bundle`.
+- `nix/nix-darwin/`: nix-darwin flake (system 設定・Homebrew cask/brew の宣言的管理)。
+- `nix/home-manager/`: home-manager (ユーザーレベルのパッケージ管理)。
 - `chrome/extensions/`: 自作 Chrome 拡張 (unpacked で読み込む。symlink 不要なので `install.sh` の管理対象外)。
 - `chrome/extensions/slack-direct-link/`: Slack のパーマリンクをブラウザ直リンクへ書き換え、アプリ起動の中間ページをスキップする拡張。
 - `iterm_main_profile.json`: iTerm2 profile export.
 
-## Homebrew packages
+## Packages (Nix)
 
-Essential packages are declared in `Brewfile` and managed with `brew bundle`.
+Packages are declared in Nix and applied with `darwin-rebuild`.
 
-- `brew bundle install` — install everything in `Brewfile`
-- `brew bundle check` — show what's missing without installing
-- `brew bundle cleanup [--force]` — list (or remove) packages not in `Brewfile`
-- `brew bundle dump --force --no-vscode` — regenerate `Brewfile` from the current environment
+- CLI/GUI packages available via nixpkgs → `nix/home-manager/home.nix` (`home.packages`)
+- macOS-only or self-updating apps (Homebrew cask のまま管理するもの) → `nix/nix-darwin/homebrew.nix` (`homebrew.taps` / `homebrew.brews` / `homebrew.casks`)
+- 環境ごと (personal/work) の差分 → `nix/nix-darwin/hosts/{profile}.nix`
+
+適用:
+
+```sh
+cd nix/nix-darwin
+sudo darwin-rebuild switch --flake .#personal   # または #work
+```

@@ -87,7 +87,10 @@ link_one() {
 echo "dotfiles repo: $REPO"
 [ "$DRY_RUN" -eq 1 ] && echo "(dry-run: 実際には変更しません)"
 
-# --- Homebrew & Brewfile ---
+# --- Homebrew ---
+# cask/brew の中身は nix-darwin (nix/nix-darwin/homebrew.nix) が
+# `darwin-rebuild switch` 実行時に宣言的にインストールする。
+# ここでは nix-darwin がそれを呼び出せるように Homebrew 本体だけ用意する。
 echo "--- brew ---"
 if ! command -v brew >/dev/null 2>&1; then
   echo "  Homebrew が見つかりません。インストールします..."
@@ -103,9 +106,6 @@ if ! command -v brew >/dev/null 2>&1; then
 else
   echo "  [OK]   Homebrew ($(brew --version | head -1))"
 fi
-
-echo "  brew bundle --file=$REPO/Brewfile"
-run brew bundle --file="$REPO/Brewfile"
 
 echo "--- symlinks ---"
 
