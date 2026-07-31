@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, username, ... }:
 
 {
   # Nix 自体の設定
@@ -12,6 +12,6 @@
   security.pam.services.sudo_local.touchIdAuth = true;
 
   # home-manager がユーザーを解決するために必要
-  system.primaryUser = "yopiyama";
-  users.users.yopiyama.home = "/Users/yopiyama";
+  system.primaryUser = username;
+  users.users.${username}.home = "/Users/${username}";
 }

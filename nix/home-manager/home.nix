@@ -1,9 +1,9 @@
-{ pkgs, ... }:
+{ pkgs, username, ... }:
 
 {
   home.stateVersion = "25.05";
-  home.username = "yopiyama";
-  home.homeDirectory = "/Users/yopiyama";
+  home.username = username;
+  home.homeDirectory = "/Users/${username}";
 
   # Brewfile の brew 行に対応するパッケージ
   home.packages = with pkgs; [

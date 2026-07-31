@@ -17,9 +17,9 @@
 
   outputs = { nixpkgs, nix-darwin, home-manager, ... }:
     let
-      mkSystem = profile: nix-darwin.lib.darwinSystem {
+      mkSystem = { profile, username }: nix-darwin.lib.darwinSystem {
         system = "aarch64-darwin";
-        specialArgs = { inherit profile; };
+        specialArgs = { inherit profile username; };
         modules = [
           ./system.nix
           ./homebrew.nix
@@ -28,14 +28,16 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.yopiyama = import ../home-manager/home.nix;
+            home-manager.extraSpecialArgs = { inherit username; };
+            home-manager.users.${username} = import ../home-manager/home.nix;
           }
         ];
       };
     in {
       darwinConfigurations = {
-        personal = mkSystem "personal";
-        work = mkSystem "work";
+        personal = mkSystem { profile = "personal"; username = "yopiyama"; };
+        # 実際の macOS アカウント名が判明したら username を更新する
+        work = mkSystem { profile = "work"; username = "yopiyama"; };
       };
     };
 }
