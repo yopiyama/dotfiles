@@ -310,9 +310,8 @@ fi
 
 case ${OSTYPE} in
     darwin*)
-      alias xargs='gxargs'
-      alias sed='gsed'
-      alias awk='gawk'
+      # sed/awk/xargs は nixpkgs (gnused/gawk/findutils) が無印の名前で GNU 版を
+      # 入れるのでエイリアス不要。Homebrew 時代の g 付き名は存在しない。
       alias cpjson='pbpaste | jq | pbcopy'
       ;;
 esac

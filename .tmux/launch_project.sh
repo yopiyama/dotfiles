@@ -18,12 +18,16 @@ die() { tmux display-message "launch_project: $*" 2>/dev/null || echo "launch_pr
 # 起動時モードのフォールバック: ピッカーを出せない/選ばなかったときは素のセッションへ
 startup_fallback() { exec tmux new-session -A -s "$STARTUP_SESSION"; }
 
+# 起動時モードでは JSON の妥当性まで見る。壊れていると後段の jq が set -e で落ち、
+# zshrc から exec された場合はシェルごと終了して端末が一切開けなくなるため。
 if [ -n "$STARTUP_SESSION" ]; then
-  { [ -f "$CONFIG" ] && command -v jq >/dev/null && command -v fzf >/dev/null; } || startup_fallback
+  { [ -f "$CONFIG" ] && command -v jq >/dev/null && command -v fzf >/dev/null \
+    && jq empty "$CONFIG" 2>/dev/null; } || startup_fallback
 else
   [ -f "$CONFIG" ] || die "$CONFIG が見つかりません (projects.json.sample をコピーしてください)"
   command -v jq  >/dev/null || die "jq が必要です"
   command -v fzf >/dev/null || die "fzf が必要です"
+  jq empty "$CONFIG" 2>/dev/null || die "$CONFIG が壊れています (JSON として読めません)"
 fi
 
 # name<TAB>path の一覧。起動時モードでは先頭に "+ new" (素のセッション) を加える。
