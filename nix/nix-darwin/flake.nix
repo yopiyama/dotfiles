@@ -40,8 +40,7 @@
     in {
       darwinConfigurations = {
         personal = mkSystem { profile = "personal"; username = "yopiyama"; };
-        # 実際の macOS アカウント名が判明したら username を更新する
-        work = mkSystem { profile = "work"; username = "yopiyama"; };
+        work = mkSystem { profile = "work"; username = "yoshiyama"; };
       };
     };
 }
