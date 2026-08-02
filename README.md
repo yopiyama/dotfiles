@@ -22,7 +22,7 @@ neovim 本体は `home.packages` で入れるだけに留めている。
 ## Install
 
 ```sh
-make setup       # 初回。install-nix → link → rebuild
+make setup PROFILE=work  # 初回。install-nix → link → rebuild
 make install-nix # nix 本体のインストール (導入済みなら何もしない)
 make link        # symlink 作成 + Homebrew 本体の準備
 make link-dry    # 何も変更せず、実行内容だけ表示
@@ -89,10 +89,15 @@ Packages are declared in Nix and applied with `darwin-rebuild`.
 適用:
 
 ```sh
-make rebuild                  # PROFILE=personal (デフォルト)
+make rebuild PROFILE=personal
 make rebuild PROFILE=work
-make dry-run                  # activate せず評価だけ確認
+make dry-run PROFILE=work     # activate せず評価だけ確認
 ```
+
+`PROFILE` にデフォルトは無く、`setup` / `rebuild` / `dry-run` では指定が必須
+(取り違えると別マシン向けの設定を activate してしまうため)。指定できる値は
+`nix/nix-darwin/hosts/*.nix` のファイル名から自動で拾っており、未指定・不正な値は
+実行前にエラーで止まる。
 
 または直接:
 

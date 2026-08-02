@@ -12,8 +12,18 @@ NIX_FLAGS := --extra-experimental-features 'nix-command flakes'
 # まだ nix が入っていない状態でも同一 make 実行内で続行できるようにするため。
 LOAD_NIX = if ! command -v nix >/dev/null 2>&1 && [ -e $(NIX_DAEMON_SH) ]; then . $(NIX_DAEMON_SH); fi
 
-# personal | work
-PROFILE ?= personal
+# PROFILE を取り違えると別マシン向けの設定を activate してしまうので、デフォルト値は
+# 持たず毎回明示させる。指定可能な値は hosts/*.nix のファイル名から拾う。
+PROFILES := $(notdir $(basename $(wildcard $(NIX_DARWIN_DIR)/hosts/*.nix)))
+CHECK_PROFILE = \
+	if [ -z "$(PROFILE)" ]; then \
+		echo "PROFILE を指定してください (指定可能: $(PROFILES))"; \
+		echo "  例: make rebuild PROFILE=work"; \
+		exit 1; \
+	elif ! echo " $(PROFILES) " | grep -q " $(PROFILE) "; then \
+		echo "不明な PROFILE: $(PROFILE) (指定可能: $(PROFILES))"; \
+		exit 1; \
+	fi
 
 .DEFAULT_GOAL := help
 .PHONY: help setup install-nix link link-dry rebuild dry-run doctor
@@ -27,18 +37,20 @@ help:
 	@echo "  dotfiles"
 	@echo "========================================="
 	@echo ""
-	@echo "  make setup       - 初回セットアップ (install-nix → link → rebuild)"
+	@echo "  make setup       - 初回セットアップ (install-nix → link → rebuild) *PROFILE 必須"
 	@echo "  make install-nix - nix 本体をインストール (導入済みなら何もしない)"
 	@echo "  make link        - symlink 作成 + Homebrew 準備 (scripts/link.sh)"
 	@echo "  make link-dry    - link の内容を表示するだけ (何も変更しない)"
-	@echo "  make rebuild     - darwin-rebuild switch (PROFILE=personal|work, default: personal)"
-	@echo "  make dry-run     - darwin-rebuild の評価だけ確認 (activate しない)"
+	@echo "  make rebuild     - darwin-rebuild switch *PROFILE 必須"
+	@echo "  make dry-run     - darwin-rebuild の評価だけ確認 (activate しない) *PROFILE 必須"
 	@echo "  make doctor      - 前提コマンドと symlink の状態を確認"
 	@echo ""
+	@echo "  PROFILE にデフォルトは無い。指定可能: $(PROFILES)"
 	@echo "  例: make rebuild PROFILE=work"
 	@echo ""
 
 setup:
+	@$(CHECK_PROFILE)
 	@$(MAKE) install-nix
 	@$(MAKE) link
 	@$(MAKE) rebuild PROFILE=$(PROFILE)
@@ -68,6 +80,7 @@ link-dry:
 # 初回は darwin-rebuild がまだ存在しないので、flake.lock で固定している nix-darwin を
 # build して、その中の darwin-rebuild で activate する (2 回目以降は PATH のものを使う)。
 rebuild:
+	@$(CHECK_PROFILE)
 	@$(LOAD_NIX); \
 	if command -v darwin-rebuild >/dev/null 2>&1; then \
 		sudo darwin-rebuild switch --flake $(NIX_DARWIN_DIR)#$(PROFILE); \
@@ -78,6 +91,7 @@ rebuild:
 	fi
 
 dry-run:
+	@$(CHECK_PROFILE)
 	@$(LOAD_NIX); \
 	nix $(NIX_FLAGS) build $(NIX_DARWIN_DIR)#darwinConfigurations.$(PROFILE).system --dry-run
 
