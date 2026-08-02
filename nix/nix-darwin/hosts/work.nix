@@ -7,7 +7,6 @@
 
   # 仕事用 Mac だけで使うパッケージ。両方の Mac で使うものは home-manager/home.nix へ。
   home-manager.users.${username}.home.packages = with pkgs; [
-    gemini-cli
     # aws ssm start-session が PATH から呼ぶ session-manager-plugin 本体
     # (Homebrew の cask session-manager-plugin と同じもの)。
     ssm-session-manager-plugin
