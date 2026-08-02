@@ -22,14 +22,25 @@ neovim 本体は `home.packages` で入れるだけに留めている。
 ## Install
 
 ```sh
-make setup      # 初回。前提チェック → link → rebuild
-make link       # symlink 作成 + Homebrew 本体の準備
-make link-dry   # 何も変更せず、実行内容だけ表示
-make doctor     # 前提コマンドと symlink の状態を確認
+make setup       # 初回。install-nix → link → rebuild
+make install-nix # nix 本体のインストール (導入済みなら何もしない)
+make link        # symlink 作成 + Homebrew 本体の準備
+make link-dry    # 何も変更せず、実行内容だけ表示
+make doctor      # 前提コマンドと symlink の状態を確認
 ```
 
-`make help` で全ターゲットを表示する。nix 本体だけは自動インストールしないので、
-未導入の場合は `make setup` が案内するインストーラを先に実行する。
+`make help` で全ターゲットを表示する。
+
+nix 本体は `make install-nix` (公式インストーラ `https://artifacts.nixos.org/nix-installer`)
+が入れる。インストーラは sudo と対話確認を求めるので非対話実行はできない。完了しても
+起動中のシェルには PATH が通らないため、`rebuild` / `dry-run` は実行前に
+`/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh` を読む。新しいシェルでは
+`/etc/zshrc` 経由で通るが、`~/.zshenv` に `setopt no_global_rcs` を書いている場合は
+読まれないので `.zshenv.sample` のように `path` へ自分で足すこと。
+
+初回は `darwin-rebuild` がまだ無いので、`make rebuild` は flake.lock で固定した
+nix-darwin を build してその中の `darwin-rebuild` で activate する。2 回目以降は
+PATH 上のものを使う。
 
 symlink 作成の実体は `scripts/link.sh`。単体実行 (`scripts/link.sh`,
 `scripts/link.sh --dry-run`) もできる。リンク元はスクリプト自身の場所から

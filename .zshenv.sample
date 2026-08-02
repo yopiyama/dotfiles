@@ -2,6 +2,12 @@ setopt no_global_rcs
 
 typeset -U path PATH
 path=(
+	# nix (no_global_rcs で /etc/zshrc を読まないので自前で通す)。
+	# home-manager (useUserPackages) → nix-darwin → nix 本体 の順。
+	# brew より前に置かないと同名コマンドで brew 版が勝つ。
+	/etc/profiles/per-user/$USERNAME/bin(N-/)
+	/run/current-system/sw/bin(N-/)
+	/nix/var/nix/profiles/default/bin(N-/)
 	/opt/homebrew/bin(N-/)
 	/opt/homebrew/sbin(N-/)
 	/usr/local/bin(N-/)
