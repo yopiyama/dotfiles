@@ -26,7 +26,7 @@ CHECK_PROFILE = \
 	fi
 
 .DEFAULT_GOAL := help
-.PHONY: help setup install-nix link link-dry rebuild dry-run doctor
+.PHONY: help setup install-nix link link-dry rebuild dry-run update update-lock doctor
 
 # setup は install-nix → link → rebuild の順序に意味がある (link が Homebrew 本体を
 # 用意し、rebuild がその上に cask/brew を宣言的に入れる) ため並列実行させない。
@@ -43,10 +43,15 @@ help:
 	@echo "  make link-dry    - link の内容を表示するだけ (何も変更しない)"
 	@echo "  make rebuild     - darwin-rebuild switch *PROFILE 必須"
 	@echo "  make dry-run     - darwin-rebuild の評価だけ確認 (activate しない) *PROFILE 必須"
+	@echo "  make update      - パッケージ更新 (update-lock → rebuild) *PROFILE 必須"
+	@echo "  make update-lock - flake.lock だけ更新 (activate しない)"
 	@echo "  make doctor      - 前提コマンドと symlink の状態を確認"
 	@echo ""
 	@echo "  PROFILE にデフォルトは無い。指定可能: $(PROFILES)"
 	@echo "  例: make rebuild PROFILE=work"
+	@echo ""
+	@echo "  update は INPUT で対象の flake input を絞れる (未指定なら全部)"
+	@echo "  例: make update PROFILE=work INPUT=nixpkgs"
 	@echo ""
 
 setup:
@@ -94,6 +99,28 @@ dry-run:
 	@$(CHECK_PROFILE)
 	@$(LOAD_NIX); \
 	nix $(NIX_FLAGS) build $(NIX_DARWIN_DIR)#darwinConfigurations.$(PROFILE).system --dry-run
+
+# パッケージのバージョンは flake.lock に固定されているので、rebuild だけでは何も
+# 新しくならない (設定変更が反映されるだけ)。lock を進めてから activate する。
+# Homebrew 側は homebrew.nix の onActivation.upgrade で rebuild に含まれる。
+update:
+	@$(CHECK_PROFILE)
+	@$(MAKE) update-lock
+	@$(MAKE) rebuild PROFILE=$(PROFILE)
+	@if git -C $(DOTFILES_DIR) diff --quiet -- $(NIX_DARWIN_DIR)/flake.lock; then \
+		echo "flake.lock に変更はありません (既に最新)"; \
+	else \
+		echo ""; \
+		echo "flake.lock が更新されています。動作を確認したらコミットしてください:"; \
+		echo "  git add nix/nix-darwin/flake.lock"; \
+		echo "戻したいときは git checkout nix/nix-darwin/flake.lock してから make rebuild。"; \
+	fi
+
+# INPUT で対象を絞れる (例: INPUT=nixpkgs)。未指定なら全 input を更新する。
+# PROFILE には依存しない (lock は profile 共通) ので単体で叩ける。
+update-lock:
+	@$(LOAD_NIX); \
+	nix $(NIX_FLAGS) flake update $(INPUT) --flake $(NIX_DARWIN_DIR)
 
 doctor:
 	@echo "--- 前提コマンド ---"
