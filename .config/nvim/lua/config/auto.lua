@@ -165,6 +165,24 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
 --     end,
 -- })
 
+-- Insert mode を抜けたら ATOK を英字モードに強制的に戻す。
+-- IME が「あ」のままだとノーマルモードのキー入力が仮名変換されて操作不能になるのを防ぐ。
+-- ATOK は英字/かなを独立した入力ソースではなく単一ソース内のモードとして扱うため、
+-- com.apple.keylayout.ABC ではなく ATOK 内の英字モード ID を指定する
+-- (alacritty.nix の tmux leader キーの設定と同じ ID)。
+local im_select = "/opt/homebrew/bin/im-select"
+local ime_english = "com.justsystems.inputmethod.atok36.Roman"
+
+if vim.fn.executable(im_select) == 1 then
+    autocmd("InsertLeave", {
+        group = augroup("ImeForceEnglish", { clear = true }),
+        callback = function()
+            -- im-select は 1 回あたり ~200ms かかるので必ず非同期で投げる
+            vim.system({ im_select, ime_english })
+        end,
+    })
+end
+
 -- bufferline 対応: :q でバッファを閉じる
 --   複数バッファ → 現バッファ削除、次のバッファへ
 --   最後の1バッファ → [No Name] に置き換えてレイアウト維持
