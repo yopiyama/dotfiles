@@ -7,6 +7,10 @@
   # nixpkgs の設定
   nixpkgs.config.allowUnfree = true;
 
+  # nix-darwin が /etc/zshenv 経由で EDITOR=nano を入れてくるため上書きする。
+  # git commit --amend などのエディタ起動を nvim にする。
+  environment.variables.EDITOR = "nvim";
+
   # macOS のシステム設定
   system.stateVersion = 6;
   security.pam.services.sudo_local = {
