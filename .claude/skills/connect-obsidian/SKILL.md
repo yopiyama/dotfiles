@@ -1,348 +1,112 @@
 ---
 name: connect-obsidian
-description: Read, write, search, manage, or open files in the user's Obsidian vault via the Obsidian CLI (obsidian command). Use this - instead of plain Read/Grep - whenever the user mentions Obsidian, their vault, notes, or daily notes, e.g. 「Obsidian のファイルを読んで」「vault を検索して」「デイリーノートに追記して」「ノートを開いて」. Also covers executing templates and opening notes in the app. Requires the Obsidian app running and obsidian in PATH.
+description: Read, write, search, manage, or open files in the user's Obsidian vault via the obs.sh wrapper around the Obsidian CLI. Use this - instead of plain Read/Grep - whenever the user mentions Obsidian, their vault, notes, or daily notes, e.g. 「Obsidian のファイルを読んで」「vault を検索して」「デイリーノートに追記して」「ノートを開いて」. Also covers executing templates and opening notes in the app. Requires the Obsidian app running and obsidian in PATH.
 tools: Bash
 ---
 
 # Obsidian CLI Integration
 
-Obsidian の操作を CLI (`obsidian` コマンド) を使って行う。Obsidian アプリが起動している必要がある。
+Obsidian の操作は **`~/.claude/skills/connect-obsidian/scripts/obs.sh` 経由で行う**。`obsidian` コマンドを直に組み立てるのは、obs.sh にサブコマンドが無い操作に限る。Obsidian アプリが起動している必要がある。
 
 > **前提条件**: `obsidian` コマンドが PATH に通っていること。macOS では `/Applications/Obsidian.app/Contents/MacOS` が PATH に含まれている必要がある。
 
+## なぜラッパー経由なのか
+
+素の `obsidian` CLI は引数を間違えても失敗を返さないため、「成功したつもりで別のことが起きている」事故が起きる。実際に踏んだもの:
+
+| 素の CLI の挙動 | 結果 |
+| --- | --- |
+| 何があっても **常に exit 0**（`Error:` は stdout に出るだけ） | `&&` も `set -e` も効かない。失敗が伝播しない |
+| キー無しの位置引数は**黙って無視**される | `obsidian read Notes/a.md` はアクティブファイルを読む。`obsidian create Notes/a.md content=…` は vault ルートに `Untitled.md` を作る |
+| `overwrite` 忘れ | 上書きではなく `note 1.md` という別ファイルができる |
+| `content=` のリテラル `\n` `\t` | 無条件に実改行・タブへ変換され、本文が化ける |
+| Obsidian が忙しいと稀に**空応答** | 成否不明のまま次へ進む |
+| `obsidian` は **stdin を飲む** | `while read` のループ内で呼ぶと残りの入力が消える |
+| `obsidian help`（サブコマンド無し）を `head` 等の早期 close パイプに繋ぐ | **ハングする** |
+
+obs.sh はこれらを全部塞ぐ。`path=` のキー付けを強制し、成功時の定型出力とパスを突き合わせ、書き込み後は `read` で読み直して内容一致を検証し、空応答はリトライする。CLI の `\n` 変換で化けた場合は vault のファイルへ直接書いて再検証する。**失敗すれば必ず非 0 で落ちて stderr にメッセージを出す。**
+
+## 使い方
+
+```bash
+OBS=~/.claude/skills/connect-obsidian/scripts/obs.sh
+```
+
+`$OBS --help` でサブコマンド一覧が出る。パスは**必ず vault ルートからの相対パス**を素の値で渡す（`path=` は付けない。付けると弾かれる）。
+
+### 読み取り・調査
+
+```bash
+$OBS read <path>                     # ノートを読む。無ければ失敗する
+$OBS read-name <name>                # ファイル名で読む（フォルダ・拡張子省略可）
+$OBS exists <path>                   # あれば exit 0 / 無ければ exit 1（出力なし）
+$OBS info <path>                     # path/size/更新日時などのメタデータ
+$OBS ls [folder]                     # ファイル一覧
+$OBS folders [folder]                # フォルダ一覧
+$OBS search <query> [folder] [limit] # 全文検索（ヒットしたパスの一覧）
+$OBS grep <query> [folder] [limit]   # 全文検索（マッチ行のコンテキスト付き）
+$OBS frontmatter <path>              # frontmatter を YAML で出力
+$OBS vault-path                      # vault のルートパス
+```
+
+### 書き込み
+
+本文は**ファイルか stdin で渡す**。`content=` を自分で組み立てない。
+
+```bash
+$OBS write <path> <本文ファイル>      # 作成・上書き（書き込み後に検証）
+cat body.md | $OBS write <path>       # stdin でも可
+$OBS append <path> [src]              # 末尾追記（追記後に検証）
+$OBS prepend <path> [src]             # 先頭追記（追記後に検証）
+```
+
+長い本文は scratchpad に一時ファイルを書いてそのパスを渡すのが確実。成功すると `書き込み: <path> (CLI)` または `(直接書き込み: …)` と出る。後者は本文にリテラル `\n` `\t` が含まれていて CLI では表現できなかったケースで、内容は検証済みなので問題ない。
+
+### frontmatter のプロパティ
+
+```bash
+$OBS prop-get <path> <name>                  # 無ければ exit 1
+$OBS prop-set <path> <name> <value> [type]   # 設定後に読み直して検証
+$OBS prop-del <path> <name>                  # 元から無くても成功（冪等）
+```
+
+`type` は `text|list|number|checkbox|date|datetime`。
+
+ヘッディング配下の一部だけを差し替えたい場合、CLI に patch 相当は無い。`$OBS read` で全文を取り、ローカルで編集して `$OBS write` で書き戻す。
+
+### その他
+
+```bash
+$OBS move <path> <to>          # 移動・リネーム
+$OBS open <path> [newtab]      # Obsidian で開く
+$OBS daily-path                # デイリーノートのパス
+$OBS daily-read                # デイリーノートを読む
+$OBS daily-append [src]        # デイリーノートに追記
+$OBS trash <path>              # ゴミ箱へ移動（allow に無いので確認プロンプトが出る）
+$OBS cli-help [subcommand]     # 素の CLI のヘルプ（ハングしない形で出す）
+```
+
 ## 基本ルール
 
-- ノートを新規作成する場合は `Notes/` フォルダに配置する（`path="Notes/<ファイル名>.md"` を使う）。vault ルートには置かない
-- `vault=<name>` を最初のパラメータに指定することで特定の vault を対象にできる
-- `file=<name>` はファイル名での解決（拡張子・フルパス不要）
-- `path=<path>` は vault ルートからの正確なパス（例: `folder/note.md`）
-- ファイル指定なしの場合はアクティブファイルが対象になる
-- 複数行コンテンツは `\n` を使う（例: `content="# Title\n\nBody text"`）。長い本文は一時ファイルに書いて `content="$(cat <file>)"` で実改行のまま渡す方が安全
-- **`create` / `append` の `content` はリテラル `\n`・`\t` を無条件に実改行・タブへ変換する**。本文にリテラル `\n` を残したい場合（シェルコードの引用等）は CLI では表現不能（`\\n` も `\` + 実改行になる）。その場合はそのファイルだけ vault へ直接書き込む。書き込み後に `obsidian read path=<path> | diff - <元ファイル>` で検証すると化けを検出できる
+- ノートを新規作成する場合は `Notes/` フォルダに配置する。vault ルートには置かない
+- 仕様を確認したいときは `$OBS cli-help <subcommand>`。**素の `obsidian help` を `head` に繋がない**（ハングする）
 - Obsidian 設定の Files and links → Excluded files に含まれるフォルダは、検索だけでなく **Bases の集計からも落ちる**（base ビューが 0 results になる）
-- 出力をクリップボードにコピーするには `--copy` フラグを使う
-- **`obsidian help` / `obsidian --help`（サブコマンド無し）を `head` などで早期 close するパイプに繋ぐとハングする**（例: `obsidian help | head -5`）。仕様確認は `obsidian help <subcommand>` で具体名を指定するか、 `obsidian help | grep PATTERN` のように全出力を消費する形にする。他のサブコマンドは早期 close パイプでも問題無い。
+- `obsidian delete`（永久削除も可）と `obsidian eval`（任意 JS 実行）は意図的に allow に含めていない。`$OBS trash` も含め、削除は毎回確認プロンプトで実行する
+- **フォルダの削除はできない**（CLI に rmdir 相当が無い）。空フォルダが残ったらユーザーに伝えて Obsidian 側か Finder で消してもらう
 
----
+## obs.sh に無い操作
 
-## ファイル操作
-
-### ファイル一覧の取得 (list_vault_files)
+以下は obs.sh のサブコマンドが無いので素の CLI を使う。その際も**キーを必ず付け、出力を目で確認する**（exit code は信用できない）。
 
 ```bash
-# vault 全体のファイル一覧
-obsidian files
-
-# フォルダを指定してファイル一覧
-obsidian files folder=<フォルダパス>
-
-# 拡張子でフィルタ
-obsidian files ext=md
-
-# ファイル数のみ取得
-obsidian files total
+obsidian tasks todo                    # タスク一覧（tasks / task）
+obsidian task ref="<path>:<line>" done # タスクの完了
+obsidian template:insert name=<名前>   # テンプレート挿入
+obsidian template:read name=<名前> resolve
+obsidian create path=<path> template=<名前> overwrite open  # テンプレートから作成
+obsidian backlinks path=<path>         # バックリンク
+obsidian outline path=<path>           # 見出し一覧
+obsidian tags / obsidian bases / obsidian base:query
 ```
 
-### ファイルの読み取り (get_vault_file)
-
-```bash
-# ファイル名で読み取り（拡張子省略可）
-obsidian read file=<ファイル名>
-
-# フルパスで読み取り
-obsidian read path=<vault からの相対パス>
-```
-
-### ファイルの作成・上書き (create_vault_file)
-
-```bash
-# 名前を指定して作成（Obsidian の link 解決ルールでパスが決まる）
-obsidian create name=<ファイル名> content=<内容> overwrite
-
-# パスを指定して作成
-obsidian create path=<vault からの相対パス> content=<内容> overwrite
-
-# テンプレートを使って作成
-obsidian create name=<ファイル名> template=<テンプレート名> overwrite
-
-# 作成後に Obsidian で開く
-obsidian create name=<ファイル名> content=<内容> overwrite open
-```
-
-> `overwrite` フラグがない場合、同名ファイルが存在するとエラーになる。
-
-### ファイルへの追記 (append_to_vault_file)
-
-```bash
-# ファイル末尾に追記
-obsidian append file=<ファイル名> content=<追記内容>
-
-# パスを指定して追記
-obsidian append path=<vault からの相対パス> content=<追記内容>
-
-# 改行なしで追記
-obsidian append file=<ファイル名> content=<内容> inline
-```
-
-### ファイルの削除 (delete_vault_file)
-
-```bash
-# ファイル名で削除（ゴミ箱に移動）
-obsidian delete file=<ファイル名>
-
-# パスを指定して削除
-obsidian delete path=<vault からの相対パス>
-
-# 完全削除（ゴミ箱に移動しない）
-obsidian delete file=<ファイル名> permanent
-```
-
-### ファイルの部分編集 (patch_vault_file)
-
-CLI にはヘッディング・ブロックを直接ターゲットにした patch コマンドはない。操作の種類によって以下のアプローチを使う。
-
-**フロントマターのプロパティ編集:**
-
-```bash
-# プロパティを設定
-obsidian property:set name=<プロパティ名> value=<値> file=<ファイル名>
-
-# プロパティの型を指定（text|list|number|checkbox|date|datetime）
-obsidian property:set name=<プロパティ名> value=<値> type=<型> file=<ファイル名>
-
-# プロパティを削除
-obsidian property:remove name=<プロパティ名> file=<ファイル名>
-
-# プロパティを読み取り
-obsidian property:read name=<プロパティ名> file=<ファイル名>
-```
-
-**ヘッディング・ブロック以下への追記:**
-
-```bash
-# ファイル末尾への追記で代替
-obsidian append file=<ファイル名> content=<内容>
-
-# または先頭に追記
-obsidian prepend file=<ファイル名> content=<内容>
-```
-
-**ヘッディング配下の特定セクションを置換する場合:**
-
-```bash
-# 1. ファイルの内容を読み取り
-content=$(obsidian read file=<ファイル名>)
-
-# 2. bash/awk/python でセクションを編集してファイルに保存
-# 3. 上書き保存
-obsidian create path=<vault からの相対パス> content="<編集後の内容>" overwrite
-```
-
----
-
-## アクティブファイル操作
-
-### アクティブファイルの読み取り (get_active_file)
-
-```bash
-# アクティブファイルの内容を読み取り
-obsidian read
-
-# アクティブファイルのメタデータ（パス・サイズ・更新日時）を確認
-obsidian file
-```
-
-### アクティブファイルへの追記 (append_to_active_file)
-
-```bash
-obsidian append content=<追記内容>
-
-# 改行なしで追記
-obsidian append content=<内容> inline
-```
-
-### アクティブファイルの削除 (delete_active_file)
-
-```bash
-obsidian delete
-```
-
-### アクティブファイルの部分編集 (patch_active_file)
-
-patch_vault_file と同じアプローチを使う。ファイルパラメータを省略するだけ。
-
-```bash
-# フロントマターのプロパティ設定
-obsidian property:set name=<プロパティ名> value=<値>
-
-# 末尾追記
-obsidian append content=<内容>
-
-# 先頭追記
-obsidian prepend content=<内容>
-```
-
-### アクティブファイルの全体更新 (update_active_file)
-
-```bash
-# 1. アクティブファイルのパスを取得
-path=$(obsidian file | grep '^path' | awk '{print $2}')
-
-# 2. 内容を上書き
-obsidian create path="$path" content="<新しい内容>" overwrite
-```
-
----
-
-## 検索
-
-### テキスト検索 (search_vault_simple)
-
-```bash
-# シンプルな全文検索（マッチしたファイルパスを返す）
-obsidian search query=<検索テキスト>
-
-# マッチした行のコンテキスト付きで検索
-obsidian search:context query=<検索テキスト>
-
-# フォルダを限定して検索
-obsidian search query=<検索テキスト> path=<フォルダパス>
-
-# 最大件数を指定
-obsidian search query=<検索テキスト> limit=<件数>
-
-# 大文字小文字を区別
-obsidian search query=<検索テキスト> case
-
-# JSON 形式で出力
-obsidian search query=<検索テキスト> format=json
-```
-
-### クエリ検索 (search_vault / Dataview)
-
-```bash
-# Dataview DQL に相当する検索は JavaScript eval で実行
-obsidian eval code="const files = app.vault.getMarkdownFiles(); return files.map(f => f.path).join('\n')"
-
-# タグでフィルタする場合の例
-obsidian eval code="app.metadataCache.getCachedFiles().filter(p => { const c = app.metadataCache.getCache(p); return c?.tags?.some(t => t.tag === '#<タグ名>'); }).join('\n')"
-```
-
-> **注意**: セマンティック検索 (search_vault_smart) に相当する CLI コマンドはない。テキスト検索 (`obsidian search`) で代替する。
-
----
-
-## Obsidian でファイルを開く (show_file_in_obsidian)
-
-```bash
-# ファイルを Obsidian で開く
-obsidian open file=<ファイル名>
-
-# パスを指定して開く
-obsidian open path=<vault からの相対パス>
-
-# 新しいタブで開く
-obsidian open file=<ファイル名> newtab
-```
-
----
-
-## テンプレートの実行 (execute_template)
-
-```bash
-# テンプレートを使って新しいファイルを作成
-obsidian create path=<作成先パス> template=<テンプレート名> overwrite open
-
-# アクティブファイルにテンプレートを挿入
-obsidian template:insert name=<テンプレート名>
-
-# テンプレートの内容を読み取り（変数展開あり）
-obsidian template:read name=<テンプレート名> resolve
-```
-
-> **注意**: Templater テンプレートへの引数渡し (`arguments` パラメータ相当) は CLI では直接サポートされていない。`eval` コマンドで Templater API を呼び出すか、テンプレートを事前に作成しておく必要がある。
-
----
-
-## サーバー情報の確認 (get_server_info)
-
-```bash
-# Obsidian のバージョン確認
-obsidian version
-
-# vault 情報の確認
-obsidian vault
-```
-
----
-
-## デイリーノート操作
-
-```bash
-# デイリーノートを開く
-obsidian daily
-
-# デイリーノートの内容を読み取り
-obsidian daily:read
-
-# デイリーノートに追記
-obsidian daily:append content=<内容>
-
-# デイリーノートの先頭に追記
-obsidian daily:prepend content=<内容>
-
-# デイリーノートのパスを取得
-obsidian daily:path
-```
-
----
-
-## タスク操作
-
-```bash
-# vault 全体のタスク一覧
-obsidian tasks
-
-# 未完了タスクのみ
-obsidian tasks todo
-
-# 完了タスクのみ
-obsidian tasks done
-
-# 特定ファイルのタスク
-obsidian tasks file=<ファイル名>
-
-# デイリーノートのタスク
-obsidian tasks daily
-
-# タスクの完了をトグル（ファイルパス:行番号 で指定）
-obsidian task ref="<ファイルパス>:<行番号>" toggle
-
-# タスクを完了にする
-obsidian task file=<ファイル名> line=<行番号> done
-```
-
----
-
-## 権限設定
-
-このスキルを使うには `.claude/settings.json` の `permissions.allow` に以下を追加する。
-`obsidian delete`(永久削除も可) と `obsidian eval`(任意 JS 実行) は意図的に allow に含めず、毎回確認プロンプトで実行する。
-
-```json
-"Bash(obsidian files:*)",
-"Bash(obsidian read:*)",
-"Bash(obsidian file:*)",
-"Bash(obsidian search:*)",
-"Bash(obsidian vault:*)",
-"Bash(obsidian version:*)",
-"Bash(obsidian property:*)",
-"Bash(obsidian template:*)",
-"Bash(obsidian create:*)",
-"Bash(obsidian append:*)",
-"Bash(obsidian prepend:*)",
-"Bash(obsidian daily:*)",
-"Bash(obsidian tasks:*)",
-"Bash(obsidian task:*)",
-"Bash(obsidian open:*)"
-```
+Templater テンプレートへの引数渡し（`arguments` 相当）は CLI では直接サポートされていない。セマンティック検索に相当するコマンドも無いので `$OBS search` / `$OBS grep` で代替する。
