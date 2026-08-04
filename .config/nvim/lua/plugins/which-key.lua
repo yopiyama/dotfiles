@@ -9,6 +9,7 @@ return {
             { "<leader>o", group = "octo (GitHub)" },
             { "<leader>r", group = "rename" },
             { "<leader>c", group = "code action" },
+            { "<leader>s", group = "session" },
         },
     },
     keys = {
