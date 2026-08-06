@@ -94,6 +94,31 @@ local function drop_empty_unnamed_buffers()
     end
 end
 
+-- neo-tree に netrw を hijack させているので、`nvim <dir>` や neo-tree 経由の
+-- 移動でディレクトリ名のバッファが湧く。これがセッションに焼き付くと、復元後に
+-- bufferline から開こうとしたときにエラーになるので保存前後で落とす。
+-- neo-tree 自身のバッファ (ft=neo-tree) も同様に対象外にする。
+local function drop_neotree_buffers()
+    for _, b in ipairs(vim.api.nvim_list_bufs()) do
+        local name = vim.api.nvim_buf_get_name(b)
+        local is_neotree = vim.startswith(vim.bo[b].filetype, "neo-tree")
+        local is_dir = name ~= "" and vim.fn.isdirectory(name) == 1
+        if is_neotree or is_dir then
+            pcall(vim.api.nvim_buf_delete, b, { force = true })
+        end
+    end
+end
+
+-- mksession は sessionoptions に関わらずアーグリストを `$argadd` として書き出し、
+-- 復元時にそれが buflisted なディレクトリバッファになる。ディレクトリだけ間引く。
+local function drop_directory_args()
+    for i = vim.fn.argc() - 1, 0, -1 do
+        if vim.fn.isdirectory(vim.fn.argv(i)) == 1 then
+            pcall(vim.cmd, (i + 1) .. "argdelete")
+        end
+    end
+end
+
 local function load_session(item)
     if not close_listed_buffers() then
         vim.notify("未保存のバッファがあるためセッションを切り替えません", vim.log.levels.WARN)
@@ -305,6 +330,19 @@ return {
                 pattern = "PersistenceSavePre",
                 callback = function()
                     pcall(vim.cmd, "Neotree close")
+                    drop_neotree_buffers()
+                    drop_directory_args()
+                end,
+            })
+
+            -- 既に neo-tree / ディレクトリを含んで保存されてしまったセッションが
+            -- 残っているので、復元側でも落としておく
+            vim.api.nvim_create_autocmd("User", {
+                group = group,
+                pattern = "PersistenceLoadPost",
+                callback = function()
+                    drop_neotree_buffers()
+                    drop_directory_args()
                 end,
             })
         end,
