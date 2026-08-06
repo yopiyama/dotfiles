@@ -2,7 +2,7 @@
 name: handoff
 description: "セッション引き継ぎノートの書き出し。現在のセッションの目的・決定事項・残タスク・関連 file:line を Obsidian の Handoff ノートに要約し、新しいセッションが /resume-handoff で読んで再開できるようにする。コンテキストが肥大化したセッションを畳むときに使う。"
 disable-model-invocation: true
-allowed-tools: Bash(obsidian create:*), Bash(obsidian files:*), Bash(git status:*), Bash(git log:*), Bash(git diff:*), Bash(git branch:*), Bash(git rev-parse:*), Bash(date:*)
+allowed-tools: Bash(~/.claude/skills/connect-obsidian/scripts/obs.sh write:*), Bash(~/.claude/skills/connect-obsidian/scripts/obs.sh ls:*), Bash(git status:*), Bash(git log:*), Bash(git diff:*), Bash(git branch:*), Bash(git rev-parse:*), Bash(date:*)
 ---
 
 # Handoff — セッション引き継ぎノートの書き出し
@@ -24,10 +24,15 @@ allowed-tools: Bash(obsidian create:*), Bash(obsidian files:*), Bash(git status:
 
 1. 必要に応じて `git status --short` / `git log --oneline -5` で現在の状態を確認する（未コミット変更の有無は必ずノートに反映する）
 2. 下のテンプレートでノート本文を作成する
-3. `obsidian create path="ClaudeCode/<プロジェクト名>/Handoff/<ファイル名>.md" content='<本文>'` で書き込む
-   - content はシングルクォートで囲み、実改行をそのまま使う（`\n` エスケープ不要）
-   - 本文にバッククォートや `$` を含めても、シングルクォート内なら展開されない。本文にシングルクォート自体は使わない
-   - 本文にリテラル `\n`・`\t` を書くと CLI が実改行・タブへ変換してしまう（`\\n` でも回避不能）。含める必要がある場合はそのノートだけ vault へ直接書き込む
+3. 本文を scratchpad の一時ファイルに書き、そのパスを渡して書き込む
+
+   ```bash
+   ~/.claude/skills/connect-obsidian/scripts/obs.sh write \
+     "ClaudeCode/<プロジェクト名>/Handoff/<ファイル名>.md" <本文ファイル>
+   ```
+
+   - **`obsidian create ... content='<本文>'` を直に叩かない**。CLI は本文を argv でソケットに流すため、バッファ境界でマルチバイト文字が壊れる（1 文字が U+FFFD に化ける）
+   - obs.sh はファイル経由で書いて読み直して検証するので、リテラル `\n`・`\t` やバッククォート・`$`・シングルクォートをそのまま含められる
 4. 作成したノートのパスをユーザーに提示し、「新しいセッションで `/resume-handoff` を実行すれば再開できる」と案内する（built-in の `/resume` ではない点に注意）
 
 ## ノートテンプレート

@@ -100,8 +100,8 @@ base_dir()    { printf 'ClaudeCode/%s/Tasks\n' "$PROJECT"; }
 child_dir()   { printf '%s/PR-%s\n' "$(base_dir)" "$1"; }
 parent_path() { printf '%s/PR-%s.md\n' "$(base_dir)" "$1"; }
 
-# 子ノートのパスを配列 CHILDREN へ列挙する。obsidian files はフォルダが無ければ
-# 空を返すだけなので、未作成のケースも自然に空配列になる。
+# 子ノートのパスを配列 CHILDREN へ列挙する。obs.sh ls はフォルダが無ければ
+# エラーで落ちるが、ここでは stderr を捨てて空配列に倒すので未作成でも自然に動く。
 # ループ内で obs.sh を呼ぶ都合上、一覧は必ず先に配列へ確定させてから回す
 # (while read のループ内で obsidian を呼ぶと stdin を飲まれて 1 件目で終わる)
 CHILDREN=()
