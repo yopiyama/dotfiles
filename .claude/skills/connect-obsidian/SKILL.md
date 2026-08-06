@@ -6,107 +6,146 @@ tools: Bash
 
 # Obsidian CLI Integration
 
-Obsidian の操作は **`~/.claude/skills/connect-obsidian/scripts/obs.sh` 経由で行う**。`obsidian` コマンドを直に組み立てるのは、obs.sh にサブコマンドが無い操作に限る。Obsidian アプリが起動している必要がある。
+Obsidian の操作は **`~/.claude/skills/connect-obsidian/scripts/obs.sh` 経由で行う**。`obsidian` コマンドを直に組み立てるのは、obs.sh にサブコマンドが無い操作に限る。
 
-> **前提条件**: `obsidian` コマンドが PATH に通っていること。macOS では `/Applications/Obsidian.app/Contents/MacOS` が PATH に含まれている必要がある。
+> **前提条件**: `obsidian` コマンドが PATH に通っていること（macOS では `/Applications/Obsidian.app/Contents/MacOS`）。ただし本文の読み書きと検索は vault のファイルを直接触るので **Obsidian が起動していなくても動く**。アプリの起動が必要なのは `move` / `trash` / `prop-*` / `open` / `daily-*` だけ。
+
+## 呼び出し方（重要）
+
+**パスを直接書く。変数に入れない。**
+
+```bash
+# ✅ これ
+~/.claude/skills/connect-obsidian/scripts/obs.sh read "Notes/foo.md"
+
+# ❌ これはダメ（毎回パーミッション確認が出る）
+OBS=~/.claude/skills/connect-obsidian/scripts/obs.sh
+$OBS read "Notes/foo.md"
+```
+
+`OBS=...` + `$OBS` の形はコマンド文字列の先頭が `OBS=` になるため settings.json の allow パターン（`Bash(~/.claude/skills/connect-obsidian/scripts/obs.sh read:*)` 等）に一致せず、**サブコマンドごとに毎回確認プロンプトが出る**。パスの綴りも `~/.claude/...` で固定する（`$HOME/...` や絶対パス、`~/ghq/.../dotfiles/.claude/...` は一致しない）。
+
+同じ理由で、**出力をパイプに繋ぐと確認プロンプトになる**。件数を絞りたいときは `| head` ではなく `search` / `grep` の `limit` 引数を使う。
+
+以下このドキュメントでは紙面のため `obs.sh` と略記するが、実行時は必ず上記のフルパスを書くこと。
 
 ## なぜラッパー経由なのか
 
-素の `obsidian` CLI は引数を間違えても失敗を返さないため、「成功したつもりで別のことが起きている」事故が起きる。実際に踏んだもの:
+素の `obsidian` CLI は引数を間違えても失敗を返さず、さらに**本文を渡すと壊す**。実際に踏んだもの:
 
 | 素の CLI の挙動 | 結果 |
 | --- | --- |
+| `content=` は argv 経由で Chromium の process-singleton ソケットに流れる | **8KB 付近のバッファ境界でマルチバイト文字が分断され、1 文字が U+FFFD 2〜3 個に化ける**。数十 KB では Broken pipe でハングし、vault を開いていない二重起動インスタンスが残る。これで vault の 6 ノートが壊れた |
+| `search` / `search:context` | **1.13.4 では全クエリで空を返す**（完全に壊れている）。しかも exit 0 なので「0 件」と区別できない。仮に動いても対象は markdown のみで `.canvas` やファイル名は引っかからない |
 | 何があっても **常に exit 0**（`Error:` は stdout に出るだけ） | `&&` も `set -e` も効かない。失敗が伝播しない |
 | キー無しの位置引数は**黙って無視**される | `obsidian read Notes/a.md` はアクティブファイルを読む。`obsidian create Notes/a.md content=…` は vault ルートに `Untitled.md` を作る |
 | `overwrite` 忘れ | 上書きではなく `note 1.md` という別ファイルができる |
-| `content=` のリテラル `\n` `\t` | 無条件に実改行・タブへ変換され、本文が化ける |
-| Obsidian が忙しいと稀に**空応答** | 成否不明のまま次へ進む |
+| 大きい出力を `head` 等の**早期 close パイプ**に繋ぐ | **ハングする**（`obsidian read` した大きなノートを `head` に繋ぐと固まる） |
 | `obsidian` は **stdin を飲む** | `while read` のループ内で呼ぶと残りの入力が消える |
-| `obsidian help`（サブコマンド無し）を `head` 等の早期 close パイプに繋ぐ | **ハングする** |
 
-obs.sh はこれらを全部塞ぐ。`path=` のキー付けを強制し、成功時の定型出力とパスを突き合わせ、書き込み後は `read` で読み直して内容一致を検証し、空応答はリトライする。CLI の `\n` 変換で化けた場合は vault のファイルへ直接書いて再検証する。**失敗すれば必ず非 0 で落ちて stderr にメッセージを出す。**
+obs.sh はこれらを塞ぐ。**本文の読み・書き・検索は CLI を通さず vault のファイルへ直接アクセスする**（`cat` なのでパイプに繋いでも安全）。書き込みは同一ディレクトリ内の rename で差し替え、書いたバイト列と読み直したバイト列を突き合わせて検証する。CLI を使う操作では成功時の定型出力とパスを突き合わせ、**失敗すれば必ず非 0 で落ちて stderr にメッセージを出す**。
 
 ## 使い方
 
-```bash
-OBS=~/.claude/skills/connect-obsidian/scripts/obs.sh
-```
-
-`$OBS --help` でサブコマンド一覧が出る。パスは**必ず vault ルートからの相対パス**を素の値で渡す（`path=` は付けない。付けると弾かれる）。
+`obs.sh --help` でサブコマンド一覧が出る。パスは**必ず vault ルートからの相対パス**を素の値で渡す（`path=` は付けない。付けると弾かれる。絶対パスと `..` も弾く）。
 
 ### 読み取り・調査
 
 ```bash
-$OBS read <path>                     # ノートを読む。無ければ失敗する
-$OBS read-name <name>                # ファイル名で読む（フォルダ・拡張子省略可）
-$OBS exists <path>                   # あれば exit 0 / 無ければ exit 1（出力なし）
-$OBS info <path>                     # path/size/更新日時などのメタデータ
-$OBS ls [folder]                     # ファイル一覧
-$OBS folders [folder]                # フォルダ一覧
-$OBS search <query> [folder] [limit] # 全文検索（ヒットしたパスの一覧）
-$OBS grep <query> [folder] [limit]   # 全文検索（マッチ行のコンテキスト付き）
-$OBS frontmatter <path>              # frontmatter を YAML で出力
-$OBS vault-path                      # vault のルートパス
+obs.sh read <path>                       # ノートを読む。無ければ失敗する
+obs.sh read-name <name>                  # ファイル名で読む（フォルダ・拡張子省略可）
+obs.sh exists <path>                     # あれば exit 0 / 無ければ exit 1（出力なし）
+obs.sh info <path>                       # path/size/更新日時
+obs.sh ls [folder]                       # ファイル一覧（vault 相対パス・再帰）
+obs.sh folders [folder]                  # フォルダ一覧
+obs.sh frontmatter <path>                # frontmatter を YAML で出力
+obs.sh vault-path                        # vault のルートパス
 ```
+
+### 検索
+
+```bash
+obs.sh search [--all] <query> [folder] [limit]  # ヒットしたパスの一覧
+obs.sh grep   [--all] <query> [folder] [limit]  # マッチ行（path:行番号: 行）
+```
+
+- **本文とパス名の両方**を見る。`AOBI-970` のようにファイル名にしか出てこない語も引っかかる
+- query は**固定文字列・大小無視**（正規表現ではない）。`.canvas` や `.csv` も対象
+- `ClaudeCode/*/Conversations/` の会話ログは自動生成されるセッション記録で件数が多いため**既定で除外**し、何件除外したかを stderr に出す。含めたいときは `--all`
+- **0 件なら exit 1** で stderr にメッセージを出す（黙って 0 件にならない）
+- 正規表現で引きたいときは `obs.sh vault-path` の下で `rg` を直接叩く
 
 ### 書き込み
 
 本文は**ファイルか stdin で渡す**。`content=` を自分で組み立てない。
 
 ```bash
-$OBS write <path> <本文ファイル>      # 作成・上書き（書き込み後に検証）
-cat body.md | $OBS write <path>       # stdin でも可
-$OBS append <path> [src]              # 末尾追記（追記後に検証）
-$OBS prepend <path> [src]             # 先頭追記（追記後に検証）
+obs.sh write <path> <本文ファイル>       # 作成・上書き（書き込み後に検証）
+cat body.md | obs.sh write <path>        # stdin でも可
+obs.sh append <path> [src]               # 末尾追記（追記後に検証）
+obs.sh prepend <path> [src]              # 先頭追記（追記後に検証）
 ```
 
-長い本文は scratchpad に一時ファイルを書いてそのパスを渡すのが確実。成功すると `書き込み: <path> (CLI)` または `(直接書き込み: …)` と出る。後者は本文にリテラル `\n` `\t` が含まれていて CLI では表現できなかったケースで、内容は検証済みなので問題ない。
+長い本文は scratchpad に一時ファイルを書いてそのパスを渡すのが確実。成功すると `書き込み: <path> (12345 bytes)` と出る。サイズ上限は無い（数十 KB でも壊れない）。
+
+`append` / `prepend` は既存の全文を読んでローカルで連結し、丸ごと書き直す。既存ノートが無ければ新規作成として扱う。
 
 ### frontmatter のプロパティ
 
 ```bash
-$OBS prop-get <path> <name>                  # 無ければ exit 1
-$OBS prop-set <path> <name> <value> [type]   # 設定後に読み直して検証
-$OBS prop-del <path> <name>                  # 元から無くても成功（冪等）
+obs.sh prop-get <path> <name>                  # 無ければ exit 1
+obs.sh prop-set <path> <name> <value> [type]   # 設定後に読み直して検証
+obs.sh prop-del <path> <name>                  # 元から無くても成功（冪等）
 ```
 
-`type` は `text|list|number|checkbox|date|datetime`。
+`type` は `text|list|number|checkbox|date|datetime`。YAML の型付き編集は CLI に任せている（値は短いのでソケットの問題は出ない）。Obsidian の起動が必要。
 
-ヘッディング配下の一部だけを差し替えたい場合、CLI に patch 相当は無い。`$OBS read` で全文を取り、ローカルで編集して `$OBS write` で書き戻す。
+ヘッディング配下の一部だけを差し替えたい場合、CLI に patch 相当は無い。`obs.sh read` で全文を取り、ローカルで編集して `obs.sh write` で書き戻す。
+
+### 保守
+
+```bash
+obs.sh lint [folder]           # U+FFFD（文字化けの痕跡）を含むノートを列挙
+```
+
+過去に CLI の `content=` 経由で壊れたノートを洗い出すための診断。文字化けを疑ったときに走らせる。
 
 ### その他
 
 ```bash
-$OBS move <path> <to>          # 移動・リネーム
-$OBS open <path> [newtab]      # Obsidian で開く
-$OBS daily-path                # デイリーノートのパス
-$OBS daily-read                # デイリーノートを読む
-$OBS daily-append [src]        # デイリーノートに追記
-$OBS trash <path>              # ゴミ箱へ移動（allow に無いので確認プロンプトが出る）
-$OBS cli-help [subcommand]     # 素の CLI のヘルプ（ハングしない形で出す）
+obs.sh move <path> <to>        # 移動・リネーム（リンクも更新される）
+obs.sh open <path> [newtab]    # Obsidian で開く
+obs.sh daily-path              # デイリーノートのパス
+obs.sh daily-read              # デイリーノートを読む
+obs.sh daily-append [src]      # デイリーノートに追記
+obs.sh trash <path>            # ゴミ箱へ移動（allow に無いので確認プロンプトが出る）
+obs.sh cli-help [subcommand]   # 素の CLI のヘルプ（ハングしない形で出す）
 ```
+
+`daily-append` はその日のノートがまだ無い場合、テンプレート（daily-notes の `template` 設定）を効かせるために実体の作成だけ Obsidian に任せる（ノートが 1 枚開く）。本文はファイルへ直接追記する。
 
 ## 基本ルール
 
 - ノートを新規作成する場合は `Notes/` フォルダに配置する。vault ルートには置かない
-- 仕様を確認したいときは `$OBS cli-help <subcommand>`。**素の `obsidian help` を `head` に繋がない**（ハングする）
-- Obsidian 設定の Files and links → Excluded files に含まれるフォルダは、検索だけでなく **Bases の集計からも落ちる**（base ビューが 0 results になる）
-- `obsidian delete`（永久削除も可）と `obsidian eval`（任意 JS 実行）は意図的に allow に含めていない。`$OBS trash` も含め、削除は毎回確認プロンプトで実行する
+- 仕様を確認したいときは `obs.sh cli-help <subcommand>`。**素の `obsidian help` を `head` に繋がない**（ハングする）
+- **`obsidian create` / `append` / `prepend` / `daily:append` を素で呼んで本文を渡さない**。ソケット境界で本文が壊れる。本文を伴う操作は必ず obs.sh 経由
+- Obsidian 設定の Files and links → Excluded files に含まれるフォルダは Obsidian 側の検索と **Bases の集計から落ちる**（base ビューが 0 results になる）。obs.sh の `search` はファイルシステムを直接見るので影響を受けない
+- `obsidian delete`（永久削除も可）と `obsidian eval`（任意 JS 実行）は意図的に allow に含めていない。`obs.sh trash` も含め、削除は毎回確認プロンプトで実行する
 - **フォルダの削除はできない**（CLI に rmdir 相当が無い）。空フォルダが残ったらユーザーに伝えて Obsidian 側か Finder で消してもらう
 
 ## obs.sh に無い操作
 
-以下は obs.sh のサブコマンドが無いので素の CLI を使う。その際も**キーを必ず付け、出力を目で確認する**（exit code は信用できない）。
+以下は obs.sh のサブコマンドが無いので素の CLI を使う。その際も**キーを必ず付け、出力を目で確認する**（exit code は信用できない）。**本文を渡すもの（`content=`）は使わない**。
 
 ```bash
 obsidian tasks todo                    # タスク一覧（tasks / task）
 obsidian task ref="<path>:<line>" done # タスクの完了
 obsidian template:insert name=<名前>   # テンプレート挿入
 obsidian template:read name=<名前> resolve
-obsidian create path=<path> template=<名前> overwrite open  # テンプレートから作成
+obsidian create path=<path> template=<名前> overwrite open  # テンプレートから作成（本文は渡さない）
 obsidian backlinks path=<path>         # バックリンク
 obsidian outline path=<path>           # 見出し一覧
 obsidian tags / obsidian bases / obsidian base:query
 ```
 
-Templater テンプレートへの引数渡し（`arguments` 相当）は CLI では直接サポートされていない。セマンティック検索に相当するコマンドも無いので `$OBS search` / `$OBS grep` で代替する。
+Templater テンプレートへの引数渡し（`arguments` 相当）は CLI では直接サポートされていない。セマンティック検索に相当するコマンドも無いので `obs.sh search` / `obs.sh grep` で代替する。
