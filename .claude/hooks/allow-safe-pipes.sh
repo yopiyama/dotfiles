@@ -12,6 +12,12 @@ set -euo pipefail
 # 分割実行を促す。Claude Code 本体が複数 cd の複合コマンドを強制確認に
 # するため、プロジェクト settings で許可済みのコマンド（gotestsum 等）でも
 # 1 つに繋げると自動承認されなくなるのを防ぐ。
+#
+# connect-obsidian の obs.sh も同様に扱う。settings.json の allow は
+# `~/.claude/skills/...` という綴りの前方一致でしか効かず、$HOME 展開・絶対パス・
+# リポジトリ実体パス・パイプ併用のたびに確認が出ていた。realpath で実体を
+# 突き合わせてサブコマンド単位で allow し、変数経由（OBS=... + $OBS）の呼び方は
+# deny + 理由でフルパス直書きに誘導する。
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 POLICY_FILE="${SCRIPT_DIR}/command-policy.conf"
@@ -165,6 +171,62 @@ is_readonly_gh_api() {
   return 0
 }
 
+# --- connect-obsidian の obs.sh の判定 ---
+# settings.json の allow は `~/.claude/skills/connect-obsidian/scripts/obs.sh <sub>`
+# という綴りの前方一致でしか効かない。実際には $HOME 展開・絶対パス・
+# リポジトリ実体パス (~/ghq/.../dotfiles/.claude/skills/...) と綴りが揺れ、
+# そのたびにパーミッション確認になっていた。パスの末尾で obs.sh を判定して
+# サブコマンド単位で許可する。
+# trash は settings.json と同様に意図的に外す (削除は毎回確認する)。
+OBS_SAFE_SUBS="read read-name exists info write append prepend ls folders search grep lint frontmatter prop-get prop-set prop-del move open daily-path daily-read daily-append vault-path help cli-help --help -h"
+
+# 正規の obs.sh の実体パス。~/.claude/skills は dotfiles リポジトリへの symlink
+# なので、realpath を通せば「~ 綴り」「$HOME 展開」「絶対パス」「リポジトリ実体
+# パス」が全部同じ 1 ファイルに収束する。パス末尾の一致だけで判定すると
+# /tmp/any/connect-obsidian/scripts/obs.sh のような別物まで通ってしまうため、
+# 実体が一致することまで確認する。
+OBS_CANONICAL=""
+
+is_safe_obs_sh() {
+  local cmd="$1" bin rest sub s resolved p
+  bin="${cmd%%[[:space:]]*}"
+  # 高速な事前フィルタ。ここを通らないコマンドで realpath を呼ばない
+  [[ "$bin" == */connect-obsidian/scripts/obs.sh ]] || return 1
+  [[ -n "$OBS_CANONICAL" ]] || \
+    OBS_CANONICAL="$(realpath "$HOME/.claude/skills/connect-obsidian/scripts/obs.sh" 2>/dev/null || true)"
+  [[ -n "$OBS_CANONICAL" ]] || return 1
+  # コマンド文字列はシェル展開前なので $HOME / ${HOME} / ~ を自分で開く
+  p="$bin"
+  p="${p/#\$HOME\//$HOME/}"
+  p="${p/#\$\{HOME\}\//$HOME/}"
+  resolved="$(realpath "$(expand_tilde "$p")" 2>/dev/null || true)"
+  [[ "$resolved" == "$OBS_CANONICAL" ]] || return 1
+  rest="${cmd#"$bin"}"
+  rest="${rest#"${rest%%[![:space:]]*}"}"   # 先頭の空白を落とす
+  sub="${rest%%[[:space:]]*}"
+  [[ -n "$sub" ]] || return 1
+  for s in $OBS_SAFE_SUBS; do
+    [[ "$sub" == "$s" ]] && return 0
+  done
+  return 1
+}
+
+# obs.sh を変数に入れて `$OBS read ...` の形で呼ぶと、コマンド文字列の先頭が
+# `OBS=` になって allow パターンにも上の判定にも一致せず、毎回確認になる。
+# deny + 理由を返してフルパス直書きに直させる (サブエージェントにも効く)。
+# 判定は quote 除去後の cleaned に対して行うので、クォート内に obs.sh のパスを
+# 含む grep 等は誤検出しない。
+if printf '%s' "$cleaned" | grep -qE '[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*/connect-obsidian/scripts/obs\.sh'; then
+  jq -n '{
+    hookSpecificOutput: {
+      hookEventName: "PreToolUse",
+      permissionDecision: "deny",
+      permissionDecisionReason: "obs.sh を変数 (OBS=... / $OBS) 経由で呼ぶと、コマンド文字列の先頭が OBS= になり許可済みパターンに一致せず毎回パーミッション確認になります。`~/.claude/skills/connect-obsidian/scripts/obs.sh <サブコマンド> ...` とパスを直接書いて実行し直してください。"
+    }
+  }'
+  exit 0
+fi
+
 if [[ "$has_pipe" == "false" && "$has_redirect" == "false" && "$has_compound" == "false" ]]; then
   single_trimmed="$(printf '%s' "$cleaned" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
   if is_readonly_gh_api "$single_trimmed"; then
@@ -173,6 +235,16 @@ if [[ "$has_pipe" == "false" && "$has_redirect" == "false" && "$has_compound" ==
         hookEventName: "PreToolUse",
         permissionDecision: "allow",
         permissionDecisionReason: "gh api read-only (GET/HEAD) call auto-approved"
+      }
+    }'
+    exit 0
+  fi
+  if is_safe_obs_sh "$single_trimmed"; then
+    jq -n '{
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        permissionDecision: "allow",
+        permissionDecisionReason: "connect-obsidian の obs.sh (安全なサブコマンド) を自動承認"
       }
     }'
   fi
@@ -234,7 +306,7 @@ for segment in "${segments[@]}"; do
   if matches_deny_pattern "$trimmed"; then
     exit 0
   fi
-  if ! matches_section "$trimmed" allow && ! is_readonly_gh_api "$trimmed"; then
+  if ! matches_section "$trimmed" allow && ! is_readonly_gh_api "$trimmed" && ! is_safe_obs_sh "$trimmed"; then
     all_safe=false
     break
   fi
