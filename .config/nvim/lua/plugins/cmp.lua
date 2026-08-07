@@ -3,6 +3,8 @@ return {
     "hrsh7th/nvim-cmp",
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
+      -- 関数呼び出し中に引数リスト（signature）を補完ウィンドウ内に表示する
+      "hrsh7th/cmp-nvim-lsp-signature-help",
       -- 任意：スニペットも欲しいなら
       "L3MON4D3/LuaSnip",
       "saadparwaiz1/cmp_luasnip",
@@ -42,6 +44,8 @@ return {
         }),
         sources = cmp.config.sources({
           { name = "nvim_lsp" },
+          -- 引数の途中でも signature を出したいので、最優先グループに入れる
+          { name = "nvim_lsp_signature_help" },
           { name = "luasnip" },
         }),
       })

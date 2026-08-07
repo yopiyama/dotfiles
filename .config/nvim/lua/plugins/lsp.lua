@@ -52,6 +52,13 @@ return {
 
       vim.lsp.config("gopls", {
         capabilities = capabilities,
+        settings = {
+          gopls = {
+            -- 関数を補完確定したときに引数をプレースホルダとして挿入する
+            -- （<Tab>/<S-Tab> で引数を渡り歩ける。cmp の LuaSnip 連携が前提）
+            usePlaceholders = true,
+          },
+        },
         root_dir = function(bufnr, on_dir)
           local fname = vim.api.nvim_buf_get_name(bufnr)
           local hoist = function(dir)
