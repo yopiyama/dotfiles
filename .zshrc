@@ -358,3 +358,5 @@ fi
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
 eval "$(mise activate zsh)"
+# direnv は mise activate の後に hook する (PATH の前に direnv の変更を載せる)
+command -v direnv >/dev/null && eval "$(direnv hook zsh)"

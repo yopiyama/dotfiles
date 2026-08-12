@@ -3,6 +3,7 @@
 {
   imports = [
     ./programs/alacritty.nix
+    ./programs/direnv.nix
     ./programs/git.nix
     ./programs/lazygit.nix
     ./programs/mise.nix
