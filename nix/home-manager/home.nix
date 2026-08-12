@@ -4,6 +4,7 @@
   imports = [
     ./programs/alacritty.nix
     ./programs/direnv.nix
+    ./programs/gh.nix
     ./programs/ghostty.nix
     ./programs/git.nix
     ./programs/lazygit.nix
@@ -15,7 +16,7 @@
   home.homeDirectory = "/Users/${username}";
 
   # Brewfile の brew 行に対応するパッケージ
-  # alacritty/mise/lazygit は programs.* が自動で追加するのでここには書かない
+  # alacritty/mise/lazygit/gh は programs.* が自動で追加するのでここには書かない
   home.packages = with pkgs; [
     awscli2
     bat
@@ -26,7 +27,6 @@
     findutils
     fzf
     gawk
-    gh
     ghq
     gnused
     golangci-lint
