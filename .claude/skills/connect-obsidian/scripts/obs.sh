@@ -111,6 +111,19 @@ abs_path() {
 # CLI へ生のパスを渡す前の入り口チェック (絶対パスや .. を弾く)
 validate_rel() { abs_path "${1:-}" >/dev/null; }
 
+# move の to= は「移動先フォルダ」と「移動先パス」のどちらでもよい。
+# 実際にどこへ移るのかを先に確定させ、移動後の検証に使う
+move_dest() {
+  # $1: 移動元の vault 相対パス, $2: to= の値
+  local src=$1 to=$2 d
+  if [ -d "$(vault_path)/$to" ]; then
+    d="${to%/}/${src##*/}"   # ${src##*/} は basename
+  else
+    d=$to
+  fi
+  printf '%s\n' "${d#./}"
+}
+
 # ドットディレクトリ (.obsidian/.git/.trash) を除いてファイル/ディレクトリを列挙
 list_paths() {
   # $1: -type の値 (f|d), $2: 起点となる vault 相対フォルダ (省略で全体)
@@ -218,6 +231,11 @@ cli() {
 
 # 変更系の呼び出し。Obsidian が再インデックス中などで忙しいと CLI がまれに
 # 何も返さず (成否不明のまま) 終わるため、出力が空の間だけリトライする。
+#
+# move / delete は冪等でないので、応答だけが失われて実処理は通っていた場合、
+# 2 回目の呼び出しが File not found を返す。CLI の出力をそのまま信じると
+# 成功したはずの操作を失敗として報告してしまうため、呼び出し側は CLI ではなく
+# 実際のファイルの有無で成否を決めること (move / trash の実装を参照)。
 cli_mutate() {
   local i
   for i in 1 2 3 4; do
@@ -410,17 +428,29 @@ case "$cmd" in
     ;;
 
   move)
-    validate_rel "${1:-}"
+    src_abs=$(abs_path "${1:-}")
     [ -n "${2:-}" ] || die "移動先を指定してください"
+    [ -e "$src_abs" ] || die "ノートが見つかりません: $1"
+    dest=$(move_dest "$1" "$2")
     cli_mutate move "path=$1" "to=$2"
-    expect_ok "Moved: " "$2" 移動
-    printf '%s\n' "$CLI_OUT"
+    # CLI の出力より実際のファイルの位置を優先する (cli_mutate のコメント参照)
+    if [ ! -e "$src_abs" ] && [ -e "$(abs_path "$dest")" ]; then
+      printf 'Moved: %s -> %s\n' "$1" "$dest"
+    else
+      expect_ok "Moved: " "$2" 移動
+      printf '%s\n' "$CLI_OUT"
+    fi
     ;;
   trash)
-    validate_rel "${1:-}"
+    src_abs=$(abs_path "${1:-}")
+    [ -e "$src_abs" ] || die "ノートが見つかりません: $1"
     cli_mutate delete "path=$1"
-    expect_ok "Moved to trash: " "$1" 削除
-    printf '%s\n' "$CLI_OUT"
+    if [ ! -e "$src_abs" ]; then
+      printf 'Moved to trash: %s\n' "$1"
+    else
+      expect_ok "Moved to trash: " "$1" 削除
+      printf '%s\n' "$CLI_OUT"
+    fi
     ;;
 
   open)
