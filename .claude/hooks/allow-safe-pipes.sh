@@ -313,6 +313,20 @@ for segment in "${segments[@]}"; do
 done
 
 if [[ "$all_safe" == "true" ]]; then
+  # allow を返す前に id-guard.sh に判定を委ねる。
+  # gh pr comment / git commit は command-policy.conf で allow 済みなので、
+  # ここで素通しすると id-guard.sh が同じ PreToolUse で deny を返しても
+  # どちらが勝つかが Claude Code 側で規定されていない。allow より先に
+  # 問い合わせて、判定が出ていればそれをそのまま返す。
+  id_guard="${SCRIPT_DIR}/id-guard.sh"
+  if [[ -x "$id_guard" ]]; then
+    id_guard_out="$(printf '%s' "$input" | "$id_guard" 2>/dev/null)"
+    if [[ -n "$id_guard_out" ]]; then
+      printf '%s\n' "$id_guard_out"
+      exit 0
+    fi
+  fi
+
   jq -n '{
     hookSpecificOutput: {
       hookEventName: "PreToolUse",

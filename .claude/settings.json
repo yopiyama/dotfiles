@@ -48,6 +48,15 @@
                     }
                 ],
                 "matcher": "Bash"
+            },
+            {
+                "hooks": [
+                    {
+                        "command": "~/.claude/hooks/id-guard.sh",
+                        "type": "command"
+                    }
+                ],
+                "matcher": "Write|Edit|Bash|mcp__notion__.*"
             }
         ],
         "Stop": [
