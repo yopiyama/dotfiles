@@ -116,6 +116,7 @@
             "Bash(gh pr create:*)",
             "Bash(gh pr edit:*)",
             "Bash(gh pr comment:*)",
+            "Bash(gh stack view:*)",
             "Bash(ghq list *)",
             "Bash(git add:*)",
             "Bash(git blame:*)",

@@ -23,11 +23,14 @@
       font-family = "Hack Nerd Font Mono";
       font-size = 14;
 
-      # Alacritty の window.decorations = "Buttonless" 相当。
-      # タイトルバー自体は残す (ドラッグで動かせる) が信号機ボタンだけ消す。
-      # タイトルバーごと消したいなら macos-titlebar-style = "hidden"。
-      macos-titlebar-style = "transparent";
-      macos-window-buttons = "hidden";
+      # タイトルバーごと消す (Ghostty はタイトルバーにお化けアイコンとタイトルを出すため)。
+      # 信号機ボタンも一緒に消えるので macos-window-buttons は不要。
+      # トレードオフ: 上端でウィンドウをドラッグできなくなる。移動はウィンドウ枠を
+      # option+click でドラッグする (macOS 標準の挙動で Ghostty 固有の制限ではない)。
+      # Alacritty の decorations = "Buttonless" に寄せたい (タイトルバーは残して
+      # ボタンだけ消す) なら macos-titlebar-style = "transparent" +
+      # macos-window-buttons = "hidden" に戻す。
+      macos-titlebar-style = "hidden";
 
       # option_as_alt = "Both" 相当 (left/right の片側だけにもできる)。
       macos-option-as-alt = true;
