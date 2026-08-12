@@ -6,7 +6,8 @@ return {
     formatters_by_ft = {
       lua = { "stylua" },
       python = { "ruff_format" },
-      go = { "goimports", "gofmt" },
+      -- goimports は gofmt 相当の整形 + import の追加/削除をまとめてやるので gofmt は不要
+      go = { "goimports" },
       sh = { "shfmt" },
       json = { "jq" },
       yaml = { "prettier" },
@@ -29,8 +30,16 @@ return {
         end
       end
 
+      -- goimports は未知の識別子を解決するときにモジュールキャッシュを探索するので、
+      -- 依存の多いリポジトリでは 1s 前後かかる。500ms だと timeout して
+      -- import が更新されないまま黙って保存される。
+      local timeout_ms = 500
+      if vim.bo[bufnr].filetype == "go" then
+        timeout_ms = 3000
+      end
+
       return {
-        timeout_ms = 500,
+        timeout_ms = timeout_ms,
         lsp_fallback = true,
       }
     end,

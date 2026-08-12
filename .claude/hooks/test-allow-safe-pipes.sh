@@ -130,6 +130,29 @@ check "サブシェル内の cd もカウントして deny"                  "Ba
 check "cdrom 等 cd 前方一致の誤爆はしない"                     "Bash" "cdrom-tool /a && cdrom-tool /b" noop
 
 echo
+echo "=== connect-obsidian の obs.sh ==="
+OBS_TILDE="~/.claude/skills/connect-obsidian/scripts/obs.sh"
+OBS_ABS="$HOME/.claude/skills/connect-obsidian/scripts/obs.sh"
+# ~/.claude/skills は dotfiles リポジトリへの symlink なので、実体側の綴りも通るはず
+OBS_REPO="$(realpath "$OBS_ABS" 2>/dev/null || printf '%s' "$OBS_ABS")"
+check "~ 綴りの read は allow"                                 "Bash" "$OBS_TILDE read Notes/a.md" allow
+check "絶対パスの read も allow (settings では一致しない綴り)"  "Bash" "$OBS_ABS read Notes/a.md" allow
+check "リポジトリ実体パスの read も allow"                      "Bash" "$OBS_REPO read Notes/a.md" allow
+check "実体が違う同名パスは allow しない"                       "Bash" "/tmp/evil/connect-obsidian/scripts/obs.sh read Notes/a.md" noop
+check "\$HOME 展開の read も allow"                            "Bash" "\$HOME/.claude/skills/connect-obsidian/scripts/obs.sh search AOBI-970" allow
+check "パイプに繋いでも allow (segment 判定)"                   "Bash" "$OBS_TILDE ls Notes | sort | head -20" allow
+check "書き込み系 (write) も allow"                            "Bash" "$OBS_TILDE write Notes/a.md /tmp/body.md" allow
+check "stdin から write するパイプも allow"                     "Bash" "cat /tmp/body.md | $OBS_TILDE write Notes/a.md" allow
+check "trash は意図的に allow しない (削除は毎回確認)"          "Bash" "$OBS_TILDE trash Notes/a.md" noop
+check "未知サブコマンドは allow しない"                        "Bash" "$OBS_TILDE eval 'app.vault.delete()'" noop
+check "サブコマンド無しは allow しない"                        "Bash" "$OBS_TILDE" noop
+check "obs.sh 以外の同名スクリプトに誤爆しない"                 "Bash" "~/evil/obs.sh read Notes/a.md" noop
+check "変数代入経由は deny + 理由を返す"                       "Bash" "OBS=$OBS_TILDE
+\$OBS read Notes/a.md" deny
+check "変数代入経由 (パイプ併用) も deny"                      "Bash" "OBS=$OBS_TILDE; \$OBS ls Notes | head" deny
+check "クォート内にパスがあるだけなら deny しない"              "Bash" "rg -n 'OBS=$OBS_TILDE' .claude/skills" noop
+
+echo
 echo "=== 既知の限界 (未対応・意図的にスキップ) ==="
 echo "  skip 短縮フラグのクラスタリング (例: -iX POST) は未対応。"
 echo "       gh api での実利用頻度が低いため、正規表現/トークン走査では追わず"

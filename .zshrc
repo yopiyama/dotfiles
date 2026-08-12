@@ -5,7 +5,7 @@ fi
 
 export TMUX_TMPDIR=$HOME/.tmux/tmp
 
-# iTerm/Alacritty で起動したときだけ tmux を自動起動する（VSCode/Kiro 等の統合ターミナルでは起動しない）
+# iTerm/Alacritty/Ghostty で起動したときだけ tmux を自動起動する（VSCode/Kiro 等の統合ターミナルでは起動しない）
 # NOTE: p10k instant prompt より前に置くこと。後に置くと stdio がパイプに差し替わり
 #       tmux が TTY を掴めず "open terminal failed: not a terminal" で落ちる。
 _is_iterm() {
@@ -14,6 +14,10 @@ _is_iterm() {
 _is_alacritty() {
   [[ "${TERM_PROGRAM:-}" == "alacritty" || -n "${ALACRITTY_LOG:-}" ]]
 }
+_is_ghostty() {
+  # Ghostty は TERM_PROGRAM=ghostty と GHOSTTY_RESOURCES_DIR を自前でセットする
+  [[ "${TERM_PROGRAM:-}" == "ghostty" || -n "${GHOSTTY_RESOURCES_DIR:-}" ]]
+}
 _is_vscode() {
   [[ "${TERM_PROGRAM:-}" == "vscode" || -n "${VSCODE_IPC_HOOK_CLI:-}" ]]
 }
@@ -21,7 +25,7 @@ _is_kiro() {
   [[ "${TERM_PROGRAM:-}" == "kiro" ]]
 }
 
-if [[ -z ${TMUX:-} ]] && [[ $- == *i* ]] && (_is_iterm || _is_alacritty) && ! _is_kiro && (( $+commands[tmux] )); then
+if [[ -z ${TMUX:-} ]] && [[ $- == *i* ]] && (_is_iterm || _is_alacritty || _is_ghostty) && ! _is_kiro && (( $+commands[tmux] )); then
   sessions="$(tmux list-sessions -F '#S' 2>/dev/null)"
   if [[ -z "$sessions" ]]; then
     if [[ -x "$HOME/.tmux/launch_project.sh" ]]; then
@@ -358,3 +362,5 @@ fi
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
 eval "$(mise activate zsh)"
+# direnv は mise activate の後に hook する (PATH の前に direnv の変更を載せる)
+command -v direnv >/dev/null && eval "$(direnv hook zsh)"

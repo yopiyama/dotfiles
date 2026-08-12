@@ -42,8 +42,46 @@ return {
         },
       })
 
+      -- go.work の無いマルチモジュールなリポジトリでは、nvim-lspconfig の既定では
+      -- 最も近い go.mod がルートになるためモジュールごとに gopls が起動してしまう。
+      -- （例: authentication-api と auth-one で 2 プロセス。replace で参照している
+      -- モジュールを二重にロードするので重く、片方のビューだけ状態が古くなりやすい）
+      -- go.work が無い場合は git リポジトリルートをワークスペースにして 1 プロセスに寄せる。
+      local gopls_lsp_file = vim.api.nvim_get_runtime_file("lsp/gopls.lua", false)[1]
+      local gopls_default_root_dir = gopls_lsp_file and dofile(gopls_lsp_file).root_dir
+
       vim.lsp.config("gopls", {
         capabilities = capabilities,
+        settings = {
+          gopls = {
+            -- 関数を補完確定したときに引数をプレースホルダとして挿入する
+            -- （<Tab>/<S-Tab> で引数を渡り歩ける。cmp の LuaSnip 連携が前提）
+            usePlaceholders = true,
+          },
+        },
+        root_dir = function(bufnr, on_dir)
+          local fname = vim.api.nvim_buf_get_name(bufnr)
+          local hoist = function(dir)
+            -- go.work があるならそれが gopls 的に正しいルートなので触らない
+            if dir and not vim.fs.root(fname, "go.work") then
+              local git_root = vim.fs.root(dir, ".git")
+              -- GOMODCACHE / GOROOT 配下のファイルは既定ロジックの結果をそのまま使う
+              if git_root and vim.startswith(fname, git_root .. "/") then
+                return git_root
+              end
+            end
+            return dir
+          end
+          if gopls_default_root_dir then
+            -- 既定の root_dir は GOMODCACHE / GOROOT 配下のファイルを既存クライアントに
+            -- 相乗りさせる処理を持つので、そこに委譲してから hoist する
+            gopls_default_root_dir(bufnr, function(dir)
+              on_dir(hoist(dir))
+            end)
+          else
+            on_dir(hoist(vim.fs.root(fname, "go.mod") or vim.fs.root(fname, ".git")))
+          end
+        end,
       })
 
       vim.lsp.config("pyright", {

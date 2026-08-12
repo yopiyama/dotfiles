@@ -57,6 +57,11 @@ local options = {
 	sidescrolloff = 8,
 	undofile = true,
 	swapfile = false,
+	-- セッション (persistence.nvim)
+	-- デフォルトから blank と terminal を外す:
+	--   blank    → 復元時に [No Name] が湧く
+	--   terminal → claudecode 等の terminal バッファが中途半端に復元される
+	sessionoptions = { "buffers", "curdir", "folds", "help", "tabpages", "winsize", "skiprtp" },
 	breakindent = true,
 	inccommand = "split",
 	}
