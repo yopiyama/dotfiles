@@ -235,7 +235,9 @@ case "$cmd" in
       target="$(child_dir "$PR")/${IDX}_${slug}.md"
     fi
     "$OBS" write "$target" "$src"
-    [ -n "$tmp" ] && rm -f "$tmp"
+    # 本文をファイル引数で受けた場合 $tmp は空。ここが put) の最終文なので、
+    # 素の [ -n "$tmp" ] && ... だと偽=exit 1 が put 全体の終了ステータスになる
+    if [ -n "$tmp" ]; then rm -f "$tmp"; fi
     ;;
 
   set-status)
