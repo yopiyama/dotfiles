@@ -288,7 +288,10 @@ alias mv='mv -i'
 alias rm='rm -i'
 alias ls='eza --icons'
 alias ll='eza --long --icons --git -F --group-directories-first --time-style=long-iso -I "**/.git/"'
-alias bat='bat --color=always --show-all'
+# --show-all は非 ASCII を \u{...} にエスケープしてしまうのでデフォルトでは付けない
+alias bat='bat --color=always'
+# 制御文字・空白・改行を可視化したいときはこちら
+alias bata='bat --color=always --show-all'
 alias tf='terraform'
 alias tf-p='terraform plan | tee >(grep -E "# \w|Plan:" > /tmp/_plan_abst.log) && cat /tmp/_plan_abst.log'
 # obsidian CLI 実行時に "Obsidian" への訂正候補が出るのを抑制する
