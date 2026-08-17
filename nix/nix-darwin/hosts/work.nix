@@ -14,8 +14,11 @@
 
   homebrew = {
     casks = [
+      "datagrip"
+      "tableplus"
       "firefox"
       "meetingbar"
+      "postman"
       "redis-insight"
     ];
   };

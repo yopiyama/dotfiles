@@ -28,13 +28,19 @@
     # raycast/shottr は auto_updates (自己更新が Nix store の read-only と衝突するため),
     # karabiner-elements はカーネル拡張/権限まわりのリスクのため brew を継続。
     # 1password-cli は 1Password.app の CLI 統合 (署名検証) が壊れる懸念があるため継続。
+    # chatgpt/spotify/logitech-g-hub は nixpkgs にも darwin 版があるが、いずれも配布
+    # バイナリを store に展開するだけで自己更新と衝突するため cask で管理する。
     casks = [
       "1password-cli"
       "alt-tab"
+      "chatgpt"
       "karabiner-elements"
       "linearmouse"
+      # ドライバ/常駐エージェントを sudo で入れる installer 形式の cask。
+      "logitech-g-hub"
       "raycast"
       "shottr"
+      "spotify"
     ];
   };
 }

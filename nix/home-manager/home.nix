@@ -7,6 +7,7 @@
     ./programs/gh.nix
     ./programs/ghostty.nix
     ./programs/git.nix
+    ./programs/karabiner.nix
     ./programs/lazygit.nix
     ./programs/mise.nix
   ];
