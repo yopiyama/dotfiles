@@ -24,6 +24,8 @@
       "crit"
       "daipeihust/tap/im-select"
     ];
+    # nixpkgs と Homebrew の切り分けは CLAUDE.md「パッケージを nixpkgs で入れるか
+    # Homebrew で入れるか」を参照。以下は個別の理由。
     # codex/font-hack-nerd-font は home.nix (nixpkgs) へ移行済み。alacritty は廃止。
     # raycast/shottr は auto_updates (自己更新が Nix store の read-only と衝突するため),
     # karabiner-elements はカーネル拡張/権限まわりのリスクのため brew を継続。
