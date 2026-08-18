@@ -14,6 +14,8 @@
 
   homebrew = {
     casks = [
+      # 自己更新するため nixpkgs ではなく cask で管理する。
+      "chatgpt"
       "datagrip"
       "tableplus"
       "firefox"

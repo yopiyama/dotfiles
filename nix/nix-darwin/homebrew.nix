@@ -24,16 +24,18 @@
       "crit"
       "daipeihust/tap/im-select"
     ];
-    # alacritty/codex/font-hack-nerd-font は home.nix (nixpkgs) へ移行済み。
+    # nixpkgs と Homebrew の切り分けは CLAUDE.md「パッケージを nixpkgs で入れるか
+    # Homebrew で入れるか」を参照。以下は個別の理由。
+    # codex/font-hack-nerd-font は home.nix (nixpkgs) へ移行済み。alacritty は廃止。
     # raycast/shottr は auto_updates (自己更新が Nix store の read-only と衝突するため),
     # karabiner-elements はカーネル拡張/権限まわりのリスクのため brew を継続。
     # 1password-cli は 1Password.app の CLI 統合 (署名検証) が壊れる懸念があるため継続。
-    # chatgpt/spotify/logitech-g-hub は nixpkgs にも darwin 版があるが、いずれも配布
+    # spotify/logitech-g-hub は nixpkgs にも darwin 版があるが、いずれも配布
     # バイナリを store に展開するだけで自己更新と衝突するため cask で管理する。
+    # chatgpt は仕事用 Mac のみなので hosts/work.nix へ。
     casks = [
       "1password-cli"
       "alt-tab"
-      "chatgpt"
       "karabiner-elements"
       "linearmouse"
       # ドライバ/常駐エージェントを sudo で入れる installer 形式の cask。
