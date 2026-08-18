@@ -2,7 +2,6 @@
 
 {
   imports = [
-    ./programs/alacritty.nix
     ./programs/direnv.nix
     ./programs/gh.nix
     ./programs/ghostty.nix
@@ -17,7 +16,7 @@
   home.homeDirectory = "/Users/${username}";
 
   # Brewfile の brew 行に対応するパッケージ
-  # alacritty/mise/lazygit/gh は programs.* が自動で追加するのでここには書かない
+  # ghostty/mise/lazygit/gh は programs.* が自動で追加するのでここには書かない
   home.packages = with pkgs; [
     awscli2
     bat

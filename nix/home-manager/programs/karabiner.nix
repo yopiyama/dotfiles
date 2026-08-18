@@ -97,17 +97,13 @@ in
             # Ctrl-P を転送する。prefix 入力中に IME が有効なままだと後続のキーが
             # IME の変換バッファに吸われて tmux に届かないのを防ぐ。
             #
-            # alacritty.nix の keybind (command = im-select) と同じ目的だが、Ghostty の
-            # keybind には外部コマンドを起動するアクションが無い (`ghostty +list-actions`
-            # で確認済み) ため Karabiner 側で実現している。Karabiner は仮想 HID 層、
-            # つまり IME より下で割り込むので、ATOK がかな入力モードで Ctrl-P を
-            # 握っている場合でも確実に発火する点は Alacritty 版より優れている。
+            # Ghostty の keybind には外部コマンドを起動するアクションが無い
+            # (`ghostty +list-actions` で確認済み) ため Karabiner 側で実現している。
+            # Karabiner は仮想 HID 層、つまり IME より下で割り込むので、ATOK が
+            # かな入力モードで Ctrl-P を握っている場合でも確実に発火する。
             #
             # shell_command は非同期に実行されるので Ctrl-P 自体の転送は遅れない。
             # 切り替えに ~200ms かかるが、効かせたいのは「次の」キーなので実用上問題ない。
-            #
-            # alacritty.nix を畳むときは bundle_identifiers に "^org\\.alacritty$" を足し、
-            # alacritty.nix 側の Ctrl+P keybind 2 つ (command と chars) を削除する。
             {
               description = "Ghostty: Ctrl+P (tmux leader) を押したら ATOK を英字モードへ";
               manipulators = [

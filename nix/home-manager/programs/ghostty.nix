@@ -1,13 +1,13 @@
 { pkgs, ... }:
 
 {
-  # Alacritty からの乗り換え検討用。動作確認が済むまで alacritty.nix は残したまま併存させる。
+  # Alacritty から乗り換え済み (alacritty.nix は削除済み)。
   programs.ghostty = {
     enable = true;
 
     # pkgs.ghostty は Linux 専用 (darwin では meta.unsupported) なので、
     # 公式配布の .dmg をそのまま展開する ghostty-bin を使う。
-    # Ghostty.app は他の nixpkgs 製 GUI アプリ (Alacritty) と同じく
+    # Ghostty.app は他の nixpkgs 製 GUI アプリと同じく
     # ~/Applications/Home Manager Apps/ 配下に置かれる。
     package = pkgs.ghostty-bin;
 
@@ -54,7 +54,7 @@
       bell-audio-path = "/System/Library/Sounds/Ping.aiff";
 
       # URL の Cmd+Click オープンは link-url = true (デフォルト) で標準で効くため、
-      # Alacritty の hints 相当の設定は不要。
+      # Alacritty の hints 相当の明示設定は不要。
 
       keybind = [
         # IME 切り替えキー (Ctrl+Space → Karabiner → Ctrl+Shift+S / IME 側の Ctrl+Alt+S) が
@@ -62,11 +62,10 @@
         # 素の Ctrl+S はそのまま通る。
         "ctrl+shift+s=ignore"
         "ctrl+alt+s=ignore"
-        # NOTE: alacritty.nix にある「Ctrl+P (tmux leader) を押したら im-select で ATOK を
-        # 英字モードへ強制切り替え」は Ghostty には移植できない。Ghostty の keybind には
-        # 外部コマンドを起動するアクションが無い (+list-actions 参照)。
-        # 代替案: Karabiner 側で Ghostty (com.mitchellh.ghostty) に限定した
-        # select_input_source 付きのルールを足す。
+        # NOTE: 「Ctrl+P (tmux leader) を押したら im-select で ATOK を英字モードへ
+        # 強制切り替え」は Ghostty の keybind には移植できない (外部コマンドを起動する
+        # アクションが無い。+list-actions 参照)。Karabiner 側で Ghostty
+        # (com.mitchellh.ghostty) に限定したルールとして実装済み (karabiner.nix 参照)。
       ];
 
       # Sparkle による自己更新は Nix store が read-only なので必ず失敗する。

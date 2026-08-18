@@ -2,7 +2,7 @@
 
 このリポジトリは設定を二層で管理しています（stow/chezmoi ではない）。
 
-1. **Nix**: パッケージ全般と、`programs.*` で素直に書ける設定（git/lazygit/mise/alacritty）。`nix/home-manager/programs/<name>.nix`。適用は `make rebuild`
+1. **Nix**: パッケージ全般と、`programs.*` で素直に書ける設定（git/lazygit/mise/ghostty）。`nix/home-manager/programs/<name>.nix`。適用は `make rebuild`
 2. **symlink**: nvim の lua など生の設定ファイルのまま持ちたいもの。`scripts/link.sh` が `$HOME` 配下にリンクを張る。適用は `make link`
 
 同じパスを両方に管理させないこと（home-manager が `backupFileExtension = "bak"` で symlink を黙って退避してしまう）。nvim は lua のまま維持する方針なので `programs.neovim.enable` を有効にしない。

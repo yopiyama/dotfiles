@@ -24,7 +24,7 @@
       "crit"
       "daipeihust/tap/im-select"
     ];
-    # alacritty/codex/font-hack-nerd-font は home.nix (nixpkgs) へ移行済み。
+    # codex/font-hack-nerd-font は home.nix (nixpkgs) へ移行済み。alacritty は廃止。
     # raycast/shottr は auto_updates (自己更新が Nix store の read-only と衝突するため),
     # karabiner-elements はカーネル拡張/権限まわりのリスクのため brew を継続。
     # 1password-cli は 1Password.app の CLI 統合 (署名検証) が壊れる懸念があるため継続。
