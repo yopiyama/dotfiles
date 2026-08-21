@@ -68,7 +68,8 @@ scripts/
   link.sh              symlink 作成 + Homebrew 本体の準備 (make link の実体)
 .config/nvim/          Neovim。init.lua + lua/ を丸ごと symlink (Nix 管理下に置かない)
 .claude/               Claude Code 設定。skills/ agents/ hooks/ はディレクトリ丸ごと symlink
-.tmux/                 tmux から呼ぶヘルパー (launch_project.sh = prefix + C-p のプロジェクトランチャー)
+.tmux/                 tmux から呼ぶヘルパー。launch_project.sh = prefix + C-p のプロジェクトランチャー、
+                       worktree_session.sh = prefix + C-w の git worktree ランチャー、lib/ は両者の共通部品
 chrome/extensions/     自作 Chrome 拡張。unpacked で直接読み込むので symlink 対象外
 raycast/               自作 Raycast 拡張 (extensions/) と script command (script/)
 ```
@@ -104,4 +105,50 @@ make dry-run PROFILE=work     # activate せず評価だけ確認
 ```sh
 cd nix/nix-darwin
 sudo darwin-rebuild switch --flake .#personal   # または #work
+```
+
+## tmux (prefix + C-p / C-w)
+
+どちらも fzf の popup を出し、選んだものに対応する tmux セッションへ移動する。
+既に同じセッションがあれば作り直さず attach (tmux 内なら switch-client) するだけ。
+ウィンドウ構成は `~/.tmux/projects.json` (`.tmux/projects.json.sample` からコピー) で定義する。
+
+| キー | スクリプト | 一覧に出るもの |
+| --- | --- | --- |
+| `prefix + C-p` | `.tmux/launch_project.sh` | `projects.json` の `projects[]` |
+| `prefix + C-w` | `.tmux/worktree_session.sh` | カレントペインのリポジトリの git worktree |
+
+セッション生成の実処理は `.tmux/lib/tmux_session.sh` に共通化してある。
+
+### worktree ランチャー
+
+一覧は `git worktree list` から作る。git 自身が登録済み worktree の実パスを持っているので、
+`<repo>/.claude/worktrees/` でも `../<repo>.worktrees/` でも置き場所を問わず出てくる
+(ディレクトリを走査しないので探索パスの設定は要らない)。
+
+- セッション名は メイン worktree が `<repo>`、それ以外が `<repo>@<ブランチ名>`。
+  `:` `.` `/` は tmux のターゲット指定と衝突するので `-` に潰す
+- worktree との対応はセッションオプション `@worktree_path` で保持する。名前ではなく
+  パスで突き合わせるので、セッションをリネームしても同じ worktree を開き直せる
+- 一覧は `<マーク> <ブランチ名> │ <パス>` の 3 列。`*` は「そのセッションが既にある」印。
+  ブランチ名の列幅はその場の最長ブランチ名に合わせて決める (固定幅だと溢れる)。
+  パスはメイン worktree からの相対 (`./`, `../`) で見せ、メイン worktree の行だけ
+  相対表示の基準として絶対パスを出す
+- ウィンドウ構成は `defaults.windows` (無ければ `shell` 1 枚)。`projects[]` は同じ `path` に
+  複数のプロファイルを登録できる (同じリポジトリに Local Server と Workspace がある等) ため、
+  パスからプロジェクトを一意に引き当てられない。worktree 側は `defaults` だけを見る
+
+`+ 新規 worktree を作成` を選ぶとブランチ名を聞き、`git worktree add` してからセッションを開く
+(既存ブランチならそれを checkout、無ければ新規ブランチを作る)。置き場所は上から順に:
+
+1. `git config tmux.worktreeRoot` (リポジトリごとに設定できる。相対指定はメイン worktree からの相対)
+2. 環境変数 `TMUX_WORKTREE_ROOT`
+3. `<repo>/.claude/worktrees`
+
+リポジトリの作業ツリー内に置く場合は、untracked として見えないよう置き場所を
+`.git/info/exclude` に登録する (共有される `.gitignore` は触らない)。
+
+```sh
+# 例: このリポジトリでは兄弟ディレクトリに置く
+git config tmux.worktreeRoot ../dotfiles.worktrees
 ```
