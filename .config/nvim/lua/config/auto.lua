@@ -183,6 +183,50 @@ if vim.fn.executable(im_select) == 1 then
     })
 end
 
+-- 日本語の「文」単位移動。) / ( を句点区切りにする。
+--
+-- 素の ) / ( が見る文末は ". " "! " "? " (ピリオド類 + 空白) に固定されており、
+-- 設定で変えられない。句点で終わって空白を入れない日本語文では文末が一切見つからず、
+-- 段落末や行末まで飛んでしまう。これが文単位でカーソルを動かせない原因。
+--
+-- 文字 (h/l) → 文節 (W/E/B, jasegment) → 文 (下の ) / () → 段落 (}/{) と粒度が揃う。
+--
+-- 全 filetype に入れるとコードの ) が壊れる (`foo.bar` のピリオドで止まる) ので、
+-- 文章を書く filetype のバッファローカルに限定する。
+local ja_sentence_group = augroup("JapaneseSentenceMotion", { clear = true })
+
+-- 「次の文の先頭の非空白文字」を直接探す。
+--   [。．！？] の後ろの閉じ括弧・閉じ引用符は文末側に含める (「〜です。」→ 」の後に飛ぶ)
+--   ASCII の . ! ? は後続の空白を必須にする (foo.bar やバージョン番号で止まらないように)
+--   \_s を使い、句点が行末にある場合は改行を跨いで次行の先頭に着地する
+local ja_sentence_pat = [=[\%([。．！？][」』）”’]*\|[.!?][)\]"']*\_s\)\_s*\zs\S]=]
+
+local function ja_sentence_motion(backward)
+    local flags = backward and "bW" or "W"
+    for _ = 1, vim.v.count1 do
+        if vim.fn.search(ja_sentence_pat, flags) == 0 then
+            -- 文末が無ければバッファの端へ寄せる (素の ) / ( と同じ感覚)。
+            -- gg / G だけだと 'startofline' 次第で元の桁が残るので明示的に行頭/行末を付ける
+            vim.cmd("normal! " .. (backward and "gg^" or "G$"))
+            break
+        end
+    end
+end
+
+autocmd("FileType", {
+    group = ja_sentence_group,
+    pattern = { "markdown", "text", "gitcommit", "octo" },
+    callback = function(args)
+        local opts = { buffer = args.buf }
+        vim.keymap.set({ "n", "x", "o" }, ")", function()
+            ja_sentence_motion(false)
+        end, vim.tbl_extend("force", opts, { desc = "次の文の先頭へ (句点区切り)" }))
+        vim.keymap.set({ "n", "x", "o" }, "(", function()
+            ja_sentence_motion(true)
+        end, vim.tbl_extend("force", opts, { desc = "前の文の先頭へ (句点区切り)" }))
+    end,
+})
+
 -- bufferline 対応: :q でバッファを閉じる
 --   複数バッファ → 現バッファ削除、次のバッファへ
 --   最後の1バッファ → [No Name] に置き換えてレイアウト維持
