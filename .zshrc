@@ -82,6 +82,8 @@ zinit wait lucid light-mode for \
 #----------------------------------- General config -----------------------------------
 
 export LANG=ja_JP.UTF-8
+export EDITOR=nvim
+export VISUAL=nvim
 # 自動保管 (dump は 24h 以上経過時のみ security check する)
 autoload -Uz compinit
 () {
@@ -276,6 +278,11 @@ bindkey '^[[3~' delete-char
 # Tab は cd のときだけ fzf、通常は補完
 bindkey -M viins '^I' smart-cd-tab
 bindkey -M emacs '^I' smart-cd-tab
+# C-x C-e で $EDITOR にコマンドラインを渡して編集（bash の edit-and-execute-command 相当）
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey -M viins '^X^E' edit-command-line
+bindkey -M vicmd '^X^E' edit-command-line
 
 #----------------------------------- Alias -----------------------------------
 alias dirs='dirs -v'
