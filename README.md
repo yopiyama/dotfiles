@@ -117,7 +117,7 @@ sudo darwin-rebuild switch --flake .#personal   # または #work
 | キー | スクリプト | 一覧に出るもの |
 | --- | --- | --- |
 | `prefix + C-p` | `.tmux/launch_project.sh` | `projects.json` の `projects[]` |
-| `prefix + C-w` | `.tmux/worktree_session.sh` | カレントペインのリポジトリの git worktree |
+| `prefix + C-w` | `.tmux/worktree_session.sh` | カレントペインのリポジトリの git worktree (`C-d` で削除) |
 
 セッション生成の実処理は `.tmux/lib/tmux_session.sh` に共通化してある。
 
@@ -138,6 +138,13 @@ sudo darwin-rebuild switch --flake .#personal   # または #work
 - ウィンドウ構成は `defaults.windows` (無ければ `shell` 1 枚)。`projects[]` は同じ `path` に
   複数のプロファイルを登録できる (同じリポジトリに Local Server と Workspace がある等) ため、
   パスからプロジェクトを一意に引き当てられない。worktree 側は `defaults` だけを見る
+
+`C-d` を押すと、その worktree を削除する (`Enter` は従来どおり open / attach)。確認したうえで
+`git worktree remove` し、`@worktree_path` で紐づく tmux セッションも閉じる。未コミットの変更や
+untracked ファイルがあると git が止めるので、その場合だけ強制削除するかを改めて聞く
+(`worktree_sync.sh` が張った symlink は ignore 済みなので邪魔をしない)。削除後は一覧を作り直して
+選択に戻るので、続けて消せる。**ブランチは消さない** (別の worktree で作業を続けることがあるため)
+ので、要らなければ表示されるコマンドで消す。
 
 `+ 新規 worktree を作成` を選ぶとブランチ名を聞き、`git worktree add` してからセッションを開く
 (既存ブランチならそれを checkout、無ければ新規ブランチを作る)。置き場所は上から順に:

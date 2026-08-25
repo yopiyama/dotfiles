@@ -29,6 +29,11 @@ die() {
   exit 1
 }
 
+# 同上。閉じる前に読ませたいメッセージのあとで止める。
+pause() {
+  if [ -t 0 ]; then printf '\n(Enter で一覧に戻る) ' >&2; read -r _ || true; fi
+}
+
 command -v fzf >/dev/null || die "fzf が必要です"
 
 # tmux のセッション名では ':' と '.' がターゲット指定の区切りとして解釈されるので潰す。
@@ -40,7 +45,9 @@ git rev-parse --git-dir >/dev/null 2>&1 || die "git リポジトリではあり�
 
 # --porcelain の先頭エントリがメイン worktree。以降がリンク worktree。
 # "パス <TAB> ブランチ名 <TAB> フラグ(detached|bare|空)" に整形する。
-wt_list="$(git worktree list --porcelain | awk '
+# 削除の後に一覧を作り直すので関数にしてある (引数省略時はカレントのリポジトリ)。
+collect_worktrees() { # collect_worktrees [<リポジトリ内のパス>]
+  git -C "${1:-$PWD}" worktree list --porcelain | awk '
   function flush() {
     if (p != "") { print p "\t" b "\t" t; p = "" }
   }
@@ -49,7 +56,10 @@ wt_list="$(git worktree list --porcelain | awk '
   /^detached$/  { t = "detached" }
   /^bare$/      { t = "bare" }
   END           { flush() }
-')"
+'
+}
+
+wt_list="$(collect_worktrees)"
 [ -n "$wt_list" ] || die "worktree を取得できませんでした"
 
 main_path="$(printf '%s\n' "$wt_list" | head -1 | cut -f1)"
@@ -74,8 +84,9 @@ label_for() { # label_for <パス> <ブランチ名>
 }
 
 # --- 既存セッションの対応表 ---------------------------------------------------
-# "id <TAB> 名前 <TAB> @worktree_path"
-sess_map="$(ts_session_map)"
+# "id <TAB> 名前 <TAB> @worktree_path"。実体は build_list で毎回引き直す
+# (削除やセッションの増減を一覧のマークに反映するため)。
+sess_map=""
 
 # session_for <worktree パス> <想定セッション名> → セッション id (無ければ空)
 # @worktree_path の完全一致を優先する。無ければ「@worktree_path を持たない同名セッション」
@@ -102,6 +113,12 @@ session_name_for() {
 # 1 回目で最大幅を測ってから 2 回目で揃える。
 # 中間表現の区切りは lib と同じ US。fzf に渡す最終行のタブと衝突させないため。
 NEW_SENTINEL="__new__"
+
+# 一覧 ($list) を作る。C-d で削除した後に呼び直せるよう関数にしてある。
+# 関数の中だが本体は字下げしない: 途中の heredoc の内容に余計な空白が入ってしまうため。
+build_list() {
+wt_list="$(collect_worktrees "$main_path")"
+sess_map="$(ts_session_map)"
 
 rows=""
 label_w=0
@@ -150,16 +167,75 @@ INNER
 
 # 先頭 2 文字はマーク列ぶんの字下げ (ラベル列の頭に揃える)
 list="$list  + 新規 worktree を作成$TAB$NEW_SENTINEL"
+}
 
-selected="$(printf '%s\n' "$list" \
-  | fzf --ansi --delimiter="$TAB" --with-nth=1 \
-        --prompt='worktree> ' \
-        --header="$repo_label   * = セッション有り   Enter: open / attach   Esc: cancel" \
-        --no-multi | head -1
-)" || selected=""
-[ -n "$selected" ] || exit 0
+# --- 削除 ---------------------------------------------------------------------
+# 一覧で C-d を押したときの処理。worktree を消し、対応する tmux セッションも畳む。
+# ブランチ自体は残す (別の worktree で作業を続けたいことがあるため)。
+remove_worktree() { # remove_worktree <worktree パス>
+  local path="$1" branch label sid ans
 
-target="${selected##*"$TAB"}"
+  case "$path" in
+    "$NEW_SENTINEL") return 0 ;;
+    "$main_path")    echo "メイン worktree は削除できません" >&2; pause; return 0 ;;
+  esac
+
+  branch="$(printf '%s\n' "$wt_list" | awk -F'\t' -v p="$path" '$1 == p { print $2; exit }')"
+  label="$(label_for "$path" "$branch")"
+
+  printf '削除しますか? %s [y/N]: ' "$label" >&2
+  read -r ans || return 0
+  case "$ans" in [yY]*) ;; *) return 0 ;; esac
+
+  # 未コミットの変更や untracked ファイルがあると git が止める (worktree_sync.sh が張った
+  # symlink は ignore 済みなので邪魔をしない)。強制削除は明示的にもう一度聞く。
+  if ! git -C "$main_path" worktree remove "$path"; then
+    printf '強制的に削除しますか? [y/N]: ' >&2
+    read -r ans || return 0
+    case "$ans" in [yY]*) ;; *) return 0 ;; esac
+    git -C "$main_path" worktree remove --force "$path" || { pause; return 0; }
+  fi
+  echo "  削除しました: $path" >&2
+
+  # @worktree_path で紐づくセッションだけを畳む。名前一致は launch_project.sh 側の
+  # セッションを巻き込みうるので見ない。今いるセッションを消した場合は tmux が
+  # クライアントを別のセッションへ移す (最後の 1 つならデタッチされる)。
+  sid="$(printf '%s\n' "$sess_map" | awk -F'\t' -v p="$path" '$3 == p { print $1; exit }')"
+  if [ -n "$sid" ]; then
+    tmux kill-session -t "$sid" 2>/dev/null && echo "  セッションを閉じました" >&2
+  fi
+
+  [ -n "$branch" ] && echo "  ブランチ $branch は残っています (git branch -d $branch)" >&2
+  pause
+}
+
+# --- 選択 ---------------------------------------------------------------------
+# 削除の後は一覧を作り直して選び直せるようにループする。
+while :; do
+  build_list
+
+  # --expect を付けると 1 行目に押されたキー (Enter なら空行)、2 行目に選択行が出る。
+  fzf_out="$(printf '%s\n' "$list" \
+    | fzf --ansi --delimiter="$TAB" --with-nth=1 \
+          --expect=ctrl-d \
+          --prompt='worktree> ' \
+          --header="$repo_label   * = セッション有り   Enter: open / attach   C-d: 削除   Esc: cancel" \
+          --no-multi
+  )" || true   # --expect のキーは選択が無くても 1 行目に出るので、非 0 終了でも捨てない
+  [ -n "$fzf_out" ] || exit 0
+
+  key="$(printf '%s\n' "$fzf_out" | sed -n 1p)"
+  selected="$(printf '%s\n' "$fzf_out" | sed -n 2p)"
+  [ -n "$selected" ] || exit 0
+
+  target="${selected##*"$TAB"}"
+
+  if [ "$key" = "ctrl-d" ]; then
+    remove_worktree "$target"
+    continue
+  fi
+  break
+done
 
 # --- 新規作成 -----------------------------------------------------------------
 # worktree の置き場所。相対指定はメイン worktree からの相対で解決する。
