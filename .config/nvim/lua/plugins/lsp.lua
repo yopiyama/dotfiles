@@ -44,7 +44,7 @@ return {
 
       -- go.work の無いマルチモジュールなリポジトリでは、nvim-lspconfig の既定では
       -- 最も近い go.mod がルートになるためモジュールごとに gopls が起動してしまう。
-      -- （例: authentication-api と auth-one で 2 プロセス。replace で参照している
+      -- （例: 互いを replace で参照する 2 モジュールなら gopls が 2 プロセス。参照先の
       -- モジュールを二重にロードするので重く、片方のビューだけ状態が古くなりやすい）
       -- go.work が無い場合は git リポジトリルートをワークスペースにして 1 プロセスに寄せる。
       local gopls_lsp_file = vim.api.nvim_get_runtime_file("lsp/gopls.lua", false)[1]
