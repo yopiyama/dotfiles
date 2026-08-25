@@ -340,11 +340,11 @@ new-worktree() {
   fi
 
   cd "$dir"
-  if [[ -f "mise.toml" ]] || [[ -f ".mise.toml" ]]; then
-      mise trust
-  fi
-  claude mcp add serena -- uvx --from git+https://github.com/oraios/serena \
-    serena start-mcp-server --context claude-code --project "$(pwd)"
+
+  # ローカル設定のリンク、direnv allow / mise trust + install、serena MCP の登録
+  # (prefix + C-w の worktree ランチャーと同じ処理を共有している)
+  [[ -x "$HOME/.tmux/worktree_sync.sh" ]] && "$HOME/.tmux/worktree_sync.sh" "$PWD"
+
   echo "✅ Worktree + Serena ready at $(pwd)"
 }
 

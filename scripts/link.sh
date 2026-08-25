@@ -26,6 +26,7 @@ LINKS="$(cat <<'EOF'
 .tmux/ip_addr.sh|.tmux/ip_addr.sh
 .tmux/launch_project.sh|.tmux/launch_project.sh
 .tmux/worktree_session.sh|.tmux/worktree_session.sh
+.tmux/worktree_sync.sh|.tmux/worktree_sync.sh
 .tmux/lib|.tmux/lib
 .claude/keybindings.json|.claude/keybindings.json
 .claude/.mcp.json|.claude/.mcp.json

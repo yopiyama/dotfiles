@@ -212,6 +212,10 @@ if [ "$target" = "$NEW_SENTINEL" ]; then
 
   target="$(cd "$dir" && pwd -P)"
   label="$branch"
+
+  # .env などの gitignore されたローカル設定をメイン worktree からリンクする。
+  # 失敗しても worktree 自体は使えるのでセッション作成は続行する。
+  "$SCRIPT_DIR/worktree_sync.sh" "$target" || true
 else
   label="$(label_for "$target" \
     "$(printf '%s\n' "$wt_list" | awk -F'\t' -v p="$target" '$1 == p { print $2; exit }')")"

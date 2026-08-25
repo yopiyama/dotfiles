@@ -69,7 +69,8 @@ scripts/
 .config/nvim/          Neovim。init.lua + lua/ を丸ごと symlink (Nix 管理下に置かない)
 .claude/               Claude Code 設定。skills/ agents/ hooks/ はディレクトリ丸ごと symlink
 .tmux/                 tmux から呼ぶヘルパー。launch_project.sh = prefix + C-p のプロジェクトランチャー、
-                       worktree_session.sh = prefix + C-w の git worktree ランチャー、lib/ は両者の共通部品
+                       worktree_session.sh = prefix + C-w の git worktree ランチャー、lib/ は両者の共通部品、
+                       worktree_sync.sh = worktree に .env 等を持ち込み direnv/mise の許可を通す
 chrome/extensions/     自作 Chrome 拡張。unpacked で直接読み込むので symlink 対象外
 raycast/               自作 Raycast 拡張 (extensions/) と script command (script/)
 ```
@@ -152,3 +153,52 @@ sudo darwin-rebuild switch --flake .#personal   # または #work
 # 例: このリポジトリでは兄弟ディレクトリに置く
 git config tmux.worktreeRoot ../dotfiles.worktrees
 ```
+
+### worktree を作った直後から動く状態にする (worktree_sync.sh)
+
+新しい worktree は「gitignore されたファイルが付いてこない」「パスが変わるので direnv /
+mise の許可が引き継がれない」の 2 点でそのままでは動かない。`.tmux/worktree_sync.sh` が
+その 2 つを埋める。新規 worktree 作成時に `worktree_session.sh` と `.zshrc` の `new-worktree`
+の両方から呼ばれる。どちらの処理も冪等なので、後から `.env` が増えたときなどは手で叩き直せばよい。
+
+```sh
+~/.tmux/worktree_sync.sh              # カレント worktree を対象にする
+~/.tmux/worktree_sync.sh --dry-run    # 何をするか見るだけ
+```
+
+#### 1. ローカル設定のリンク
+
+メイン worktree 側の実体へ**シンボリックリンク**を張る。コピーではないので片方で書き換えれば
+全 worktree に反映され、古いコピーが残らない (逆に、worktree 側のツールが `.env` を書き換えると
+メインにも波及する)。既に同名のファイル/リンクがあれば触らない。
+
+対象は「メイン worktree にある ignore 済みファイル」のうち、下記パターンに一致したもの。
+ignore 判定は `git ls-files --others --ignored` に任せるのでグローバル/ローカルの `.gitignore`
+を両方見る。`node_modules/` のようにディレクトリごと ignore されているものは 1 エントリに
+畳まれるため中まで走査しない。
+
+- デフォルト: `.env` / `*.env` / `.claude/settings.local.json`
+- 追加は `git config --add tmux.worktreeSync '<パターン>'` (複数指定可。グローバルにも書ける)
+
+パターンはリポジトリルートからの相対パスに対する glob。`*` は `/` も跨ぐので `*.env` は
+`apps/web/.env` にも当たる。`/` を含むパターンは `*/<パターン>` でも照合する。
+
+#### 2. direnv allow / mise trust / mise install
+
+- `direnv`: 許可は `.envrc` の絶対パスに紐づくので worktree ごとに取り直しになる。
+  `.envrc` があればそれを、無ければ `.env` を `direnv allow` する
+  (direnv は `.envrc` → `.env` の順で最初に見つけた 1 つだけを読む。`.env` しか無いリポジトリでも
+  1 でリンクを張った結果 blocked になるため対象にしている)
+- `mise`: trust はメイン worktree の同等パスが trust 済みなら共有されるが、paranoid モードでは
+  共有されない (ブランチによって内容が違いうるため) ので、`mise.toml` などがあれば明示的に trust する
+- `mise install`: ツールの実体は `~/.local/share/mise/installs` にバージョン単位で置かれて
+  worktree 間で共有されるため、たいていは何もせずに終わる (実測 0.05 秒)。実際にインストールが
+  走るのはブランチが `mise.toml` のバージョンを上げているときだけ
+
+`.envrc` は読み込み時に実行されるコードなので、自分が把握していないブランチを worktree に
+checkout する場合は中身を見てから使うこと (このスクリプトは無条件に allow する)。
+
+#### 3. serena MCP の登録
+
+`claude mcp add` の既定スコープ (local) は「そのディレクトリ」に紐づくので、worktree ごとに
+登録し直す必要がある。`claude mcp get serena` で既に登録済みなら何もしない。
