@@ -167,14 +167,14 @@ function __fzf_select_dir() {
       fi
     } | sed 's|^\./||' \
       | fzf --query "$fzf_query" --scheme=path --tiebreak=begin,length \
-            --preview="eza --long --icons --git -F --group-directories-first --time-style=long-iso -I '**/.git/' '{-1}'" \
+            --preview="eza --long --icons auto --git -F --group-directories-first --time-style=long-iso -I '**/.git/' '{-1}'" \
             --preview-window=down
   )"
   print -r -- "$selected"
 }
 
 function fzf-cdr() {
-  target_dir=`cdr -l | sed 's/^[^ ][^ ]*  *//' | fzf  --preview="eza --long --icons --git -F --group-directories-first --time-style=long-iso -I '**/.git/' '{-1}'" --preview-window=down`
+  target_dir=`cdr -l | sed 's/^[^ ][^ ]*  *//' | fzf  --preview="eza --long --icons auto --git -F --group-directories-first --time-style=long-iso -I '**/.git/' '{-1}'" --preview-window=down`
   target_dir=`echo ${target_dir/\~/$HOME}`
   if [ -n "$target_dir" ]; then
     BUFFER="cd ${target_dir}"
@@ -290,8 +290,8 @@ alias history='history -i'
 alias hist='fc'
 alias mv='mv -i'
 alias rm='rm -i'
-alias ls='eza --icons'
-alias ll='eza --long --icons --git -F --group-directories-first --time-style=long-iso -I "**/.git/"'
+alias ls='eza --icons auto'
+alias ll='eza --long --icons auto --git -F --group-directories-first --time-style=long-iso -I "**/.git/"'
 # --show-all は非 ASCII を \u{...} にエスケープしてしまうのでデフォルトでは付けない
 alias bat='bat --color=always'
 # 制御文字・空白・改行を可視化したいときはこちら
