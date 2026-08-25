@@ -42,6 +42,10 @@
 
       mouse-hide-while-typing = false;
 
+      # ウィンドウ/タブを閉じるときの "Close?" 確認ダイアログを出さない。
+      # Ghostty は shell 以外のプロセス (tmux, nvim 等) が動いていると既定で確認する。
+      confirm-close-surface = false;
+
       # Ghostty のデフォルトは xterm-ghostty。ローカルには terminfo が同梱されるので
       # 問題ないが、ssh 先に xterm-ghostty が無いと表示が崩れるため Alacritty と同じ
       # xterm-256color に揃える。tmux 内は .tmux.conf の default-terminal が優先される。

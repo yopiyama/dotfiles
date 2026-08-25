@@ -6,6 +6,7 @@
     ./programs/gh.nix
     ./programs/ghostty.nix
     ./programs/git.nix
+    ./programs/google-cloud-sdk.nix
     ./programs/karabiner.nix
     ./programs/lazygit.nix
     ./programs/mise.nix

@@ -82,6 +82,8 @@ zinit wait lucid light-mode for \
 #----------------------------------- General config -----------------------------------
 
 export LANG=ja_JP.UTF-8
+export EDITOR=nvim
+export VISUAL=nvim
 # 自動保管 (dump は 24h 以上経過時のみ security check する)
 autoload -Uz compinit
 () {
@@ -165,14 +167,14 @@ function __fzf_select_dir() {
       fi
     } | sed 's|^\./||' \
       | fzf --query "$fzf_query" --scheme=path --tiebreak=begin,length \
-            --preview="eza --long --icons --git -F --group-directories-first --time-style=long-iso -I '**/.git/' '{-1}'" \
+            --preview="eza --long --icons auto --git -F --group-directories-first --time-style=long-iso -I '**/.git/' '{-1}'" \
             --preview-window=down
   )"
   print -r -- "$selected"
 }
 
 function fzf-cdr() {
-  target_dir=`cdr -l | sed 's/^[^ ][^ ]*  *//' | fzf  --preview="eza --long --icons --git -F --group-directories-first --time-style=long-iso -I '**/.git/' '{-1}'" --preview-window=down`
+  target_dir=`cdr -l | sed 's/^[^ ][^ ]*  *//' | fzf  --preview="eza --long --icons auto --git -F --group-directories-first --time-style=long-iso -I '**/.git/' '{-1}'" --preview-window=down`
   target_dir=`echo ${target_dir/\~/$HOME}`
   if [ -n "$target_dir" ]; then
     BUFFER="cd ${target_dir}"
@@ -276,6 +278,11 @@ bindkey '^[[3~' delete-char
 # Tab は cd のときだけ fzf、通常は補完
 bindkey -M viins '^I' smart-cd-tab
 bindkey -M emacs '^I' smart-cd-tab
+# C-x C-e で $EDITOR にコマンドラインを渡して編集（bash の edit-and-execute-command 相当）
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey -M viins '^X^E' edit-command-line
+bindkey -M vicmd '^X^E' edit-command-line
 
 #----------------------------------- Alias -----------------------------------
 alias dirs='dirs -v'
@@ -283,8 +290,8 @@ alias history='history -i'
 alias hist='fc'
 alias mv='mv -i'
 alias rm='rm -i'
-alias ls='eza --icons'
-alias ll='eza --long --icons --git -F --group-directories-first --time-style=long-iso -I "**/.git/"'
+alias ls='eza --icons auto'
+alias ll='eza --long --icons auto --git -F --group-directories-first --time-style=long-iso -I "**/.git/"'
 # --show-all は非 ASCII を \u{...} にエスケープしてしまうのでデフォルトでは付けない
 alias bat='bat --color=always'
 # 制御文字・空白・改行を可視化したいときはこちら
@@ -333,11 +340,11 @@ new-worktree() {
   fi
 
   cd "$dir"
-  if [[ -f "mise.toml" ]] || [[ -f ".mise.toml" ]]; then
-      mise trust
-  fi
-  claude mcp add serena -- uvx --from git+https://github.com/oraios/serena \
-    serena start-mcp-server --context claude-code --project "$(pwd)"
+
+  # ローカル設定のリンク、direnv allow / mise trust + install、serena MCP の登録
+  # (prefix + C-w の worktree ランチャーと同じ処理を共有している)
+  [[ -x "$HOME/.tmux/worktree_sync.sh" ]] && "$HOME/.tmux/worktree_sync.sh" "$PWD"
+
   echo "✅ Worktree + Serena ready at $(pwd)"
 }
 
