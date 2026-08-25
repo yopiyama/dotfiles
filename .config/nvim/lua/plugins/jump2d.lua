@@ -42,10 +42,30 @@ return {
         -- 2 打必要なときに 2 打目のラベルも薄く見せる (先読みできて迷いが減る)
         n_steps_ahead = 1,
       },
-      -- 既定の <CR> のまま。n / x / o の 3 モードに張られるので d<CR> や v<CR> も効く。
-      -- quickfix と cmdline-window では mini.jump2d 側が <CR> を自動で元に戻す。
-      mappings = { start_jumping = "<CR>" },
+      -- 既定のマッピングは張らない。start_jumping を指定すると n / x / o の 3 モード
+      -- 全部に張られてしまい、オペレータ待ちの <CR> (linewise で次行へ、の意味) が
+      -- 潰れる。y<CR> や y1<CR> での複数行ヤンクが効かなくなるのでこれは困る。
+      mappings = { start_jumping = "" },
     })
+
+    -- <CR> は n / x にだけ張る。o モードは素の linewise モーションのまま残すので
+    -- y<CR> / d<CR> は従来どおり行単位で動く。オペレータと組み合わせてラベル位置まで
+    -- 飛ばしたいときは下の <leader>j (こちらは o にも張ってある) を使う。
+    vim.keymap.set({ "n", "x" }, "<CR>", jump2d.start, { desc = "Jump2d: ラベルジャンプ", silent = true })
+
+    -- quickfix と cmdline-window の <CR> は本来の意味 (項目を開く / コマンド実行) が
+    -- 必要。mini.jump2d 側の復元処理は start_jumping == "<CR>" のときしか動かないので、
+    -- 自前でバッファローカルに戻す。
+    local gr = vim.api.nvim_create_augroup("Jump2dRevertCR", { clear = true })
+    local revert_cr = function()
+      -- 既にバッファローカルの <CR> がある場合 (プラグイン側の割り当て等) は触らない
+      if vim.fn.maparg("<CR>", "n", false, true).buffer == 1 then
+        return
+      end
+      vim.keymap.set("n", "<CR>", "<CR>", { buffer = true })
+    end
+    vim.api.nvim_create_autocmd("FileType", { group = gr, pattern = "qf", callback = revert_cr, desc = "Revert <CR>" })
+    vim.api.nvim_create_autocmd("CmdwinEnter", { group = gr, pattern = "*", callback = revert_cr, desc = "Revert <CR>" })
 
     -- 行頭だけを候補にする版。段落単位でざっくり飛びたいときはラベルが少なくて速い
     vim.keymap.set({ "n", "x", "o" }, "<leader>j", function()
