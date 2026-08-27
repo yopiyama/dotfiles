@@ -24,12 +24,14 @@
 | jeanne-alter (Verifier) | haiku | コマンド実行と PASS/FAIL 判定のみ |
 | sherlock-holmes (Researcher) | sonnet | 検索結果の取捨選択に推論が必要 |
 | lancelot (Implementer) | sonnet | 実装品質と価格のバランス |
-| da-vinci-chan / gilgamesh (Reviewer) | sonnet | レビュー精度の劣化はバグ流出コストに直結 |
+| da-vinci-chan / gilgamesh / emiya (Reviewer) | sonnet | レビュー精度の劣化はバグ流出コストに直結 |
+| mordred (Devil's Advocate) | sonnet | 誤検知の却下判定は根拠の吟味が必要。誤って本物の指摘を潰すコストが高い |
 
 見直しは `/cost` と statusline のセッションコスト実測に基づいて行う。候補:
 
 - sherlock-holmes の sonnet → haiku 降格: 節約幅は小さく（$2/MTok）、調査品質の劣化リスクがあるため保留中
 - レビュアーの降格は非推奨（見逃しコストが節約額を上回る）
+- code-review はラウンド 1 で 3 体並列、ラウンド 2 以降は 4 体（+ モードレッド）。1 ラウンドあたりのコストは差分規模にほぼ比例するため、ラウンド数を増やす前に差分を小さく切る方が安い
 
 ## Opus 4.8 への切替手順（Fable が利用不能になったら）
 
