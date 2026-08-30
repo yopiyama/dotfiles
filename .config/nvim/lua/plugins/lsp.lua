@@ -11,7 +11,7 @@ return {
     config = function()
       require("mason-lspconfig").setup({
         -- よく使うのを例示（必要に応じて追加）
-        ensure_installed = { "lua_ls", "gopls", "pyright", "ts_ls", "yamlls", "marksman" },
+        ensure_installed = { "lua_ls", "gopls", "pyright", "ts_ls", "yamlls", "marksman", "terraformls" },
       })
     end,
   },
@@ -108,6 +108,10 @@ return {
         capabilities = capabilities,
       })
 
+      vim.lsp.config("terraformls", {
+        capabilities = capabilities,
+      })
+
       -- diffview:// など file:// 以外のスキームのバッファでは LSP を起動させない
       -- （gopls 等が "DocumentURI scheme is not 'file'" エラーを返すのを防ぐ）
       -- LspAttach で detach すると didOpen 送信後になり手遅れなので、
@@ -124,7 +128,7 @@ return {
       end
 
       -- Enable servers
-      vim.lsp.enable({ "lua_ls", "gopls", "pyright", "ts_ls", "yamlls", "marksman" })
+      vim.lsp.enable({ "lua_ls", "gopls", "pyright", "ts_ls", "yamlls", "marksman", "terraformls" })
     end,
   },
 }

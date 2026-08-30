@@ -42,6 +42,7 @@
     ripgrep
     ruff
     shellcheck
+    terraform
     tmux
     uv
     yamllint

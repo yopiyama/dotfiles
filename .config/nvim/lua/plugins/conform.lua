@@ -9,6 +9,8 @@ return {
       -- goimports は gofmt 相当の整形 + import の追加/削除をまとめてやるので gofmt は不要
       go = { "goimports" },
       sh = { "shfmt" },
+      terraform = { "terraform_fmt" },
+      ["terraform-vars"] = { "terraform_fmt" },
       json = { "jq" },
       yaml = { "prettier" },
       markdown = { "prettier" },
