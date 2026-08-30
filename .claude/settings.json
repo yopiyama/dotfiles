@@ -1,4 +1,5 @@
 {
+    "agentPushNotifEnabled": true,
     "attribution": {
         "pr": "🤖 Generated with [Claude Code](https://claude.com/claude-code)"
     },
@@ -6,7 +7,8 @@
     "effortLevel": "high",
     "enableAllProjectMcpServers": true,
     "enabledPlugins": {
-        "crit@crit": true
+        "crit@crit": true,
+        "ponytail@ponytail": true
     },
     "env": {
         "CLAUDE_CODE_DISABLE_MOUSE_CLICKS": "1"
@@ -15,6 +17,12 @@
         "crit": {
             "source": {
                 "repo": "tomasz-tomczyk/crit",
+                "source": "github"
+            }
+        },
+        "ponytail": {
+            "source": {
+                "repo": "DietrichGebert/ponytail",
                 "source": "github"
             }
         }
@@ -232,7 +240,7 @@
             "Bash(git push:*)",
             "Bash(git reset:*)"
         ],
-        "defaultMode": "default",
+        "defaultMode": "auto",
         "deny": [
             "Bash(curl:*)",
             "Bash(find * -delete*)",
