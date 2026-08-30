@@ -1,7 +1,6 @@
 { pkgs, ... }:
 
 {
-  # Alacritty から乗り換え済み (alacritty.nix は削除済み)。
   programs.ghostty = {
     enable = true;
 
@@ -39,6 +38,11 @@
       window-padding-y = 4;
       # Alacritty の window.dynamic_padding 相当。余りを左右/上下に均等配分する。
       window-padding-balance = true;
+
+      # デスクトップがうっすら透けるように背景を半透明化 + ぼかし。
+      # macOS はこの設定変更に Ghostty の完全再起動が必要 (アプリの制約)。
+      background-opacity = 0.85;
+      background-blur = true;
 
       mouse-hide-while-typing = false;
 
