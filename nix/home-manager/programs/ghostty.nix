@@ -18,8 +18,10 @@
     installBatSyntax = false;
 
     settings = {
-      # ---- alacritty.nix からの移行分 ----
-      font-family = "Hack Nerd Font Mono";
+      font-family = [
+        "Hack Nerd Font Mono"
+        "HackGen Console NF"
+      ];
       font-size = 14;
 
       # タイトルバーごと消す (Ghostty はタイトルバーにお化けアイコンとタイトルを出すため)。

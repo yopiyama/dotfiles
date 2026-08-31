@@ -32,6 +32,7 @@
     gnused
     golangci-lint
     gotools # goimports (nvim の保存時に import を追加/削除する)
+    hackgen-nf-font # 白源（Hack + 源柔ゴシック）。
     iproute2mac
     jq
     markdownlint-cli
