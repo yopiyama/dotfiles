@@ -85,6 +85,7 @@ check_mcp() {
 
 echo "[external: Write/Edit — 検出する]"
 check_write "コードに code-review の指摘 ID" "$REPO_FILE" '// P1-1 の指摘に対応' deny
+check_write "コードに新書式の指摘 ID" "$REPO_FILE" '// MUST-1 と TWEET-2 の指摘に対応' deny
 check_write "コードに会話内の通し番号" "$REPO_FILE" '// 指摘 3 の対応。論点2 も含む' deny
 check_write "コードに PBI 内のローカル番号" "$REPO_FILE" '// 非機能要件3 を満たすため' deny
 check_write "コードに丸数字の要件番号" "$REPO_FILE" '// 受入条件⑥ に対応' deny
