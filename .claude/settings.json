@@ -194,6 +194,7 @@
             "Bash(git --no-pager diff)",
             "Bash(~/.claude/skills/code-review/scripts/codex-review.sh:*)",
             "Bash(~/.claude/skills/code-review/scripts/check-prereqs.sh:*)",
+            "Bash(~/.claude/skills/code-review/scripts/fetch-pr-context.sh:*)",
             "Bash(~/.claude/skills/pr-comments/scripts/fetch-pr-comments.sh:*)",
             "Bash(~/.claude/skills/pr-comments/scripts/pr-task-notes.sh:*)",
             "Bash(~/.claude/skills/connect-obsidian/scripts/obs.sh read:*)",
