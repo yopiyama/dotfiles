@@ -241,7 +241,7 @@
             "Bash(git push:*)",
             "Bash(git reset:*)"
         ],
-        "defaultMode": "auto",
+        "defaultMode": "default",
         "deny": [
             "Bash(curl:*)",
             "Bash(find * -delete*)",
