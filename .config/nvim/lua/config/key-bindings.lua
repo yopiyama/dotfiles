@@ -78,6 +78,9 @@ vim.keymap.set("n", "<Tab>", "<cmd>BufferLineCycleNext<CR>", { desc = "Buffer: n
 vim.keymap.set("n", "<S-Tab>", "<cmd>BufferLineCyclePrev<CR>", { desc = "Buffer: previous" })
 vim.keymap.set("n", "<leader>x", "<cmd>bdelete<CR>", { desc = "Buffer: close" })
 
+-- Format current buffer as JSON via jq (sorted keys)
+vim.keymap.set("n", "<leader>fj", "<cmd>%!jq -S .<CR>", { desc = "Format buffer as JSON (jq -S)" })
+
 -- LSP buffer-local mappings (only active when LSP attaches)
 local lsp_augroup = vim.api.nvim_create_augroup("UserLspKeymaps", { clear = true })
 
