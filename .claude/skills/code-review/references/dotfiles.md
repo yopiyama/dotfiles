@@ -4,7 +4,8 @@
 
 このファイルのセクション見出しには `[Logic]` / `[Design]` タグを付けている。
 SKILL.md ステップ 6 の固定マッピングに該当セクション名はないため、
-**タグに従って分配する**こと（`[Logic]` → ダ・ヴィンチちゃん、`[Design]` → ギルガメッシュ、Codex には全セクション）。
+**タグに従って分配する**こと（`[Logic]` → ダ・ヴィンチちゃん、`[Design]` → ギルガメッシュ、`[Ops]` → エミヤ、Codex には全セクション）。
+タグが複数付いているセクションは、該当する全エージェントに渡す。モードレッド（反証役）には観点を渡さない。
 
 ## [Logic] shell スクリプト
 
@@ -14,19 +15,19 @@ SKILL.md ステップ 6 の固定マッピングに該当セクション名は�
 - `set -e` 下で失敗を許容したい箇所の `|| true` の付け忘れ / 意図しない握り潰し
 - パイプの早期 close でハングするコマンドがないか（`obsidian help | head` 等）
 
-## [Logic] hooks
+## [Logic][Ops] hooks
 
 - `.claude/hooks/*.sh` の変更に対応する `test-*.sh` の更新と実行
 - ノート命名・保存先ロジックは `obsidian-note-lib.sh` に一元化する。各スクリプトへコピーしない（wikilink がノート名の完全一致で成立しているため、片方だけ変えるとリンクが黙って切れる）
 - フック内から `claude` CLI を呼ぶ場合は `--safe-mode --no-session-persistence` を付ける（Stop フックの再発火防止）
 
-## [Design] scripts/link.sh / 配布
+## [Ops] scripts/link.sh / 配布
 
 - トップレベルの新規ファイル・ディレクトリを追加したとき、`scripts/link.sh` の `LINKS` への追随漏れがないか（`.claude/skills` 等ディレクトリ丸ごとリンクの配下に置くファイルは不要）
 - 配布するサンプルファイルの命名は `<名前>.sample` に統一
 - 同じパスを `LINKS` と home-manager (`nix/home-manager/programs/*.nix`) の両方が管理していないか（衝突すると home-manager が symlink を `*.bak` へ退避してしまう）
 
-## [Design] Claude Code 設定（skills / agents / settings.json）
+## [Design][Ops] Claude Code 設定（skills / agents / settings.json）
 
 - SKILL.md の frontmatter は `allowed-tools` を使う（`tools:` は agent 定義専用のフィールドで、skill では無視される）
 - スキルが新しいスクリプトを実行する場合、`settings.json` の `permissions.allow` への追随があるか
@@ -34,6 +35,6 @@ SKILL.md ステップ 6 の固定マッピングに該当セクション名は�
 - サブエージェントに `obsidian` CLI を使わせていないか（多重起動回避のため、サブエージェントは vault を素の Read/Grep で直接扱う）
 - 秘匿情報（トークン・メールアドレス・マシン固有パス）を設定・スキルにハードコードしていないか
 
-## [Design] ドキュメント整合
+## [Ops] ドキュメント整合
 
 - CLAUDE.md に書かれたルールと実装の乖離が生じていないか（`LINKS` の説明、symlink 実体編集ルール等）
