@@ -45,6 +45,7 @@
     shellcheck
     terraform
     tmux
+    tree-sitter # nvim-treesitter (main ブランチ) がパーサのビルドに CLI を必要とする
     uv
     yamllint
     yq-go
