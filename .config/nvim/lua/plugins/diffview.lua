@@ -11,14 +11,16 @@ return {
         "DiffviewRefresh",
     },
     keys = {
-        { "<leader>gd", "<cmd>DiffviewOpen<CR>", desc = "Diffview: open (working tree)" },
+        { "<leader>gd", "<cmd>DiffviewOpen<CR>",             desc = "Diffview: open (working tree)" },
         -- 上流ブランチ (origin/xxx) とローカルの差分
-        { "<leader>gu", "<cmd>DiffviewOpen @{u}<CR>", desc = "Diffview: diff vs upstream" },
-        { "<leader>gc", "<cmd>DiffviewClose<CR>", desc = "Diffview: close" },
+        { "<leader>gu", "<cmd>DiffviewOpen @{u}<CR>",        desc = "Diffview: diff vs upstream" },
+        { "<leader>gc", "<cmd>DiffviewClose<CR>",            desc = "Diffview: close" },
+        -- main との差分（PR レビュー時の Octo review start 相当の見た目）
+        { "<leader>gm", "<cmd>DiffviewOpen main...HEAD<CR>", desc = "Diffview: diff vs main" },
         -- 現在のファイルのコミット履歴
-        { "<leader>gh", "<cmd>DiffviewFileHistory %<CR>", desc = "Diffview: file history (current)" },
+        { "<leader>gh", "<cmd>DiffviewFileHistory %<CR>",    desc = "Diffview: file history (current)" },
         -- リポジトリ全体の履歴
-        { "<leader>gH", "<cmd>DiffviewFileHistory<CR>", desc = "Diffview: file history (repo)" },
+        { "<leader>gH", "<cmd>DiffviewFileHistory<CR>",      desc = "Diffview: file history (repo)" },
     },
     config = function()
         require("diffview").setup({
