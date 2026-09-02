@@ -11,8 +11,8 @@ vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Diagnostic: previo
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Diagnostic: next" })
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Diagnostic: open float" })
 vim.keymap.set("n", "<Esc>", function()
-  vim.cmd("nohlsearch")
-  vim.lsp.buf.clear_references()
+    vim.cmd("nohlsearch")
+    vim.lsp.buf.clear_references()
 end, { desc = "Clear search + LSP highlights" })
 vim.keymap.set("n", "<leader>q", "<cmd>cclose<CR>", { desc = "Close quickfix" })
 vim.keymap.set("n", "<leader>l", "<cmd>lclose<CR>", { desc = "Close loclist" })
@@ -53,23 +53,24 @@ vim.keymap.set("n", "<C-w><C-o>", "<C-w>x", { desc = "Window: exchange" })
 
 -- Window picker
 vim.keymap.set("n", "<leader>wl", function()
-  local win = require("window-picker").pick_window()
-  if win then
-    vim.api.nvim_set_current_win(win)
-  end
+    local win = require("window-picker").pick_window()
+    if win then
+        vim.api.nvim_set_current_win(win)
+    end
 end, { desc = "Window: pick and jump" })
 vim.keymap.set("n", "<leader>ws", function()
-  local win = require("window-picker").pick_window()
-  if win then
-    local cur = vim.api.nvim_get_current_win()
-    local cur_buf = vim.api.nvim_win_get_buf(cur)
-    local target_buf = vim.api.nvim_win_get_buf(win)
-    vim.api.nvim_win_set_buf(cur, target_buf)
-    vim.api.nvim_win_set_buf(win, cur_buf)
-  end
+    local win = require("window-picker").pick_window()
+    if win then
+        local cur = vim.api.nvim_get_current_win()
+        local cur_buf = vim.api.nvim_win_get_buf(cur)
+        local target_buf = vim.api.nvim_win_get_buf(win)
+        vim.api.nvim_win_set_buf(cur, target_buf)
+        vim.api.nvim_win_set_buf(win, cur_buf)
+    end
 end, { desc = "Window: pick and swap" })
 vim.keymap.set("n", "<leader>wt", "<cmd>Neotree toggle float<CR>", { desc = "Window: toggle neo-tree (float)" })
-vim.keymap.set("n", "<leader>wf", "<cmd>Neotree float reveal reveal_force_cwd<CR>", { desc = "Window: neo-tree reveal current file (float)" })
+vim.keymap.set("n", "<leader>wf", "<cmd>Neotree float reveal reveal_force_cwd<CR>",
+    { desc = "Window: neo-tree reveal current file (float)" })
 vim.keymap.set("n", "<leader>wo", "<cmd>only<CR>", { desc = "Window: close others" })
 vim.keymap.set("n", "<leader>w=", "<C-w>=", { desc = "Window: equalize size" })
 
@@ -79,27 +80,29 @@ vim.keymap.set("n", "<S-Tab>", "<cmd>BufferLineCyclePrev<CR>", { desc = "Buffer:
 vim.keymap.set("n", "<leader>x", "<cmd>bdelete<CR>", { desc = "Buffer: close" })
 
 -- Format current buffer as JSON via jq (sorted keys)
-vim.keymap.set("n", "<leader>fj", "<cmd>%!jq -S .<CR>", { desc = "Format buffer as JSON (jq -S)" })
+vim.keymap.set("n", "<leader>fj", "<cmd>%!jq -S --indent 4 .<CR>", { desc = "Format buffer as JSON (jq -S)" })
 
 -- LSP buffer-local mappings (only active when LSP attaches)
 local lsp_augroup = vim.api.nvim_create_augroup("UserLspKeymaps", { clear = true })
 
 vim.api.nvim_create_autocmd("LspAttach", {
-  group = lsp_augroup,
-  callback = function(ev)
-    local opts = { buffer = ev.buf }
+    group = lsp_augroup,
+    callback = function(ev)
+        local opts = { buffer = ev.buf }
 
-    -- gd/gr/gi は telescope.lua 側で Telescope picker にバインド済み
-    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, vim.tbl_extend("force", opts, { desc = "LSP: go to declaration" }))
-    vim.keymap.set("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "LSP: hover" }))
+        -- gd/gr/gi は telescope.lua 側で Telescope picker にバインド済み
+        vim.keymap.set("n", "gD", vim.lsp.buf.declaration,
+            vim.tbl_extend("force", opts, { desc = "LSP: go to declaration" }))
+        vim.keymap.set("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "LSP: hover" }))
 
-    vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, vim.tbl_extend("force", opts, { desc = "LSP: rename" }))
-    vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, vim.tbl_extend("force", opts, { desc = "LSP: code action" }))
+        vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, vim.tbl_extend("force", opts, { desc = "LSP: rename" }))
+        vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action,
+            vim.tbl_extend("force", opts, { desc = "LSP: code action" }))
 
-    vim.keymap.set("n", "<leader>cf", function()
-      require("conform").format({ async = true, lsp_fallback = true })
-    end, vim.tbl_extend("force", opts, { desc = "Format buffer (conform, LSP fallback)" }))
-  end,
+        vim.keymap.set("n", "<leader>cf", function()
+            require("conform").format({ async = true, lsp_fallback = true })
+        end, vim.tbl_extend("force", opts, { desc = "Format buffer (conform, LSP fallback)" }))
+    end,
 })
 
 return M
