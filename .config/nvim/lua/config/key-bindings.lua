@@ -79,6 +79,14 @@ vim.keymap.set("n", "<Tab>", "<cmd>BufferLineCycleNext<CR>", { desc = "Buffer: n
 vim.keymap.set("n", "<S-Tab>", "<cmd>BufferLineCyclePrev<CR>", { desc = "Buffer: previous" })
 vim.keymap.set("n", "<leader>x", "<cmd>bdelete<CR>", { desc = "Buffer: close" })
 
+-- Tabpage navigation (native Neovim tabpages, distinct from bufferline tabs above)
+-- NOTE: <C-Tab>/<C-S-Tab> は Ghostty (macOS) がターミナル自身のタブ切り替えとして
+-- 奪ってしまい nvim に届かないため断念 (ghostty-org/ghostty#9381)。<leader> 側に寄せる。
+vim.keymap.set("n", "<leader>tn", "gt", { desc = "Tabpage: next" })
+vim.keymap.set("n", "<leader>tp", "gT", { desc = "Tabpage: previous" })
+vim.keymap.set("n", "<leader>tt", "<cmd>tabnew<CR>", { desc = "Tabpage: new" })
+vim.keymap.set("n", "<leader>tx", "<cmd>tabclose<CR>", { desc = "Tabpage: close" })
+
 -- Format current buffer as JSON via jq (sorted keys)
 vim.keymap.set("n", "<leader>fj", "<cmd>%!jq -S --indent 4 .<CR>", { desc = "Format buffer as JSON (jq -S)" })
 
