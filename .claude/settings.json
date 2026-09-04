@@ -67,26 +67,6 @@
                 "matcher": "Write|Edit|Bash|mcp__notion__.*"
             }
         ],
-        "Stop": [
-            {
-                "hooks": [
-                    {
-                        "command": "~/.claude/hooks/log-to-obsidian.sh",
-                        "type": "command"
-                    }
-                ]
-            }
-        ],
-        "SubagentStop": [
-            {
-                "hooks": [
-                    {
-                        "command": "~/.claude/hooks/log-to-obsidian.sh",
-                        "type": "command"
-                    }
-                ]
-            }
-        ],
         "UserPromptSubmit": [
             {
                 "hooks": [
@@ -99,7 +79,7 @@
         ]
     },
     "inputNeededNotifEnabled": true,
-    "model": "opus",
+    "model": "sonnet",
     "permissions": {
         "allow": [
             "Bash(awk:*)",
