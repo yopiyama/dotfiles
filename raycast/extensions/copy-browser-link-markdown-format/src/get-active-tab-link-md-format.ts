@@ -11,18 +11,35 @@ export default async function Command() {
     throw new Error("アクティブなタブの URL を取得できませんでした");
   }
 
-  let title = activeTab.title?.trim() || activeTab.url;
-
-  // Notion のタブタイトルから通知数プレフィックス "(2) " などを除去
-  if (activeTab.url.includes("notion.so")) {
-    title = title.replace(/^\(\d+\)\s+/, "");
-  }
-  const title = activeTab.title?.trim() || activeTab.url;
+  const title = normalizeTitle(activeTab.title?.trim() || activeTab.url, activeTab.url);
   const markdown = `[${escapeMarkdownText(title)}](${activeTab.url})`;
 
   await Clipboard.copy(markdown);
   await closeMainWindow();
   await showHUD("Markdown link をコピーしました");
+}
+
+function normalizeTitle(title: string, url: string): string {
+  if (!isNotionUrl(url)) {
+    return title;
+  }
+
+  // Notion prefixes the title with an unread notification count, e.g. "(9+) ".
+  return title.replace(/^\(\d+\+?\)\s*/, "");
+}
+
+function isNotionUrl(url: string): boolean {
+  try {
+    const hostname = new URL(url).hostname.toLowerCase();
+    return (
+      hostname === "notion.so" ||
+      hostname.endsWith(".notion.so") ||
+      hostname === "notion.com" ||
+      hostname.endsWith(".notion.com")
+    );
+  } catch {
+    return false;
+  }
 }
 
 function escapeMarkdownText(text: string): string {
