@@ -35,6 +35,7 @@ LINKS="$(cat <<'EOF'
 .claude/skills|.claude/skills
 .claude/agents|.claude/agents
 .claude/hooks|.claude/hooks
+codex/rules/default.rules|.codex/rules/default.rules
 .config/nvim/init.lua|.config/nvim/init.lua
 .config/nvim/lua|.config/nvim/lua
 EOF
@@ -115,6 +116,15 @@ while IFS='|' read -r src dest; do
 done <<EOF
 $LINKS
 EOF
+
+# Codex Desktop は ~/.codex/config.toml に端末固有の UI 状態・project trust 等を追記する。
+# dotfiles の共有設定だけを上書きし、残りの自動生成設定は保つ。
+echo "--- codex config ---"
+if [ "$DRY_RUN" -eq 1 ]; then
+  "$REPO/scripts/sync-codex-config.sh" --dry-run
+else
+  "$REPO/scripts/sync-codex-config.sh"
+fi
 
 # sample からの bootstrap (git 管理外の実ファイル。無ければコピー、既存なら触らない)
 # "repo 内 sample の相対パス|$HOME からの相対パス"

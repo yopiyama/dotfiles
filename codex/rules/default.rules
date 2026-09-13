@@ -1,0 +1,201 @@
+# Shared user-level Codex command rules.
+#
+# This file intentionally covers only commands that may run outside the sandbox.
+# Claude's file-read/edit deny rules and lifecycle hooks are not expressible here;
+# keep those concerns in Codex sandbox/approval configuration and hooks instead.
+
+# Local inspection commands that do not read file contents.
+prefix_rule(
+    pattern = [[
+        "date", "eza", "ls", "ps", "pwd", "stat", "type", "uname", "which", "whoami",
+    ]],
+    decision = "allow",
+    justification = "Read-only local inspection commands are safe to run outside the sandbox.",
+)
+
+# Claude allowed these commands but also denied reading .env and key files.
+# Codex prefix rules cannot express path globs, so keep content-reading commands
+# interactive instead of accidentally widening those sensitive-file protections.
+prefix_rule(
+    pattern = [["awk", "cat", "cut", "file", "grep", "head", "jq", "rg", "sort", "tail", "tr", "uniq", "wc"]],
+    decision = "prompt",
+    justification = "Review commands that can read arbitrary file contents, including secret files.",
+)
+
+# Only the non-mutating sed form in the Claude policy is automatically allowed.
+prefix_rule(
+    pattern = ["sed", "-n"],
+    decision = "allow",
+    justification = "Allow non-mutating sed output.",
+)
+
+prefix_rule(
+    pattern = ["command", "ls"],
+    decision = "allow",
+    justification = "Allow explicit local directory listing.",
+)
+
+# `find` was broadly allowed in Claude but had several dangerous exclusions that
+# Codex prefix rules cannot represent. Keep it interactive rather than widening it.
+prefix_rule(
+    pattern = ["find"],
+    decision = "prompt",
+    justification = "Review find invocations because destructive predicates need context.",
+)
+
+# Git commands allowed by the existing Claude Code policy.
+prefix_rule(
+    pattern = ["git", [
+        "blame", "branch", "describe", "diff", "fetch", "grep", "log", "ls-files", "remote",
+        "rev-parse", "shortlog", "show", "status", "tag",
+    ]],
+    decision = "allow",
+    justification = "Allow the established Git inspection workflow.",
+)
+
+prefix_rule(
+    pattern = ["git", "--no-pager", ["log", "diff"]],
+    decision = "allow",
+    justification = "Allow non-paged Git inspection.",
+)
+
+prefix_rule(
+    pattern = ["git", ["add", "commit", "init", "switch", "worktree"]],
+    decision = "allow",
+    justification = "Allow the established local Git workflow.",
+)
+
+prefix_rule(
+    pattern = ["git", "restore", "--staged"],
+    decision = "allow",
+    justification = "Allow unstaging changes without restoring worktree files.",
+)
+
+prefix_rule(
+    pattern = ["git", "stash", ["apply", "list", "pop", "push", "show"]],
+    decision = "allow",
+    justification = "Allow the established Git stash workflow.",
+)
+
+# Git operations that need deliberate review or must never be auto-approved.
+prefix_rule(
+    pattern = ["git", ["push", "reset"]],
+    decision = "prompt",
+    justification = "Review remote publication and history rewrites every time.",
+)
+
+prefix_rule(
+    pattern = ["git", ["clean", "config", "filter-branch", "revert", "update-ref"]],
+    decision = "forbidden",
+    justification = "Use an explicit reviewed workflow for destructive or configuration-changing Git operations.",
+)
+
+# GitHub CLI permissions from the Claude Code policy.
+prefix_rule(
+    pattern = ["gh", "issue", "view"],
+    decision = "allow",
+    justification = "Allow reading GitHub issues.",
+)
+
+prefix_rule(
+    pattern = ["gh", "pr", ["view", "list", "check", "checks", "diff", "create", "edit", "comment"]],
+    decision = "allow",
+    justification = "Allow the established pull-request workflow.",
+)
+
+prefix_rule(
+    pattern = ["gh", "release", "view"],
+    decision = "allow",
+    justification = "Allow reading GitHub release metadata.",
+)
+
+prefix_rule(
+    pattern = ["gh", "repo", "view"],
+    decision = "allow",
+    justification = "Allow reading GitHub repository metadata.",
+)
+
+prefix_rule(
+    pattern = ["gh", "run", ["list", "view"]],
+    decision = "allow",
+    justification = "Allow reading GitHub Actions runs.",
+)
+
+prefix_rule(
+    pattern = ["gh", "workflow", ["view", "list"]],
+    decision = "allow",
+    justification = "Allow reading GitHub Actions workflow metadata.",
+)
+
+prefix_rule(
+    pattern = ["gh", "stack", "view"],
+    decision = "allow",
+    justification = "Allow inspecting stacked pull requests.",
+)
+
+prefix_rule(
+    pattern = ["gh", "pr", ["merge", "close"]],
+    decision = "forbidden",
+    justification = "Merge or close pull requests explicitly outside automated command execution.",
+)
+
+# Other established local developer commands.
+prefix_rule(
+    pattern = ["docker", "compose", ["ps", "logs"]],
+    decision = "allow",
+    justification = "Allow Docker Compose inspection.",
+)
+
+prefix_rule(
+    pattern = ["mise", ["which", "ls"]],
+    decision = "allow",
+    justification = "Allow inspecting mise tool resolution.",
+)
+
+prefix_rule(
+    pattern = ["ghq", "list"],
+    decision = "allow",
+    justification = "Allow listing local repositories.",
+)
+
+prefix_rule(
+    pattern = ["obsidian", [
+        "files", "read", "file", "search", "vault", "version", "property", "template", "create",
+        "append", "prepend", "daily", "tasks", "task", "open", "help", "--help",
+    ]],
+    decision = "allow",
+    justification = "Allow the established Obsidian CLI workflow.",
+)
+
+prefix_rule(
+    pattern = [["codex", "crit"]],
+    decision = "allow",
+    justification = "Allow the established local coding-agent helper commands.",
+)
+
+# Commands explicitly denied by the existing Claude Code policy. A command not
+# listed above is still not auto-approved; these rules prevent future broad
+# allow rules from accidentally widening these destructive prefixes.
+prefix_rule(
+    pattern = [["curl", "sudo", "tee", "wget", "xargs"]],
+    decision = "forbidden",
+    justification = "Use an explicit reviewed workflow for network, privilege, or pipe-mediated writes.",
+)
+
+prefix_rule(
+    pattern = ["perl", "-pi"],
+    decision = "forbidden",
+    justification = "Use apply_patch or another reviewed edit path instead of in-place Perl edits.",
+)
+
+prefix_rule(
+    pattern = ["rm", "-rf"],
+    decision = "forbidden",
+    justification = "Do not recursively force-delete files from an automated command.",
+)
+
+prefix_rule(
+    pattern = ["sed", "-i"],
+    decision = "forbidden",
+    justification = "Use apply_patch or another reviewed edit path instead of in-place sed edits.",
+)

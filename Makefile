@@ -26,7 +26,7 @@ CHECK_PROFILE = \
 	fi
 
 .DEFAULT_GOAL := help
-.PHONY: help setup install-nix link link-dry rebuild dry-run update update-lock doctor
+.PHONY: help setup install-nix link link-dry codex-sync codex-sync-dry rebuild dry-run update update-lock doctor
 
 # setup は install-nix → link → rebuild の順序に意味がある (link が Homebrew 本体を
 # 用意し、rebuild がその上に cask/brew を宣言的に入れる) ため並列実行させない。
@@ -41,6 +41,8 @@ help:
 	@echo "  make install-nix - nix 本体をインストール (導入済みなら何もしない)"
 	@echo "  make link        - symlink 作成 + Homebrew 準備 (scripts/link.sh)"
 	@echo "  make link-dry    - link の内容を表示するだけ (何も変更しない)"
+	@echo "  make codex-sync  - 共有 Codex 設定を ~/.codex/config.toml に反映"
+	@echo "  make codex-sync-dry - Codex 設定の反映予定を表示するだけ"
 	@echo "  make rebuild     - darwin-rebuild switch *PROFILE 必須"
 	@echo "  make dry-run     - darwin-rebuild の評価だけ確認 (activate しない) *PROFILE 必須"
 	@echo "  make update      - パッケージ更新 (update-lock → rebuild) *PROFILE 必須"
@@ -81,6 +83,12 @@ link:
 
 link-dry:
 	@$(LINK_SH) --dry-run
+
+codex-sync:
+	@$(DOTFILES_DIR)/scripts/sync-codex-config.sh
+
+codex-sync-dry:
+	@$(DOTFILES_DIR)/scripts/sync-codex-config.sh --dry-run
 
 # 初回は darwin-rebuild がまだ存在しないので、flake.lock で固定している nix-darwin を
 # build して、その中の darwin-rebuild で activate する (2 回目以降は PATH のものを使う)。
