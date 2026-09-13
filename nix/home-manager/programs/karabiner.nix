@@ -147,8 +147,8 @@ in
           ];
 
           # vendor_id / product_id は Karabiner が検出した実値 (10 進)。
-          # 下 4 件は個別デバイス設定で、いずれも調査時点では未接続のため
-          # 製品名は特定せず USB vendor ID の登録名のみ併記している。
+          # 以下は個別デバイス設定。製品名は未特定のため、
+          # 判明している USB vendor ID の登録名のみ併記している。
           devices = [
             # 全キーボード共通: CapsLock → 左 Control
             {
@@ -205,6 +205,16 @@ in
                 product_id = 65535;
               };
               ignore = true;
+            }
+
+            {
+              identifiers = {
+                is_keyboard = true;
+                is_pointing_device = true;
+                vendor_id = 18003;
+                product_id = 1;
+              };
+              ignore = false;
             }
           ];
         }
