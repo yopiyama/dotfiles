@@ -19,7 +19,7 @@ symlink のリンク対象は `scripts/link.sh` の `LINKS` 変数で定義さ�
 1. **nixpkgs に無い / darwin で動かない** → Homebrew（`crit`, `im-select`）
 2. **CLI・TUI・フォント・ライブラリ** → 常に nixpkgs。例外を作らない
 3. **GUI アプリ** → 次のどれかに当たれば Homebrew の cask、当たらなければ nixpkgs
-   - root 権限の installer / kext / system extension / launch daemon を入れる（`karabiner-elements`, `logitech-g-hub`）
+   - root 権限の installer / kext / system extension / launch daemon を入れる（e.g. `karabiner-elements`）
    - 他アプリや OS の署名・固定パス前提に依存する（`1password-cli` は 1Password.app の CLI 統合、mas 経由のもの）
    - 自己更新を設定で止められない（`raycast`, `shottr`, `spotify`）
 
@@ -40,6 +40,7 @@ read-only なのでアプリ内の自己更新は必ず失敗するが、設定�
 `~/.claude/hooks/*` や `~/.zshrc` などは全てこのリポジトリへのシンボリックリンク。編集・調査は必ず `readlink -f` 等でリポジトリ内の実パスを確認し、そちらを直接編集する。
 
 理由:
+
 - Write 系ツールによっては symlink を unlink して新規ファイルで置き換えることがあり、その場合 `$HOME` 側で編集すると symlink が壊れてリポジトリと乖離する。
 - リポジトリパスで編集しないと `git diff`/`git status` に変更が乗らず、コミット・レビューの対象にならない。
 

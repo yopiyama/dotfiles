@@ -1,0 +1,24 @@
+# Codex のユーザー設定で、全端末に強制するトップレベル値と共有 MCP の source of truth。
+#
+# scripts/sync-codex-config.sh は、このファイルに書かれたトップレベル値と
+# [mcp_servers.<name>] table を ~/.codex/config.toml へ反映する。Desktop が追記する
+# project trust、UI 状態、プラグイン情報、共有対象外の MCP OAuth 情報などは保持する。
+#
+# approval_policy、sandbox_mode、default_permissions のようなトップレベルの
+# permission 設定も、意図を決めたらここへ追加できる。table は共有 MCP だけを許可する。
+model = "gpt-5.6-terra"
+model_reasoning_effort = "high"
+personality = "pragmatic"
+service_tier = "default"
+
+# ctxpack-mcp は ctxpack を stdio MCP server として公開する。Apple Silicon Mac の
+# Homebrew prefix を明示し、Desktop がログイン shell の PATH を継承しない場合にも備える。
+[mcp_servers.ctxpack]
+command = "/opt/homebrew/bin/ctxpack-mcp"
+enabled_tools = ["pack", "pack_content", "stats"]
+default_tools_approval_mode = "prompt"
+startup_timeout_sec = 10
+tool_timeout_sec = 30
+
+[mcp_servers.ctxpack.tools.pack]
+output_token_limit = 8000

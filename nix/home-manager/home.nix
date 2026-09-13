@@ -41,6 +41,7 @@
     nerd-fonts.hack
     prettier
     ripgrep
+    rtk
     ruff
     shellcheck
     terraform
