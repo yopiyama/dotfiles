@@ -13,13 +13,19 @@ prefix_rule(
     justification = "Read-only local inspection commands are safe to run outside the sandbox.",
 )
 
-# Claude allowed these commands but also denied reading .env and key files.
-# Codex prefix rules cannot express path globs, so keep content-reading commands
-# interactive instead of accidentally widening those sensitive-file protections.
+# Allow direct read-only transformations. Shell redirection remains subject to
+# approval because it is evaluated as a shell operation, not as these commands.
 prefix_rule(
-    pattern = [["awk", "cat", "cut", "file", "grep", "head", "jq", "rg", "sort", "tail", "tr", "uniq", "wc"]],
+    pattern = [["cat", "cut", "file", "grep", "head", "jq", "tail", "tr", "uniq", "wc"]],
+    decision = "allow",
+    justification = "Allow direct read-only inspection and transformation without shell-side writes.",
+)
+
+# Keep tools with direct write or command-execution options interactive.
+prefix_rule(
+    pattern = [["awk", "rg", "sort"]],
     decision = "prompt",
-    justification = "Review commands that can read arbitrary file contents, including secret files.",
+    justification = "Review tools with direct write or command-execution options.",
 )
 
 # Only the non-mutating sed form in the Claude policy is automatically allowed.

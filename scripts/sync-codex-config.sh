@@ -14,7 +14,7 @@
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SOURCE="$REPO/.config/config.shared.toml"
+SOURCE="$REPO/.codex/config.shared.toml"
 TARGET="$HOME/.codex/config.toml"
 DRY_RUN=0
 

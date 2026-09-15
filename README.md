@@ -23,6 +23,7 @@ neovim 本体は `home.packages` で入れるだけに留めている。
 
 ```sh
 make setup PROFILE=work  # 初回。install-nix → link → rebuild
+make apply PROFILE=work  # 通常の設定反映。rebuild → link → Codex 同期
 make install-nix # nix 本体のインストール (導入済みなら何もしない)
 make link        # symlink 作成 + Homebrew 本体の準備
 make link-dry    # 何も変更せず、実行内容だけ表示
@@ -58,7 +59,7 @@ symlink 作成の実体は `scripts/link.sh`。単体実行 (`scripts/link.sh`,
 
 ### Codex
 
-`.config/config.shared.toml` は、全端末で揃える Codex の**トップレベル設定**、共有 table、
+`.codex/config.shared.toml` は、全端末で揃える Codex の**トップレベル設定**、共有 table、
 共有 MCP（`[mcp_servers.<name>]` table）の source of truth である。`make link`（または
 `make codex-sync`）は、このファイルにある値と table を `~/.codex/config.toml` へ強制反映する。
 同期前の実ファイルは
@@ -66,18 +67,18 @@ symlink 作成の実体は `scripts/link.sh`。単体実行 (`scripts/link.sh`,
 
 Codex Desktop が管理する project trust、UI 状態、マーケットプレイス、プラグイン、MCP の
 OAuth・端末内実行パス、認証・履歴・キャッシュは同期対象外であり、ローカルに保持する。
-共有対象を増やすときは `.config/config.shared.toml` にトップレベルの単一行 `key = value`、
+共有対象を増やすときは `.codex/config.shared.toml` にトップレベルの単一行 `key = value`、
 共有する table（例: `[tui]`）または `[mcp_servers.<name>]` table を追加する。同期器はその
 table と子 table を丸ごと置換し、それ以外の table は保持する。`approval_policy`、`sandbox_mode`、
 `default_permissions` などの permission 設定もここで管理できる。意図しない上書きを
 避けるため、このファイルに明示した値と table 以外は同期先で保持する。
 
-`codex/rules/default.rules` は、サンドボックス外で実行するコマンドの共有ルールであり、
+`.codex/rules/default.rules` は、サンドボックス外で実行するコマンドの共有ルールであり、
 `make link` が `~/.codex/rules/default.rules` へ symlink する。既存の実ファイルは link
 スクリプトの通常どおりバックアップして置き換える。Codex の UI から許可ルールを追加すると
 この Git 管理ファイルも更新されるため、内容を確認してコミットする。
 
-`codex/AGENTS.md` は全端末で共有する Codex のグローバル指示であり、`make link` が
+`.codex/AGENTS.md` は全端末で共有する Codex のグローバル指示であり、`make link` が
 `~/.codex/AGENTS.md` へ symlink する。グローバル指示には全リポジトリで共通する方針だけを置き、
 プロジェクト固有の規約は各リポジトリの `AGENTS.md` やスキルで管理する。
 
@@ -96,6 +97,7 @@ scripts/
 .config/nvim/          Neovim。init.lua + lua/ を丸ごと symlink (Nix 管理下に置かない)
 .config/herdr/         Herdr の設定とプロジェクトランチャー。Home Manager の xdg.configFile で管理
 .claude/               Claude Code 設定。skills/ agents/ hooks/ はディレクトリ丸ごと symlink
+.codex/                Codex 設定。AGENTS.md と rules/ は symlink、config.shared.toml は部分同期の source
 .tmux/                 tmux から呼ぶヘルパー。launch_project.sh = prefix + C-p のプロジェクトランチャー、
                        worktree_session.sh = prefix + C-w の git worktree ランチャー、lib/ は両者の共通部品、
                        worktree_sync.sh = worktree に .env 等を持ち込み direnv/mise の許可を通す

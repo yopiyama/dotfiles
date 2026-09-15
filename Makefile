@@ -26,7 +26,7 @@ CHECK_PROFILE = \
 	fi
 
 .DEFAULT_GOAL := help
-.PHONY: help setup install-nix link link-dry codex-sync codex-sync-dry rebuild dry-run update update-lock doctor
+.PHONY: help setup apply install-nix link link-dry codex-sync codex-sync-dry rebuild dry-run update update-lock doctor
 
 # setup は install-nix → link → rebuild の順序に意味がある (link が Homebrew 本体を
 # 用意し、rebuild がその上に cask/brew を宣言的に入れる) ため並列実行させない。
@@ -38,6 +38,7 @@ help:
 	@echo "========================================="
 	@echo ""
 	@echo "  make setup       - 初回セットアップ (install-nix → link → rebuild) *PROFILE 必須"
+	@echo "  make apply       - 通常の設定反映 (rebuild → link → Codex 同期) *PROFILE 必須"
 	@echo "  make install-nix - nix 本体をインストール (導入済みなら何もしない)"
 	@echo "  make link        - symlink 作成 + Homebrew 準備 (scripts/link.sh)"
 	@echo "  make link-dry    - link の内容を表示するだけ (何も変更しない)"
@@ -61,6 +62,12 @@ setup:
 	@$(MAKE) install-nix
 	@$(MAKE) link
 	@$(MAKE) rebuild PROFILE=$(PROFILE)
+
+# 通常の設定反映。link の末尾で Codex の共有設定も同期される。
+apply:
+	@$(CHECK_PROFILE)
+	@$(MAKE) rebuild PROFILE=$(PROFILE)
+	@$(MAKE) link
 
 # インストーラは途中で sudo と対話確認を求めるので、非対話実行には向かない。
 # 完了後もこの make を起動したシェルには PATH が通らないため、後続ターゲットは
