@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Google Calendar Presets</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="app">
+      <header class="header">
+        <div>
+          <h1>Calendar Presets</h1>
+          <p>複数カレンダーをまとめて切り替え</p>
+        </div>
+        <button id="open-settings" class="icon-button" type="button" title="設定を別タブで開く">↗</button>
+      </header>
+
+      <section class="section calendar-source">
+        <div class="section-heading">
+          <h2>カレンダーを選ぶ</h2>
+          <button id="reload-calendars" class="text-button" type="button">再読み込み</button>
+        </div>
+        <p id="calendar-status" class="status">Google Calendar の表示中カレンダーを読み込みます。</p>
+        <div id="calendar-list" class="calendar-list"></div>
+        <div class="selection-actions">
+          <button id="select-all" class="text-button" type="button">すべて選択</button>
+          <button id="clear-all" class="text-button" type="button">選択解除</button>
+        </div>
+      </section>
+
+      <section class="section editor">
+        <h2 id="editor-title">新しいプリセット</h2>
+        <label class="field-label" for="preset-name">プリセット名</label>
+        <input id="preset-name" class="text-input" type="text" maxlength="50" placeholder="例: 仕事だけ">
+        <p id="selected-summary" class="status">カレンダーを選択してください。</p>
+        <div class="editor-actions">
+          <button id="save-preset" class="primary-button" type="button">保存</button>
+          <button id="cancel-edit" class="secondary-button" type="button" hidden>キャンセル</button>
+        </div>
+      </section>
+
+      <section class="section presets">
+        <div class="section-heading">
+          <h2>プリセット</h2>
+          <span class="shortcut-hint">ショートカット対象は ◉</span>
+        </div>
+        <div id="preset-list" class="preset-list"></div>
+      </section>
+
+      <footer class="footer">
+        <span>切替は Google Calendar の表示状態を直接変更します。</span>
+      </footer>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>
