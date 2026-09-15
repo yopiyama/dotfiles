@@ -36,6 +36,7 @@ LINKS="$(cat <<'EOF'
 .claude/agents|.claude/agents
 .claude/hooks|.claude/hooks
 codex/rules/default.rules|.codex/rules/default.rules
+codex/AGENTS.md|.codex/AGENTS.md
 .config/nvim/init.lua|.config/nvim/init.lua
 .config/nvim/lua|.config/nvim/lua
 EOF

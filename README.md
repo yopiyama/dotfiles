@@ -58,24 +58,28 @@ symlink 作成の実体は `scripts/link.sh`。単体実行 (`scripts/link.sh`,
 
 ### Codex
 
-`.config/config.shared.toml` は、全端末で揃える Codex の**トップレベル設定**と共有 MCP
-（`[mcp_servers.<name>]` table）の source of truth である。`make link`（または
-`make codex-sync`）は、このファイルにある値と MCP server を `~/.codex/config.toml` へ
-強制反映する。同期前の実ファイルは
+`.config/config.shared.toml` は、全端末で揃える Codex の**トップレベル設定**、共有 table、
+共有 MCP（`[mcp_servers.<name>]` table）の source of truth である。`make link`（または
+`make codex-sync`）は、このファイルにある値と table を `~/.codex/config.toml` へ強制反映する。
+同期前の実ファイルは
 `config.toml.backup-<timestamp>` に退避する。
 
 Codex Desktop が管理する project trust、UI 状態、マーケットプレイス、プラグイン、MCP の
 OAuth・端末内実行パス、認証・履歴・キャッシュは同期対象外であり、ローカルに保持する。
-共有対象を増やすときは `.config/config.shared.toml` にトップレベルの単一行 `key = value`
-または共有する `[mcp_servers.<name>]` table を追加する。同期器はその server と子 table を
-丸ごと置換し、それ以外の table は保持する。`approval_policy`、`sandbox_mode`、
+共有対象を増やすときは `.config/config.shared.toml` にトップレベルの単一行 `key = value`、
+共有する table（例: `[tui]`）または `[mcp_servers.<name>]` table を追加する。同期器はその
+table と子 table を丸ごと置換し、それ以外の table は保持する。`approval_policy`、`sandbox_mode`、
 `default_permissions` などの permission 設定もここで管理できる。意図しない上書きを
-避けるため、共有 MCP 以外の table は受け付けない。
+避けるため、このファイルに明示した値と table 以外は同期先で保持する。
 
 `codex/rules/default.rules` は、サンドボックス外で実行するコマンドの共有ルールであり、
 `make link` が `~/.codex/rules/default.rules` へ symlink する。既存の実ファイルは link
 スクリプトの通常どおりバックアップして置き換える。Codex の UI から許可ルールを追加すると
 この Git 管理ファイルも更新されるため、内容を確認してコミットする。
+
+`codex/AGENTS.md` は全端末で共有する Codex のグローバル指示であり、`make link` が
+`~/.codex/AGENTS.md` へ symlink する。グローバル指示には全リポジトリで共通する方針だけを置き、
+プロジェクト固有の規約は各リポジトリの `AGENTS.md` やスキルで管理する。
 
 ## Directory Structure
 
