@@ -2,8 +2,8 @@
 #
 # dotfiles 側の共有 Codex 設定を ~/.codex/config.toml に同期する。
 #
-# config.shared.toml に定義したトップレベルの単一行 TOML 値と
-# [mcp_servers.<name>] table を正として上書きする。Codex Desktop が管理する
+# config.shared.toml に定義したトップレベルの単一行 TOML 値と table を正として
+# 上書きする。Codex Desktop が管理する
 # project trust、UI 状態、plugins、共有対象外の MCP とその認証情報は保持する。
 # TOML 全体を置換しないため、端末固有の自動生成設定は壊さない。
 #
@@ -14,7 +14,7 @@
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SOURCE="$REPO/.config/config.shared.toml"
+SOURCE="$REPO/.codex/config.shared.toml"
 TARGET="$HOME/.codex/config.toml"
 DRY_RUN=0
 
@@ -22,9 +22,9 @@ usage() {
   cat <<'EOF'
 Usage: sync-codex-config.sh [--dry-run] [--source PATH] [--target PATH]
 
-Synchronize top-level, single-line TOML assignments and [mcp_servers.<name>]
-tables from the source file into the target Codex config. Managed source values
-and MCP servers are authoritative; every other target setting is preserved.
+Synchronize top-level, single-line TOML assignments and tables from the source
+file into the target Codex config. Managed source values and tables are
+authoritative; every other target setting is preserved.
 EOF
 }
 
@@ -62,47 +62,59 @@ done
   exit 1
 }
 
-# 管理用ソースは、トップレベルの単一行 key = value と
-# [mcp_servers.<name>]（その子 table を含む）だけを受け付ける。これにより任意の
-# TOML を雑に書き換えず、同期範囲を明示的に保つ。
+# 管理用ソースは、トップレベルの単一行 key = value と通常の table（その子 table を
+# 含む）だけを受け付ける。これにより任意の TOML を雑に書き換えず、同期範囲を明示的
+# に保つ。MCP は他の server を巻き込まないよう [mcp_servers.<name>] 単位で管理する。
 MANAGED_VALUES="$(mktemp "${TMPDIR:-/tmp}/codex-managed-values.XXXXXX")"
-MANAGED_MCP="$(mktemp "${TMPDIR:-/tmp}/codex-managed-mcp.XXXXXX")"
-MANAGED_MCP_SERVERS="$(mktemp "${TMPDIR:-/tmp}/codex-managed-mcp-servers.XXXXXX")"
+MANAGED_TABLES="$(mktemp "${TMPDIR:-/tmp}/codex-managed-tables.XXXXXX")"
+MANAGED_TABLE_ROOTS="$(mktemp "${TMPDIR:-/tmp}/codex-managed-table-roots.XXXXXX")"
 cleanup() {
-  rm -f "$MANAGED_VALUES" "$MANAGED_MCP" "$MANAGED_MCP_SERVERS" \
-    "${WITHOUT_MANAGED_MCP:-}" "${WORK_FILE:-}"
+  rm -f "$MANAGED_VALUES" "$MANAGED_TABLES" "$MANAGED_TABLE_ROOTS" \
+    "${WITHOUT_MANAGED_TABLES:-}" "${WORK_FILE:-}"
 }
 trap cleanup EXIT HUP INT TERM
 
-awk -v managed_mcp="$MANAGED_MCP" -v managed_mcp_servers="$MANAGED_MCP_SERVERS" '
+awk -v managed_tables="$MANAGED_TABLES" -v managed_table_roots="$MANAGED_TABLE_ROOTS" '
   function invalid(message) {
     print message > "/dev/stderr"
     exit 2
   }
-  /^[[:space:]]*($|#)/ { next }
+  /^[[:space:]]*($|#)/ {
+    if (in_table) print $0 >> managed_tables
+    next
+  }
   /^[[:space:]]*\[/ {
     line = $0
     sub(/^[[:space:]]*/, "", line)
-    if (line !~ /^\[mcp_servers\.[A-Za-z0-9_-]+(\.[A-Za-z0-9_-]+)*\][[:space:]]*(#.*)?$/) {
-      invalid("config.shared.toml で許可される table は [mcp_servers.<name>] だけです: " $0)
+    if (line !~ /^\[[A-Za-z0-9_-]+(\.[A-Za-z0-9_-]+)*\][[:space:]]*(#.*)?$/) {
+      invalid("config.shared.toml の table 名が不正です: " $0)
     }
-    in_mcp = 1
-    print $0 >> managed_mcp
-    server = line
-    sub(/^\[mcp_servers\./, "", server)
-    sub(/[.\]].*$/, "", server)
-    if (!seen_server[server]++) print server >> managed_mcp_servers
+    in_table = 1
+    table = line
+    sub(/^\[/, "", table)
+    sub(/\].*$/, "", table)
+    split(table, parts, /\./)
+    if (parts[1] == "mcp_servers") {
+      if (table !~ /^mcp_servers\./) {
+        invalid("config.shared.toml の MCP table は [mcp_servers.<name>] 形式が必要です: " $0)
+      }
+      table_root = "mcp_servers." parts[2]
+    } else {
+      table_root = parts[1]
+    }
+    if (!seen_table_root[table_root]++) print table_root >> managed_table_roots
+    print $0 >> managed_tables
     next
   }
   {
+    if (in_table) {
+      print $0 >> managed_tables
+      next
+    }
     line = $0
     sub(/^[[:space:]]*/, "", line)
     if (line !~ /^[A-Za-z0-9_-]+[[:space:]]*=/) {
       invalid("config.shared.toml の形式が不正です: " $0)
-    }
-    if (in_mcp) {
-      print $0 >> managed_mcp
-      next
     }
     key = line
     sub(/[[:space:]]*=.*/, "", key)
@@ -115,7 +127,7 @@ awk -v managed_mcp="$MANAGED_MCP" -v managed_mcp_servers="$MANAGED_MCP_SERVERS" 
   }
 ' "$SOURCE" >"$MANAGED_VALUES"
 
-[ -s "$MANAGED_VALUES" ] || [ -s "$MANAGED_MCP" ] || {
+[ -s "$MANAGED_VALUES" ] || [ -s "$MANAGED_TABLES" ] || {
   echo "共有設定に同期対象がありません: $SOURCE" >&2
   exit 1
 }
@@ -134,8 +146,8 @@ WORK_FILE="$(mktemp "${TMPDIR:-/tmp}/codex-config-sync.XXXXXX")"
 
 # 最初の TOML table header より前だけをトップレベルとして扱う。source にあるキーを
 # 置換し、存在しないキーは最初の table header の直前（または EOF）に追加する。
-awk -F '\t' '
-  FNR == NR {
+awk -v root_values="$MANAGED_VALUES" -F '\t' '
+  FILENAME == root_values {
     order[++count] = $1
     value[$1] = $2
     next
@@ -186,57 +198,79 @@ awk -F '\t' '
   }
 ' "$MANAGED_VALUES" "$TARGET_INPUT" >"$WORK_FILE"
 
-# 管理対象の MCP server table とその子 table を削除し、source 側の定義を末尾に追加する。
-# marker に囲まれた旧定義も取り除くため、source から共有 MCP を削除した場合も追従する。
+# 管理対象の table とその子 table を削除し、source 側の定義を末尾に追加する。
+# marker に囲まれた旧定義も取り除くため、source から共有 table を削除した場合も追従する。
 # それ以外の MCP server、project trust、Desktop/プラグイン設定は untouched のまま残す。
-WITHOUT_MANAGED_MCP="$(mktemp "${TMPDIR:-/tmp}/codex-config-without-managed-mcp.XXXXXX")"
-awk -v managed_mcp_servers="$MANAGED_MCP_SERVERS" '
+WITHOUT_MANAGED_TABLES="$(mktemp "${TMPDIR:-/tmp}/codex-config-without-managed-tables.XXXXXX")"
+awk -v managed_table_roots="$MANAGED_TABLE_ROOTS" '
   BEGIN {
-    while ((getline server < managed_mcp_servers) > 0) managed[server] = 1
-    close(managed_mcp_servers)
+    while ((getline table_root < managed_table_roots) > 0) managed[table_root] = 1
+    close(managed_table_roots)
+  }
+  function is_managed_table(table, root) {
+    for (root in managed) {
+      if (table == root || index(table, root ".") == 1) return 1
+    }
+    return 0
   }
   $0 == "# >>> dotfiles managed MCP servers >>>" {
     in_managed_block = 1
+    drop = 0
     next
   }
   $0 == "# <<< dotfiles managed MCP servers <<<" {
     in_managed_block = 0
+    drop = 0
+    next
+  }
+  $0 == "# >>> dotfiles managed tables >>>" {
+    in_managed_block = 1
+    drop = 0
+    next
+  }
+  $0 == "# <<< dotfiles managed tables <<<" {
+    in_managed_block = 0
+    drop = 0
     next
   }
   in_managed_block { next }
   /^[[:space:]]*\[\[?/ {
     drop = 0
-    if ($0 ~ /^[[:space:]]*\[mcp_servers\./) {
-      header = $0
-      sub(/^[[:space:]]*\[mcp_servers\./, "", header)
-      sub(/[.\]].*$/, "", header)
-      if (header in managed) drop = 1
+    header = $0
+    sub(/^[[:space:]]*\[\[?/, "", header)
+    sub(/\]\].*$/, "", header)
+    sub(/\].*$/, "", header)
+    if (is_managed_table(header)) {
+      drop = 1
+    }
+    if (drop) {
+      next
     }
   }
   !drop { print }
-' "$WORK_FILE" >"$WITHOUT_MANAGED_MCP"
+' "$WORK_FILE" >"$WITHOUT_MANAGED_TABLES"
 
-INCLUDE_MCP=0
-if [ -s "$MANAGED_MCP" ]; then
-  INCLUDE_MCP=1
+INCLUDE_TABLES=0
+if [ -s "$MANAGED_TABLES" ]; then
+  INCLUDE_TABLES=1
 fi
 
-awk -v managed_mcp="$MANAGED_MCP" -v include_mcp="$INCLUDE_MCP" '
+awk -v managed_tables="$MANAGED_TABLES" -v include_tables="$INCLUDE_TABLES" '
   {
     lines[NR] = $0
     if ($0 !~ /^[[:space:]]*$/) last_content = NR
   }
   END {
     for (i = 1; i <= last_content; i++) print lines[i]
-    if (last_content && include_mcp) print ""
-    if (include_mcp) {
-      print "# >>> dotfiles managed MCP servers >>>"
-      while ((getline line < managed_mcp) > 0) print line
-      close(managed_mcp)
-      print "# <<< dotfiles managed MCP servers <<<"
+    if (last_content && include_tables) print ""
+    if (include_tables) {
+      print "# >>> dotfiles managed tables >>>"
+      while ((getline line < managed_tables) > 0) print line
+      close(managed_tables)
+      print "# <<< dotfiles managed tables <<<"
     }
   }
-' "$WITHOUT_MANAGED_MCP" >"$WORK_FILE"
+' "$WITHOUT_MANAGED_TABLES" >"$WORK_FILE"
 
 if [ -e "$TARGET" ] && cmp -s "$WORK_FILE" "$TARGET"; then
   echo "  [OK]   $TARGET (共有設定と一致)"

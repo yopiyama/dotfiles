@@ -10,6 +10,7 @@
 symlink のリンク対象は `scripts/link.sh` の `LINKS` 変数で定義されており、主なものは:
 
 - `.zshrc`, `.p10k.zsh`, `.tmux.conf`, `.config/nvim/init.lua` など単一ファイル
+- Herdr の設定は `.config/herdr` を Home Manager の `xdg.configFile` で管理
 - `.claude/skills`, `.claude/hooks`, `.config/nvim/lua` などディレクトリ丸ごと
 
 ## ルール: パッケージを nixpkgs で入れるか Homebrew で入れるか

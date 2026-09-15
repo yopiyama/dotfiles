@@ -1,11 +1,11 @@
-# Codex のユーザー設定で、全端末に強制するトップレベル値と共有 MCP の source of truth。
+# Codex のユーザー設定で、全端末に強制するトップレベル値と共有 table の source of truth。
 #
 # scripts/sync-codex-config.sh は、このファイルに書かれたトップレベル値と
-# [mcp_servers.<name>] table を ~/.codex/config.toml へ反映する。Desktop が追記する
+# table と [mcp_servers.<name>] table を ~/.codex/config.toml へ反映する。Desktop が追記する
 # project trust、UI 状態、プラグイン情報、共有対象外の MCP OAuth 情報などは保持する。
 #
 # approval_policy、sandbox_mode、default_permissions のようなトップレベルの
-# permission 設定も、意図を決めたらここへ追加できる。table は共有 MCP だけを許可する。
+# permission 設定も、意図を決めたらここへ追加できる。ここに明示した table だけを共有する。
 model = "gpt-5.6-terra"
 model_reasoning_effort = "high"
 personality = "pragmatic"
@@ -22,3 +22,18 @@ tool_timeout_sec = 30
 
 [mcp_servers.ctxpack.tools.pack]
 output_token_limit = 8000
+
+[tui]
+status_line = [
+  "run-state",
+  "approval-mode",
+  "permissions",
+  "model-with-reasoning",
+  "context-used",
+  "used-tokens",
+  "five-hour-limit",
+  "weekly-limit",
+  "git-branch",
+  "pull-request-number",
+]
+status_line_use_colors = true

@@ -10,8 +10,8 @@ This repository manages shell and tool configuration files.
 
 | 層 | 管理対象 | 適用 |
 | --- | --- | --- |
-| Nix | パッケージ全般と `programs.*` で書ける設定 (git/lazygit/mise 等) | `make rebuild` |
-| symlink | nvim の lua や zsh/tmux など、生の設定ファイルのまま持ちたいもの | `make link` |
+| Nix | パッケージ全般と `programs.*` で書ける設定 (git/lazygit/mise/herdr 等) | `make rebuild` |
+| symlink | nvim の lua や zsh など、生の設定ファイルのまま持ちたいもの | `make link` |
 
 **同じパスを両方に管理させないこと。** home-manager は `backupFileExtension = "bak"`
 なので、衝突すると symlink が黙って `*.bak` にリネームされ nix store のリンクに
@@ -23,6 +23,7 @@ neovim 本体は `home.packages` で入れるだけに留めている。
 
 ```sh
 make setup PROFILE=work  # 初回。install-nix → link → rebuild
+make apply PROFILE=work  # 通常の設定反映。rebuild → link → Codex 同期
 make install-nix # nix 本体のインストール (導入済みなら何もしない)
 make link        # symlink 作成 + Homebrew 本体の準備
 make link-dry    # 何も変更せず、実行内容だけ表示
@@ -58,24 +59,28 @@ symlink 作成の実体は `scripts/link.sh`。単体実行 (`scripts/link.sh`,
 
 ### Codex
 
-`.config/config.shared.toml` は、全端末で揃える Codex の**トップレベル設定**と共有 MCP
-（`[mcp_servers.<name>]` table）の source of truth である。`make link`（または
-`make codex-sync`）は、このファイルにある値と MCP server を `~/.codex/config.toml` へ
-強制反映する。同期前の実ファイルは
+`.codex/config.shared.toml` は、全端末で揃える Codex の**トップレベル設定**、共有 table、
+共有 MCP（`[mcp_servers.<name>]` table）の source of truth である。`make link`（または
+`make codex-sync`）は、このファイルにある値と table を `~/.codex/config.toml` へ強制反映する。
+同期前の実ファイルは
 `config.toml.backup-<timestamp>` に退避する。
 
 Codex Desktop が管理する project trust、UI 状態、マーケットプレイス、プラグイン、MCP の
 OAuth・端末内実行パス、認証・履歴・キャッシュは同期対象外であり、ローカルに保持する。
-共有対象を増やすときは `.config/config.shared.toml` にトップレベルの単一行 `key = value`
-または共有する `[mcp_servers.<name>]` table を追加する。同期器はその server と子 table を
-丸ごと置換し、それ以外の table は保持する。`approval_policy`、`sandbox_mode`、
+共有対象を増やすときは `.codex/config.shared.toml` にトップレベルの単一行 `key = value`、
+共有する table（例: `[tui]`）または `[mcp_servers.<name>]` table を追加する。同期器はその
+table と子 table を丸ごと置換し、それ以外の table は保持する。`approval_policy`、`sandbox_mode`、
 `default_permissions` などの permission 設定もここで管理できる。意図しない上書きを
-避けるため、共有 MCP 以外の table は受け付けない。
+避けるため、このファイルに明示した値と table 以外は同期先で保持する。
 
-`codex/rules/default.rules` は、サンドボックス外で実行するコマンドの共有ルールであり、
+`.codex/rules/default.rules` は、サンドボックス外で実行するコマンドの共有ルールであり、
 `make link` が `~/.codex/rules/default.rules` へ symlink する。既存の実ファイルは link
 スクリプトの通常どおりバックアップして置き換える。Codex の UI から許可ルールを追加すると
 この Git 管理ファイルも更新されるため、内容を確認してコミットする。
+
+`.codex/AGENTS.md` は全端末で共有する Codex のグローバル指示であり、`make link` が
+`~/.codex/AGENTS.md` へ symlink する。グローバル指示には全リポジトリで共通する方針だけを置き、
+プロジェクト固有の規約は各リポジトリの `AGENTS.md` やスキルで管理する。
 
 ## Directory Structure
 
@@ -90,7 +95,9 @@ nix/
 scripts/
   link.sh              symlink 作成 + Homebrew 本体の準備 (make link の実体)
 .config/nvim/          Neovim。init.lua + lua/ を丸ごと symlink (Nix 管理下に置かない)
+.config/herdr/         Herdr の設定とプロジェクトランチャー。Home Manager の xdg.configFile で管理
 .claude/               Claude Code 設定。skills/ agents/ hooks/ はディレクトリ丸ごと symlink
+.codex/                Codex 設定。AGENTS.md と rules/ は symlink、config.shared.toml は部分同期の source
 .tmux/                 tmux から呼ぶヘルパー。launch_project.sh = prefix + C-p のプロジェクトランチャー、
                        worktree_session.sh = prefix + C-w の git worktree ランチャー、lib/ は両者の共通部品、
                        worktree_sync.sh = worktree に .env 等を持ち込み direnv/mise の許可を通す
@@ -131,7 +138,42 @@ cd nix/nix-darwin
 sudo darwin-rebuild switch --flake .#personal   # または #work
 ```
 
-## tmux (prefix + C-p / C-w)
+## Herdr (prefix = Ctrl-P)
+
+Herdr は Nix の flake input `herdrdev/herdr/v0.9.0` として固定して導入する。
+設定は `.config/herdr/config.toml`、自作ランチャーは `.config/herdr/scripts/` に置き、
+いずれも `make rebuild PROFILE=...` で `~/.config/herdr/` へ配置される。
+
+tmux の操作を次のように移行している。
+
+| キー | Herdr の操作 |
+| --- | --- |
+| `prefix + C-o` | `projects.json` のプロファイル picker（workspace/tab/pane を生成） |
+| `prefix + C-w` | 既存 Git worktree の native picker |
+| `prefix + C-c` | 新しい workspace |
+| `prefix + C-r` | workspace の rename |
+| `prefix + s` | workspace/session navigator |
+| `prefix + w` | workspace picker |
+| `prefix + h/j/k/l` | pane 移動 |
+| `prefix + H/J/K/L` | pane resize（`prefix + r` は Herdr の resize mode） |
+| `prefix + c/n/p/1..9` | tab の作成・移動 |
+
+`projects.json` は tmux と共用する。tmux の session/window/pane を Herdr が直接復元する
+機能はないため、既存の tmux セッションはそのまま残り、Herdr 側で同じディレクトリの
+workspace を新規作成する。Git worktree、`.env` の同期、コマンド自体は multiplexer に
+依存しないので引き続き利用できる。`.env` の同期は、従来どおり shell の
+`new-worktree` または `~/.tmux/worktree_sync.sh` を使う（Herdr native の worktree 作成は
+このリポジトリ固有の同期処理を自動では呼ばない）。Herdr の native worktree は
+`~/.herdr/worktrees/<repo>/<branch-slug>` を使い、削除時にブランチは消さない。
+
+tmux の `prefix=C-p` と `prefix+C-p` の組み合わせは、Herdr が prefix 二度押しを
+literal `Ctrl-P` の転送用に予約しているため登録できない。プロジェクト picker だけ
+`prefix+C-o` に置き換えている。
+
+## tmux (legacy)
+
+旧 tmux 用の設定・スクリプトも互換確認用として残しているが、通常の起動は Herdr を使う。
+以下は tmux を手動で使う場合の仕様である。
 
 どちらも fzf の popup を出し、選んだものに対応する tmux セッションへ移動する。
 既に同じセッションがあれば作り直さず attach (tmux 内なら switch-client) するだけ。

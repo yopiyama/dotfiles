@@ -15,10 +15,6 @@
   system.stateVersion = 6;
   security.pam.services.sudo_local = {
     touchIdAuth = true;
-    # tmux サーバは Aqua セッションの bootstrap namespace から切り離されているため、
-    # pam_tid.so だけでは tmux 内の sudo が Touch ID ダイアログを出せずパスワードに
-    # フォールバックする。pam_reattach.so を前段に挟んで元のセッションに再接続させる。
-    reattach = true;
   };
 
   # Dock は使わないので実質的に画面へ出さない。完全に無効化する手段は無いため
