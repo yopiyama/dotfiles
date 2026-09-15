@@ -93,7 +93,7 @@ in
               ];
             }
 
-            # tmux leader (Ctrl-P) を押した瞬間に ATOK を英字モードへ強制切り替えしてから
+            # Herdr leader (Ctrl-P) を押した瞬間に ATOK を英字モードへ強制切り替えしてから
             # Ctrl-P を転送する。prefix 入力中に IME が有効なままだと後続のキーが
             # IME の変換バッファに吸われて tmux に届かないのを防ぐ。
             #
@@ -105,7 +105,7 @@ in
             # shell_command は非同期に実行されるので Ctrl-P 自体の転送は遅れない。
             # 切り替えに ~200ms かかるが、効かせたいのは「次の」キーなので実用上問題ない。
             {
-              description = "Ghostty: Ctrl+P (tmux leader) を押したら ATOK を英字モードへ";
+              description = "Ghostty: Ctrl+P (Herdr leader) を押したら ATOK を英字モードへ";
               manipulators = [
                 {
                   type = "basic";

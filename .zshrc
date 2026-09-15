@@ -3,11 +3,9 @@ if [[ "${TERM_PROGRAM:-}" == "kiro" ]]; then
   [[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh"
 fi
 
-export TMUX_TMPDIR=$HOME/.tmux/tmp
-
-# iTerm/Ghostty で起動したときだけ tmux を自動起動する（VSCode/Kiro 等の統合ターミナルでは起動しない）
+# iTerm/Ghostty で起動したときだけ Herdr を自動起動する（VSCode/Kiro 等の統合ターミナルでは起動しない）。
 # NOTE: p10k instant prompt より前に置くこと。後に置くと stdio がパイプに差し替わり
-#       tmux が TTY を掴めず "open terminal failed: not a terminal" で落ちる。
+#       Herdr が TTY を掴めず起動に失敗する。
 _is_iterm() {
   [[ -n "${ITERM_SESSION_ID:-}" || "${TERM_PROGRAM:-}" == "iTerm.app" ]]
 }
@@ -22,27 +20,9 @@ _is_kiro() {
   [[ "${TERM_PROGRAM:-}" == "kiro" ]]
 }
 
-if [[ -z ${TMUX:-} ]] && [[ $- == *i* ]] && (_is_iterm || _is_ghostty) && ! _is_kiro && (( $+commands[tmux] )); then
-  sessions="$(tmux list-sessions -F '#S' 2>/dev/null)"
-  if [[ -z "$sessions" ]]; then
-    if [[ -x "$HOME/.tmux/launch_project.sh" ]]; then
-      exec "$HOME/.tmux/launch_project.sh" --startup "$(date +'%Y-%m-%d %H:%M:%S')"
-    fi
-    exec tmux new-session -s "$(date +'%Y-%m-%d %H:%M:%S')"
-  elif [[ $(print -r -- "$sessions" | wc -l) -eq 1 ]]; then
-    exec tmux attach-session -t "$sessions"
-  else
-    ID="$(printf '+ new session\n%s\n' "$sessions" | fzf --prompt='tmux> ' --height=40% --reverse --no-sort)"
-    if [[ "$ID" == "+ new session" ]]; then
-      printf 'session name: '
-      read -r new_name
-      [[ -z "$new_name" ]] && new_name="$(date +'%Y-%m-%d %H:%M:%S')"
-      exec tmux new-session -s "$new_name"
-    elif [[ -n "$ID" ]]; then
-      exec tmux attach-session -t "$ID"
-    fi
-  fi
-  unset rel sessions ID session_name
+if [[ -z ${TMUX:-} && -z ${HERDR_ENV:-} ]] && [[ $- == *i* ]] \
+  && (_is_iterm || _is_ghostty) && ! _is_kiro && (( $+commands[herdr] )); then
+  exec herdr
 fi
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
@@ -342,7 +322,7 @@ new-worktree() {
   cd "$dir"
 
   # ローカル設定のリンク、direnv allow / mise trust + install、serena MCP の登録
-  # (prefix + C-w の worktree ランチャーと同じ処理を共有している)
+  # (Herdr の worktree 操作、および旧 tmux ランチャーと共有している)
   [[ -x "$HOME/.tmux/worktree_sync.sh" ]] && "$HOME/.tmux/worktree_sync.sh" "$PWD"
 
   echo "✅ Worktree + Serena ready at $(pwd)"

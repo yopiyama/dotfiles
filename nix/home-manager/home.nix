@@ -1,4 +1,4 @@
-{ pkgs, username, ... }:
+{ pkgs, username, herdrPackage, ... }:
 
 {
   imports = [
@@ -7,6 +7,7 @@
     ./programs/ghostty.nix
     ./programs/git.nix
     ./programs/google-cloud-sdk.nix
+    ./programs/herdr.nix
     ./programs/karabiner.nix
     ./programs/lazygit.nix
     ./programs/mise.nix
@@ -19,6 +20,7 @@
   # Brewfile の brew 行に対応するパッケージ
   # ghostty/mise/lazygit/gh は programs.* が自動で追加するのでここには書かない
   home.packages = with pkgs; [
+    herdrPackage
     awscli2
     bat
     codex
@@ -45,7 +47,6 @@
     ruff
     shellcheck
     terraform
-    tmux
     tree-sitter # nvim-treesitter (main ブランチ) がパーサのビルドに CLI を必要とする
     uv
     yamllint

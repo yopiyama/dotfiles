@@ -1,0 +1,106 @@
+# Herdr の設定。tmux の .tmux.conf をベースに、同じキー操作を workspace/tab/pane
+# の概念へ写像している。
+onboarding = false
+
+[terminal]
+default_shell = "/bin/zsh"
+new_cwd = "follow"
+
+[worktrees]
+# Herdr の native worktree 操作が作る checkout のルート。
+directory = "~/.herdr/worktrees"
+
+[keys]
+# tmux: prefix C-p
+prefix = "ctrl+p"
+
+# tmux: prefix s のセッション一覧。Herdr では workspace/session navigator。
+goto = "prefix+s"
+settings = "prefix+shift+s"
+
+# tmux: prefix C-c / C-r
+new_workspace = "prefix+ctrl+c"
+rename_workspace = "prefix+ctrl+r"
+
+# tmux の window / pane 操作
+split_vertical = "prefix+backslash"
+split_horizontal = "prefix+minus"
+new_tab = "prefix+c"
+next_tab = "prefix+n"
+previous_tab = "prefix+p"
+switch_tab = "prefix+1..9"
+
+# tmux: prefix h/j/k/l, H/J/K/L
+focus_pane_left = "prefix+h"
+focus_pane_down = "prefix+j"
+focus_pane_up = "prefix+k"
+focus_pane_right = "prefix+l"
+resize_mode = "prefix+r"
+resize_pane_left = "prefix+shift+h"
+resize_pane_down = "prefix+shift+j"
+resize_pane_up = "prefix+shift+k"
+resize_pane_right = "prefix+shift+l"
+
+# tmux: prefix w
+workspace_picker = "prefix+w"
+# workspace picker（navigate mode）内の選択移動
+navigate_workspace_down = "j"
+navigate_workspace_up = "k"
+
+# サイドバー上の Agent を順送り／番号指定でフォーカスする。
+previous_agent = "prefix+ctrl+up"
+next_agent = "prefix+ctrl+down"
+focus_agent = "prefix+alt+1..9"
+
+# tmux: prefix C-w。既存 worktree の選択は Herdr の native picker を使う。
+open_worktree = "prefix+ctrl+w"
+new_worktree = "prefix+shift+g"
+remove_worktree = "prefix+ctrl+d"
+
+# tmux の copy-mode / zoom / detach に相当する操作
+copy_mode = "prefix+["
+zoom = "prefix+z"
+detach = "prefix+q"
+reload_config = "prefix+shift+r"
+
+[ui]
+tab_bar_position = "bottom"
+sidebar_start_collapsed = false
+tab_bar_right_separator = " · "
+tab_bar_right = [
+  { type = "hostname" },
+  { type = "datetime", format = "%m/%d %H:%M:%S" },
+]
+
+[theme]
+# 青系で選択状態と文字のコントラストが明確な内蔵テーマを使う。
+name = "tokyo-night"
+
+# サイドバーの現在行とフォーカス行を、標準の控えめな差より濃い青で区別する。
+[theme.custom]
+active_row_bg = "#2a3d6b"
+selection_bg = "#3d5a99"
+accent = "#7aa2f7"
+
+# Herdr の既定レイアウトでは一部の補助文字が dim になり、グレー背景で読みにくくなる。
+# 前景色と dim を明示して、ワークスペース / ブランチ名まで常に読めるようにする。
+[ui.sidebar.agents]
+rows = [
+  ["state_icon", { token = "workspace", fg = "#f8f8f2", bold = true, dim = false }, { token = "tab", fg = "#dedede", dim = false }],
+  [{ token = "agent", fg = "#dedede", dim = false }],
+]
+
+[ui.sidebar.spaces]
+rows = [
+  ["state_icon", { token = "workspace", fg = "#f8f8f2", bold = true, dim = false }],
+  [{ token = "branch", fg = "#dedede", dim = false }, "git_status"],
+]
+
+[[keys.command]]
+# tmux の prefix=C-p と prefix+C-p の組み合わせは Herdr の literal 転送予約と衝突するため C-o に置換。
+key = "prefix+ctrl+o"
+type = "popup"
+command = "~/.config/herdr/scripts/launch_project.sh"
+description = "open project profile"
+width = "80%"
+height = "60%"
