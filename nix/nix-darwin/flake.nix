@@ -30,6 +30,13 @@
       url = "github:mattpocock/skills";
       flake = false;
     };
+
+    # Obsidian の公式オープン形式を扱うスキル。運用上の安全な CLI 操作は
+    # リポジトリ内の wrapper で別途管理するため、obsidian-cli は有効化しない。
+    kepano-obsidian-skills = {
+      url = "github:kepano/obsidian-skills";
+      flake = false;
+    };
   };
 
   outputs = inputs@{ nixpkgs, nix-darwin, home-manager, herdr, agent-skills, ... }:
