@@ -82,6 +82,13 @@ table と子 table を丸ごと置換し、それ以外の table は保持する
 `~/.codex/AGENTS.md` へ symlink する。グローバル指示には全リポジトリで共通する方針だけを置き、
 プロジェクト固有の規約は各リポジトリの `AGENTS.md` やスキルで管理する。
 
+外部配布のグローバルスキルは `agent-skills-nix` で管理する。スキルの配布元・選択・Codex
+target は `nix/home-manager/programs/agent-skills.nix`、固定リビジョンは
+`nix/nix-darwin/flake.lock` の source of truth である。`make rebuild PROFILE=...` で
+`~/.codex/skills/` にスキル単位で symlink されるため、Codex 同梱の `.system` や既存スキルと
+衝突しない。追加・更新後は `cd nix/nix-darwin && nix flake update <input>` で lock を
+更新する。
+
 ## Directory Structure
 
 全ファイルは列挙しない。迷いやすい場所と、置き場所の判断が要るものだけ書く。

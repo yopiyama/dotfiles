@@ -2,6 +2,7 @@
 
 {
   imports = [
+    ./programs/agent-skills.nix
     ./programs/direnv.nix
     ./programs/gh.nix
     ./programs/ghostty.nix
