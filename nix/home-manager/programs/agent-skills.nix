@@ -1,6 +1,17 @@
 { ... }:
 
 {
+  home.file = {
+    # 自作スキルの本文は Codex 用に置き、検証済みの操作スクリプトは Claude 側と共有する。
+    # 同じ obs.sh を複製しないため、修正後は一度の rebuild で両方へ反映される。
+    ".codex/skills/obsidian-safe-ops/SKILL.md".source =
+      ../../../.codex/skills/obsidian-safe-ops/SKILL.md;
+    ".codex/skills/obsidian-safe-ops/scripts/obs.sh" = {
+      source = ../../../.claude/skills/connect-obsidian/scripts/obs.sh;
+      executable = true;
+    };
+  };
+
   # Home Manager が個々のスキルだけを ~/.codex/skills/ に symlink するため、
   # Codex 同梱の .system や既存のユーザースキルは置き換えない。
   programs.agent-skills = {

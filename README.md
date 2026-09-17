@@ -89,6 +89,10 @@ target は `nix/home-manager/programs/agent-skills.nix`、固定リビジョン�
 衝突しない。追加・更新後は `cd nix/nix-darwin && nix flake update <input>` で lock を
 更新する。
 
+このリポジトリ固有のスキルも同じ設定ファイルから Home Manager で配置する。
+`obsidian-safe-ops` は `.claude/skills/connect-obsidian/scripts/obs.sh` を共有し、
+外部の Obsidian 形式スキルとは I/O と記法の責務を分ける。
+
 ## Directory Structure
 
 全ファイルは列挙しない。迷いやすい場所と、置き場所の判断が要るものだけ書く。
