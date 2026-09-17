@@ -1,4 +1,4 @@
-{ ... }:
+{ inputs, ... }:
 
 {
   home.file = {
@@ -10,6 +10,25 @@
       source = ../../../.claude/skills/connect-obsidian/scripts/obs.sh;
       executable = true;
     };
+
+    ".codex/skills/handoff/SKILL.md".source =
+      ../../../.codex/skills/handoff/SKILL.md;
+    ".codex/skills/resume-handoff/SKILL.md".source =
+      ../../../.codex/skills/resume-handoff/SKILL.md;
+    ".codex/skills/pr-comments/SKILL.md".source =
+      ../../../.codex/skills/pr-comments/SKILL.md;
+    ".codex/skills/pr-comments/scripts/fetch-pr-comments.sh" = {
+      source = ../../../.claude/skills/pr-comments/scripts/fetch-pr-comments.sh;
+      executable = true;
+    };
+    ".codex/skills/pr-comments/scripts/pr-task-notes.sh" = {
+      source = ../../../.claude/skills/pr-comments/scripts/pr-task-notes.sh;
+      executable = true;
+    };
+    # 指定 gist は root に SKILL.md だけを置くため、agent-skills-nix の
+    # ディレクトリ列挙ではなくスキルの配置先へ直接リンクする。
+    ".codex/skills/japanese-tech-writing/SKILL.md".source =
+      inputs."k16shikano-japanese-tech-writing" + "/SKILL.md";
   };
 
   # Home Manager が個々のスキルだけを ~/.codex/skills/ に symlink するため、

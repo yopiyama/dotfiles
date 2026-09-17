@@ -37,6 +37,12 @@
       url = "github:kepano/obsidian-skills";
       flake = false;
     };
+
+    # 日本語技術文書の規範。指定 gist の revision を lock で固定する。
+    k16shikano-japanese-tech-writing = {
+      url = "git+https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d.git";
+      flake = false;
+    };
   };
 
   outputs = inputs@{ nixpkgs, nix-darwin, home-manager, herdr, agent-skills, ... }:

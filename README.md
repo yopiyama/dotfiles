@@ -87,11 +87,12 @@ target は `nix/home-manager/programs/agent-skills.nix`、固定リビジョン�
 `nix/nix-darwin/flake.lock` の source of truth である。`make rebuild PROFILE=...` で
 `~/.codex/skills/` にスキル単位で symlink されるため、Codex 同梱の `.system` や既存スキルと
 衝突しない。追加・更新後は `cd nix/nix-darwin && nix flake update <input>` で lock を
-更新する。
+更新する。root に `SKILL.md` だけを置く配布元は `agent-skills-nix` で列挙できないため、
+同じ設定内の `home.file` からスキル名ディレクトリへ直接リンクする。
 
 このリポジトリ固有のスキルも同じ設定ファイルから Home Manager で配置する。
-`obsidian-safe-ops` は `.claude/skills/connect-obsidian/scripts/obs.sh` を共有し、
-外部の Obsidian 形式スキルとは I/O と記法の責務を分ける。
+`obsidian-safe-ops`、`handoff`、`resume-handoff`、`pr-comments` は Claude 側の検証済み
+スクリプトを必要に応じて共有し、外部の Obsidian 形式スキルとは I/O と記法の責務を分ける。
 
 ## Directory Structure
 
