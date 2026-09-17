@@ -18,6 +18,10 @@
       "grilling"
     ];
 
-    targets.codex.enable = true;
+    targets.codex = {
+      enable = true;
+      # 既存の ~/.codex/skills 全体を同期・置換せず、選択したスキルだけをリンクする。
+      structure = "link";
+    };
   };
 }
