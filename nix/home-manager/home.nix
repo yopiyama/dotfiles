@@ -24,7 +24,6 @@
     herdrPackage
     awscli2
     bat
-    codex
     delta
     eza
     fd

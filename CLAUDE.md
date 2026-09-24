@@ -18,7 +18,8 @@ symlink のリンク対象は `scripts/link.sh` の `LINKS` 変数で定義さ�
 上から順に判定する。
 
 1. **nixpkgs に無い / darwin で動かない** → Homebrew（`crit`, `im-select`）
-2. **CLI・TUI・フォント・ライブラリ** → 常に nixpkgs。例外を作らない
+2. **CLI・TUI・フォント・ライブラリ** → 原則 nixpkgs。ただし Codex のように更新頻度が高く、
+   Homebrew cask で最新版へ追従したいツールは例外として Homebrew で管理する
 3. **GUI アプリ** → 次のどれかに当たれば Homebrew の cask、当たらなければ nixpkgs
    - root 権限の installer / kext / system extension / launch daemon を入れる（e.g. `karabiner-elements`）
    - 他アプリや OS の署名・固定パス前提に依存する（`1password-cli` は 1Password.app の CLI 統合、mas 経由のもの）

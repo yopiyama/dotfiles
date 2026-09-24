@@ -126,7 +126,7 @@ raycast/               自作 Raycast 拡張 (extensions/) と script command (s
 Packages are declared in Nix and applied with `darwin-rebuild`.
 
 - CLI/GUI packages available via nixpkgs → `nix/home-manager/home.nix` (`home.packages`)
-- macOS-only or self-updating apps (Homebrew cask のまま管理するもの) →
+- macOS-only or frequently updated apps (Homebrew cask で管理するもの) →
   `nix/nix-darwin/homebrew.nix` (`homebrew.taps` / `brews` / `casks`)
 - 環境ごと (personal/work) の差分 → `nix/nix-darwin/hosts/{profile}.nix`
 

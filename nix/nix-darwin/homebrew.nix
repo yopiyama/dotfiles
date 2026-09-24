@@ -31,7 +31,8 @@
     ];
     # nixpkgs と Homebrew の切り分けは CLAUDE.md「パッケージを nixpkgs で入れるか
     # Homebrew で入れるか」を参照。以下は個別の理由。
-    # codex/font-hack-nerd-font は home.nix (nixpkgs) へ移行済み。alacritty は廃止。
+    # Codex は更新頻度が高く、Homebrew cask で最新版を追従する。
+    # font-hack-nerd-font は home.nix (nixpkgs) へ移行済み。alacritty は廃止。
     # raycast/shottr は auto_updates (自己更新が Nix store の read-only と衝突するため),
     # karabiner-elements はカーネル拡張/権限まわりのリスクのため brew を継続。
     # 1password-cli は 1Password.app の CLI 統合 (署名検証) が壊れる懸念があるため継続。
@@ -41,6 +42,7 @@
     casks = [
       "1password-cli"
       "alt-tab"
+      "codex"
       "karabiner-elements"
       "linearmouse"
       # ドライバ/常駐エージェントを sudo で入れる installer 形式の cask。
