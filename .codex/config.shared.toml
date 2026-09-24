@@ -6,8 +6,8 @@
 #
 # approval_policy、sandbox_mode、default_permissions のようなトップレベルの
 # permission 設定も、意図を決めたらここへ追加できる。ここに明示した table だけを共有する。
-model = "gpt-5.6-terra"
-model_reasoning_effort = "high"
+model = "gpt-6-sol"
+model_reasoning_effort = "medium"
 personality = "pragmatic"
 service_tier = "default"
 
