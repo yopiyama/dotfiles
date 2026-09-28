@@ -1,5 +1,25 @@
 {
   "nodes": {
+    "agent-skills": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789145426,
+        "narHash": "sha256-Wf+7Qzt8+nz4TXPCbWnMjOAdzbVM6blW9J6JP+YhSy8=",
+        "owner": "Kyure-A",
+        "repo": "agent-skills-nix",
+        "rev": "5133c874553c6c295654d8de4e3f62c95736b9c6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Kyure-A",
+        "repo": "agent-skills-nix",
+        "type": "github"
+      }
+    },
     "herdr": {
       "inputs": {
         "nixpkgs": [
@@ -42,6 +62,54 @@
         "type": "github"
       }
     },
+    "k16shikano-japanese-tech-writing": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788943331,
+        "narHash": "sha256-jo1DvsAVIAKzurutp+T66kctgaFEe+sVbY9bf7wlCLM=",
+        "ref": "refs/heads/main",
+        "rev": "8f2d57610a73efc97d743c9b0b0ecb1002e09fa4",
+        "revCount": 7,
+        "type": "git",
+        "url": "https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://gist.github.com/k16shikano/fd287c3133457c4fd8f5601d34aa817d.git"
+      }
+    },
+    "kepano-obsidian-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1789483437,
+        "narHash": "sha256-kyH07EVmwIEC/q6i91Kz8mPE78j9ITga2NZUpU1+nHU=",
+        "owner": "kepano",
+        "repo": "obsidian-skills",
+        "rev": "3ccff5338ea700537839b21900aa5358a0402c98",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kepano",
+        "repo": "obsidian-skills",
+        "type": "github"
+      }
+    },
+    "mattpocock-skills": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1789482526,
+        "narHash": "sha256-AbIlPEE0VWJq+NJpa56SDzhM8o7vXDBtlJHS5FCTElE=",
+        "owner": "mattpocock",
+        "repo": "skills",
+        "rev": "959a8e9f1edc3adbe2f7e3054bb6fbefa6696260",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mattpocock",
+        "repo": "skills",
+        "type": "github"
+      }
+    },
     "nix-darwin": {
       "inputs": {
         "nixpkgs": [
@@ -80,8 +148,12 @@
     },
     "root": {
       "inputs": {
+        "agent-skills": "agent-skills",
         "herdr": "herdr",
         "home-manager": "home-manager",
+        "k16shikano-japanese-tech-writing": "k16shikano-japanese-tech-writing",
+        "kepano-obsidian-skills": "kepano-obsidian-skills",
+        "mattpocock-skills": "mattpocock-skills",
         "nix-darwin": "nix-darwin",
         "nixpkgs": "nixpkgs"
       }

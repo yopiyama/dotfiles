@@ -13,17 +13,21 @@ prefix_rule(
     justification = "Read-only local inspection commands are safe to run outside the sandbox.",
 )
 
-# Allow direct read-only transformations. Shell redirection remains subject to
-# approval because it is evaluated as a shell operation, not as these commands.
+# Allow direct read-only inspection, comparison, and transformation. Shell
+# redirection remains subject to approval because it is evaluated as a shell
+# operation, not as these commands.
 prefix_rule(
-    pattern = [["cat", "cut", "file", "grep", "head", "jq", "tail", "tr", "uniq", "wc"]],
+    pattern = [[
+        "cat", "cmp", "cut", "diff", "du", "file", "grep", "head", "jq", "nl", "rg", "shasum",
+        "strings", "tail", "test", "tr", "uniq", "wc",
+    ]],
     decision = "allow",
     justification = "Allow direct read-only inspection and transformation without shell-side writes.",
 )
 
 # Keep tools with direct write or command-execution options interactive.
 prefix_rule(
-    pattern = [["awk", "rg", "sort"]],
+    pattern = [["awk", "sort"]],
     decision = "prompt",
     justification = "Review tools with direct write or command-execution options.",
 )

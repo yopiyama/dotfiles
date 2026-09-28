@@ -8,7 +8,7 @@
 #
 # パス組み立て・連番採番・frontmatter の突き合わせ・ステータス文字列といった
 # 定型部分をここに閉じ込める。ノート本文 (指摘コメント全文・補足・回答案) の
-# 執筆だけが Claude の仕事。書き込みは obs.sh 経由なので必ず検証される。
+# 執筆だけがエージェントの仕事。書き込みは obs.sh 経由なので必ず検証される。
 #
 # 使い方: pr-task-notes.sh <サブコマンド> [引数...]
 #
@@ -43,9 +43,22 @@
 #           親ノートを Obsidian で開く
 set -euo pipefail
 
-OBS="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../connect-obsidian/scripts" && pwd)/obs.sh"
+# Claude と Codex の両方で同じスクリプトを使う。各クライアントの skills
+# ディレクトリから相対的に安全な obs.sh を解決し、どちらにも無ければ止める。
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+OBS=""
+for candidate in \
+  "$SCRIPT_DIR/../../connect-obsidian/scripts/obs.sh" \
+  "$SCRIPT_DIR/../../obsidian-safe-ops/scripts/obs.sh"; do
+  if [ -x "$candidate" ]; then
+    OBS=$candidate
+    break
+  fi
+done
+[ -n "$OBS" ] || { echo "pr-task-notes.sh: obs.sh が見つかりません" >&2; exit 1; }
 
-usage() { sed -n '2,48p' "$0" | sed 's/^# \{0,1\}//'; }
+# コメントブロックの終端を使うため、説明を追加しても --help に内部コードが漏れない。
+usage() { sed -n '2,/^set -euo pipefail$/p' "$0" | grep '^#' | sed 's/^# \{0,1\}//'; }
 die() { echo "pr-task-notes.sh: $*" >&2; exit 1; }
 
 PROJECT="" URL="" REPO="" TITLE="" SCOPE=""

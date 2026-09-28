@@ -53,6 +53,7 @@
       ".serena/cache/"
       ".idea/"
       ".claude/worktrees/"
+      "mise.local.toml"
     ];
 
     attributes = [

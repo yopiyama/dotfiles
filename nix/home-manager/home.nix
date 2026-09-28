@@ -2,6 +2,7 @@
 
 {
   imports = [
+    ./programs/agent-skills.nix
     ./programs/direnv.nix
     ./programs/gh.nix
     ./programs/ghostty.nix
@@ -23,7 +24,6 @@
     herdrPackage
     awscli2
     bat
-    codex
     delta
     eza
     fd

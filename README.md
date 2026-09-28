@@ -82,6 +82,18 @@ table と子 table を丸ごと置換し、それ以外の table は保持する
 `~/.codex/AGENTS.md` へ symlink する。グローバル指示には全リポジトリで共通する方針だけを置き、
 プロジェクト固有の規約は各リポジトリの `AGENTS.md` やスキルで管理する。
 
+外部配布のグローバルスキルは `agent-skills-nix` で管理する。スキルの配布元・選択・Codex
+target は `nix/home-manager/programs/agent-skills.nix`、固定リビジョンは
+`nix/nix-darwin/flake.lock` の source of truth である。`make rebuild PROFILE=...` で
+`~/.codex/skills/` にスキル単位で symlink されるため、Codex 同梱の `.system` や既存スキルと
+衝突しない。追加・更新後は `cd nix/nix-darwin && nix flake update <input>` で lock を
+更新する。root に `SKILL.md` だけを置く配布元は `agent-skills-nix` で列挙できないため、
+同じ設定内の `home.file` からスキル名ディレクトリへ直接リンクする。
+
+このリポジトリ固有のスキルも同じ設定ファイルから Home Manager で配置する。
+`obsidian-safe-ops`、`handoff`、`resume-handoff`、`pr-comments` は Claude 側の検証済み
+スクリプトを必要に応じて共有し、外部の Obsidian 形式スキルとは I/O と記法の責務を分ける。
+
 ## Directory Structure
 
 全ファイルは列挙しない。迷いやすい場所と、置き場所の判断が要るものだけ書く。
@@ -114,7 +126,7 @@ raycast/               自作 Raycast 拡張 (extensions/) と script command (s
 Packages are declared in Nix and applied with `darwin-rebuild`.
 
 - CLI/GUI packages available via nixpkgs → `nix/home-manager/home.nix` (`home.packages`)
-- macOS-only or self-updating apps (Homebrew cask のまま管理するもの) →
+- macOS-only or frequently updated apps (Homebrew cask で管理するもの) →
   `nix/nix-darwin/homebrew.nix` (`homebrew.taps` / `brews` / `casks`)
 - 環境ごと (personal/work) の差分 → `nix/nix-darwin/hosts/{profile}.nix`
 
