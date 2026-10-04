@@ -53,6 +53,7 @@
         modules = [
           ./system.nix
           ./homebrew.nix
+          ./shortcuts.nix
           ./hosts/${profile}.nix
           home-manager.darwinModules.home-manager
           {

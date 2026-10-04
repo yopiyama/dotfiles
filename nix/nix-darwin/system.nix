@@ -31,6 +31,32 @@
     autohide-time-modifier = 0.0;
   };
 
+  # アクセシビリティの Zoom: 修飾キー + スクロールで画面を拡大する。
+  # キーボードショートカットでの Zoom は使わない (shortcuts.nix で無効)。
+  # 修飾キーの専用オプションは無いため CustomUserPreferences で指定する (1048576 = Cmd)。
+  # com.apple.universalaccess への書き込みは、rebuild を実行するターミナルに
+  # フルディスクアクセスが無いと拒否されることがある。
+  system.defaults.universalaccess.closeViewScrollWheelToggle = true;
+  system.defaults.CustomUserPreferences = {
+    "com.apple.universalaccess".closeViewScrollWheelModifiersInt = 1048576;
+    "com.apple.AppleMultitouchTrackpad".HIDScrollZoomModifierMask = 1048576;
+    "com.apple.driver.AppleBluetoothMultitouch.trackpad".HIDScrollZoomModifierMask = 1048576;
+  };
+
+  # トラックパッド。nix-darwin が内蔵 (AppleMultitouchTrackpad) と Bluetooth
+  # (AppleBluetoothMultitouch.trackpad) の両ドメインへ同じ値を書く。
+  # 既定値のままの項目 (四本指ジェスチャなど) は宣言していない。
+  system.defaults.trackpad = {
+    Clicking = true; # タップでクリック
+    TrackpadRightClick = true; # 二本指クリックで副ボタン
+    TrackpadThreeFingerDrag = true; # 三本指ドラッグ
+    TrackpadThreeFingerTapGesture = 2; # 三本指タップで調べる
+    Dragging = false;
+    DragLock = false;
+    FirstClickThreshold = 1; # クリックの強さ: 中
+    SecondClickThreshold = 1; # 強めのクリックの強さ: 中
+  };
+
   # home-manager がユーザーを解決するために必要
   system.primaryUser = username;
   users.users.${username}.home = "/Users/${username}";
