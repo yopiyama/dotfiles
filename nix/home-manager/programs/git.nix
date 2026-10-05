@@ -58,6 +58,7 @@
 
     attributes = [
       "* merge=mergiraf"
+      "go.sum mergiraf.allow-parse-errors"
     ];
 
     settings = {
