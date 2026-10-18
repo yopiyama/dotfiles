@@ -45,6 +45,7 @@
       "~*/"
       ".env"
       "*.env"
+      ".envrc.local"
       "python/*"
       "layer/"
       "*.base64sha256.txt"
