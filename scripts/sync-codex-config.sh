@@ -70,6 +70,7 @@ MANAGED_TABLES="$(mktemp "${TMPDIR:-/tmp}/codex-managed-tables.XXXXXX")"
 MANAGED_TABLE_ROOTS="$(mktemp "${TMPDIR:-/tmp}/codex-managed-table-roots.XXXXXX")"
 cleanup() {
   rm -f "$MANAGED_VALUES" "$MANAGED_TABLES" "$MANAGED_TABLE_ROOTS" \
+    "${TUI_LOCAL_VALUES:-}" "${MANAGED_TABLES_WITH_TUI:-}" \
     "${WITHOUT_MANAGED_TABLES:-}" "${WORK_FILE:-}"
 }
 trap cleanup EXIT HUP INT TERM
@@ -138,6 +139,42 @@ else
   TARGET_INPUT="/dev/null"
 fi
 
+# Desktop が [tui] に追加した端末固有キーを、共有側に無い場合だけ引き継ぐ。
+TUI_LOCAL_VALUES="$(mktemp "${TMPDIR:-/tmp}/codex-tui-local-values.XXXXXX")"
+awk -v managed_tables="$MANAGED_TABLES" '
+  FNR == 1 { in_tui = 0 }
+  /^[[:space:]]*\[/ {
+    in_tui = ($0 ~ /^[[:space:]]*\[tui\][[:space:]]*$/)
+    next
+  }
+  in_tui && /^[[:space:]]*[A-Za-z0-9_-]+[[:space:]]*=/ {
+    key = $0
+    sub(/^[[:space:]]*/, "", key)
+    sub(/[[:space:]]*=.*/, "", key)
+    if (FILENAME == managed_tables) shared[key] = 1
+    else if (!(key in shared) && !seen[key]++) print
+  }
+' "$MANAGED_TABLES" "$TARGET_INPUT" >"$TUI_LOCAL_VALUES"
+
+MANAGED_TABLES_WITH_TUI="$(mktemp "${TMPDIR:-/tmp}/codex-managed-tables-with-tui.XXXXXX")"
+awk -v local_values="$TUI_LOCAL_VALUES" '
+  /^[[:space:]]*\[/ && in_tui {
+    while ((getline line < local_values) > 0) print line
+    close(local_values)
+    in_tui = 0
+  }
+  /^[[:space:]]*\[tui\][[:space:]]*$/ { in_tui = 1 }
+  { print }
+  END {
+    if (in_tui) {
+      while ((getline line < local_values) > 0) print line
+      close(local_values)
+    }
+  }
+' "$MANAGED_TABLES" >"$MANAGED_TABLES_WITH_TUI"
+mv "$MANAGED_TABLES_WITH_TUI" "$MANAGED_TABLES"
+MANAGED_TABLES_WITH_TUI=""
+
 TARGET_DIR="$(dirname "$TARGET")"
 if [ "$DRY_RUN" -eq 0 ]; then
   mkdir -p "$TARGET_DIR"
@@ -150,6 +187,7 @@ awk -v root_values="$MANAGED_VALUES" -F '\t' '
   FILENAME == root_values {
     order[++count] = $1
     value[$1] = $2
+    if ($1 == "default_permissions") use_permission_profile = 1
     next
   }
   function emit_root(before_table,  i, key, missing, last_content) {
@@ -179,6 +217,8 @@ awk -v root_values="$MANAGED_VALUES" -F '\t' '
       in_table = 1
     }
     if (!in_table) {
+      # permission profile と旧 sandbox_mode は併用できない。
+      if (use_permission_profile && $0 ~ /^[[:space:]]*sandbox_mode[[:space:]]*=/) next
       for (i = 1; i <= count; i++) {
         key = order[i]
         expression = "^[[:space:]]*" key "[[:space:]]*="
@@ -202,12 +242,27 @@ awk -v root_values="$MANAGED_VALUES" -F '\t' '
 # marker に囲まれた旧定義も取り除くため、source から共有 table を削除した場合も追従する。
 # それ以外の MCP server、project trust、Desktop/プラグイン設定は untouched のまま残す。
 WITHOUT_MANAGED_TABLES="$(mktemp "${TMPDIR:-/tmp}/codex-config-without-managed-tables.XXXXXX")"
-awk -v managed_table_roots="$MANAGED_TABLE_ROOTS" '
+awk -v managed_table_roots="$MANAGED_TABLE_ROOTS" -v managed_tables="$MANAGED_TABLES" -v root_values="$MANAGED_VALUES" '
   BEGIN {
     while ((getline table_root < managed_table_roots) > 0) managed[table_root] = 1
     close(managed_table_roots)
+    while ((getline line < managed_tables) > 0) {
+      if (line !~ /^[[:space:]]*\[/) continue
+      header = line
+      sub(/^[[:space:]]*\[/, "", header)
+      sub(/\].*$/, "", header)
+      exact_managed[header] = 1
+    }
+    close(managed_tables)
+    while ((getline line < root_values) > 0) {
+      split(line, fields, "\t")
+      if (fields[1] == "default_permissions") managed["sandbox_workspace_write"] = 1
+    }
+    close(root_values)
   }
   function is_managed_table(table, root) {
+    # Desktop が [tui.*] に追加した端末固有の UI 状態は残す。
+    if (table ~ /^tui\./ && !(table in exact_managed)) return 0
     for (root in managed) {
       if (table == root || index(table, root ".") == 1) return 1
     }
@@ -215,7 +270,7 @@ awk -v managed_table_roots="$MANAGED_TABLE_ROOTS" '
   }
   $0 == "# >>> dotfiles managed MCP servers >>>" {
     in_managed_block = 1
-    drop = 0
+    drop = 1
     next
   }
   $0 == "# <<< dotfiles managed MCP servers <<<" {
@@ -225,7 +280,7 @@ awk -v managed_table_roots="$MANAGED_TABLE_ROOTS" '
   }
   $0 == "# >>> dotfiles managed tables >>>" {
     in_managed_block = 1
-    drop = 0
+    drop = 1
     next
   }
   $0 == "# <<< dotfiles managed tables <<<" {
@@ -233,16 +288,12 @@ awk -v managed_table_roots="$MANAGED_TABLE_ROOTS" '
     drop = 0
     next
   }
-  in_managed_block { next }
   /^[[:space:]]*\[\[?/ {
-    drop = 0
     header = $0
     sub(/^[[:space:]]*\[\[?/, "", header)
     sub(/\]\].*$/, "", header)
     sub(/\].*$/, "", header)
-    if (is_managed_table(header)) {
-      drop = 1
-    }
+    drop = is_managed_table(header) || (in_managed_block && header !~ /^tui\./)
     if (drop) {
       next
     }
