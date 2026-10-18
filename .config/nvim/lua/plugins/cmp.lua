@@ -3,6 +3,8 @@ return {
     "hrsh7th/nvim-cmp",
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
+      "hrsh7th/cmp-cmdline",
+      "hrsh7th/cmp-path",
       -- 関数呼び出し中に引数リスト（signature）を補完ウィンドウ内に表示する
       "hrsh7th/cmp-nvim-lsp-signature-help",
       -- 任意：スニペットも欲しいなら
@@ -48,6 +50,18 @@ return {
           { name = "nvim_lsp_signature_help" },
           { name = "luasnip" },
         }),
+      })
+
+      -- :Mason のような Ex コマンドも、入力中に候補を絞り込む。
+      -- 表示は noice.nvim の popupmenu に任せる。
+      cmp.setup.cmdline(":", {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = cmp.config.sources({
+          { name = "path" },
+        }, {
+          { name = "cmdline" },
+        }),
+        matching = { disallow_symbol_nonprefix_matching = false },
       })
     end,
   },

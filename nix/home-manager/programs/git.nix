@@ -45,6 +45,7 @@
       "~*/"
       ".env"
       "*.env"
+      ".envrc.local"
       "python/*"
       "layer/"
       "*.base64sha256.txt"
@@ -54,6 +55,7 @@
       ".idea/"
       ".claude/worktrees/"
       "mise.local.toml"
+      ".pnpm-store/*"
     ];
 
     attributes = [

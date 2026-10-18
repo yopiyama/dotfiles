@@ -10,8 +10,8 @@
 #   セッションオプション @worktree_path で持つ (名前の推測に頼らない)。
 # - ウィンドウ構成は ~/.tmux/projects.json の .defaults.windows を流用する
 #   (projects[] は同じ path に複数プロファイルを持てるのでパスから引き当てない)。
-# - 新規作成時の置き場所: git config tmux.worktreeRoot > $TMUX_WORKTREE_ROOT
-#   > <repo>/.claude/worktrees  (相対指定はメイン worktree からの相対として解決)
+# - 新規作成時の置き場所: git config worktree.root > $WORKTREE_ROOT
+#   > ~/worktrees。いずれもリポジトリ名の下へ置く。
 #
 # macOS 標準の bash 3.2 でも動くように書いている。
 set -euo pipefail
@@ -109,10 +109,21 @@ session_name_for() {
 
 # --- 一覧の組み立て -----------------------------------------------------------
 # 表示は 1 列目にまとめ、payload (worktree パス) をタブ区切りの 2 列目に隠す。
-# ラベル幅は固定値では溢れる (ブランチ名の長さはリポジトリ次第) ので 2 パスに分け、
-# 1 回目で最大幅を測ってから 2 回目で揃える。
+# ブランチ列は 60 文字で固定する。長い名前は末尾を `…` に置き換え、パス列には端末幅の
+# 残りを使わせる。
 # 中間表現の区切りは lib と同じ US。fzf に渡す最終行のタブと衝突させないため。
 NEW_SENTINEL="__new__"
+BRANCH_WIDTH=60
+
+format_branch() {
+  local value="$1" pad
+  if [ "${#value}" -gt "$BRANCH_WIDTH" ]; then
+    value="${value:0:$((BRANCH_WIDTH - 1))}…"
+  fi
+  printf '%s' "$value"
+  pad=$((BRANCH_WIDTH - ${#value}))
+  [ "$pad" -gt 0 ] && printf '%*s' "$pad" ''
+}
 
 # 一覧 ($list) を作る。C-d で削除した後に呼び直せるよう関数にしてある。
 # 関数の中だが本体は字下げしない: 途中の heredoc の内容に余計な空白が入ってしまうため。
@@ -121,13 +132,11 @@ wt_list="$(collect_worktrees "$main_path")"
 sess_map="$(ts_session_map)"
 
 rows=""
-label_w=0
 while IFS="$TAB" read -r wpath wbranch wflag; do
   [ -n "$wpath" ] || continue
   [ "$wflag" = "bare" ] && continue   # bare には作業ツリーが無いので開けない
 
   wlabel="$(label_for "$wpath" "$wbranch")"
-  [ "${#wlabel}" -gt "$label_w" ] && label_w="${#wlabel}"
 
   mark=" "
   [ -n "$(session_for "$wpath" "$(session_name_for "$wpath" "$wlabel")")" ] && mark="*"
@@ -160,7 +169,7 @@ list=""
 while IFS="$TS_US" read -r mark wlabel disp note wpath; do
   [ -n "$wpath" ] || continue
   [ "$mark" = "*" ] && mark="$C_MARK*$C_OFF"
-  list="$list$mark $(printf '%-*s' "$label_w" "$wlabel") ${C_SEP}│${C_OFF} ${C_PATH}${disp}${note:+  ($note)}${C_OFF}$TAB$wpath"$'\n'
+  list="$list$mark $(format_branch "$wlabel") ${C_SEP}│${C_OFF} ${C_PATH}${disp}${note:+  ($note)}${C_OFF}$TAB$wpath"$'\n'
 done <<INNER
 $rows
 INNER
@@ -241,13 +250,14 @@ done
 # worktree の置き場所。相対指定はメイン worktree からの相対で解決する。
 worktree_root() {
   local root
-  root="$(git -C "$main_path" config --get tmux.worktreeRoot 2>/dev/null || true)"
-  [ -n "$root" ] || root="${TMUX_WORKTREE_ROOT:-.claude/worktrees}"
+  root="$(git -C "$main_path" config --get worktree.root 2>/dev/null || true)"
+  [ -n "$root" ] || root="${WORKTREE_ROOT:-$HOME/worktrees}"
   case "$root" in
-    /*)  printf '%s' "$root" ;;
-    \~*) printf '%s' "${root/#\~/$HOME}" ;;
-    *)   printf '%s' "$main_path/$root" ;;
+    /*)  ;;
+    \~*) root="${root/#\~/$HOME}" ;;
+    *)   root="$main_path/$root" ;;
   esac
+  printf '%s/%s' "$root" "$repo_label"
 }
 
 # 作業ツリー内に worktree を置くと untracked として見えてしまうので、共有される
@@ -291,7 +301,7 @@ if [ "$target" = "$NEW_SENTINEL" ]; then
 
   # .env などの gitignore されたローカル設定をメイン worktree からリンクする。
   # 失敗しても worktree 自体は使えるのでセッション作成は続行する。
-  "$SCRIPT_DIR/worktree_sync.sh" "$target" || true
+  "$HOME/.local/bin/worktree-sync" "$target" || true
 else
   label="$(label_for "$target" \
     "$(printf '%s\n' "$wt_list" | awk -F'\t' -v p="$target" '$1 == p { print $2; exit }')")"

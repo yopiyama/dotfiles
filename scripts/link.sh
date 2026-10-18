@@ -29,6 +29,8 @@ LINKS="$(cat <<'EOF'
 .tmux/worktree_sync.sh|.tmux/worktree_sync.sh
 .tmux/session_branch.sh|.tmux/session_branch.sh
 .tmux/lib|.tmux/lib
+scripts/gwt.sh|.local/bin/gwt
+scripts/worktree-sync.sh|.local/bin/worktree-sync
 .claude/keybindings.json|.claude/keybindings.json
 .claude/.mcp.json|.claude/.mcp.json
 .claude/settings.json|.claude/settings.json

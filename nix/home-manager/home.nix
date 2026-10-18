@@ -31,6 +31,7 @@
     fzf
     gawk
     ghq
+    grpcurl
     gnused
     golangci-lint
     gotools # goimports (nvim の保存時に import を追加/削除する)

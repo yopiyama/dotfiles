@@ -69,7 +69,8 @@ Codex Desktop が管理する project trust、UI 状態、マーケットプレ�
 OAuth・端末内実行パス、認証・履歴・キャッシュは同期対象外であり、ローカルに保持する。
 共有対象を増やすときは `.codex/config.shared.toml` にトップレベルの単一行 `key = value`、
 共有する table（例: `[tui]`）または `[mcp_servers.<name>]` table を追加する。同期器はその
-table と子 table を丸ごと置換し、それ以外の table は保持する。`approval_policy`、`sandbox_mode`、
+table と子 table を丸ごと置換し、それ以外の table は保持する。ただし Desktop が `[tui.*]` に
+追加する端末固有の UI 状態は保持する。`approval_policy`、`sandbox_mode`、
 `default_permissions` などの permission 設定もここで管理できる。意図しない上書きを
 避けるため、このファイルに明示した値と table 以外は同期先で保持する。
 
@@ -81,6 +82,10 @@ table と子 table を丸ごと置換し、それ以外の table は保持する
 `.codex/AGENTS.md` は全端末で共有する Codex のグローバル指示であり、`make link` が
 `~/.codex/AGENTS.md` へ symlink する。グローバル指示には全リポジトリで共通する方針だけを置き、
 プロジェクト固有の規約は各リポジトリの `AGENTS.md` やスキルで管理する。
+
+Codex のローカルメモリは `[features] memories = true` で有効化する。メモリの実データは
+`~/.codex/memories/` にのみ保存し、生成データや秘密情報・端末固有情報を含む可能性があるため
+Git 管理・symlink 管理しない。常に守らせるルールは `.codex/AGENTS.md` に置く。
 
 外部配布のグローバルスキルは `agent-skills-nix` で管理する。スキルの配布元・選択・Codex
 target は `nix/home-manager/programs/agent-skills.nix`、固定リビジョンは
@@ -109,7 +114,7 @@ scripts/
 .config/nvim/          Neovim。init.lua + lua/ を丸ごと symlink (Nix 管理下に置かない)
 .config/herdr/         Herdr の設定とプロジェクトランチャー。Home Manager の xdg.configFile で管理
 .claude/               Claude Code 設定。skills/ agents/ hooks/ はディレクトリ丸ごと symlink
-.codex/                Codex 設定。AGENTS.md と rules/ は symlink、config.shared.toml は部分同期の source
+.codex/                Codex 設定。AGENTS.md・rules/ は symlink、config.shared.toml は部分同期の source
 .tmux/                 tmux から呼ぶヘルパー。launch_project.sh = prefix + C-p のプロジェクトランチャー、
                        worktree_session.sh = prefix + C-w の git worktree ランチャー、lib/ は両者の共通部品、
                        worktree_sync.sh = worktree に .env 等を持ち込み direnv/mise の許可を通す
@@ -152,7 +157,7 @@ sudo darwin-rebuild switch --flake .#personal   # または #work
 
 ## Herdr (prefix = Ctrl-P)
 
-Herdr は Nix の flake input `herdrdev/herdr/v0.9.0` として固定して導入する。
+Herdr は Nix の flake input `herdrdev/herdr/v0.9.3` として固定して導入する。
 設定は `.config/herdr/config.toml`、自作ランチャーは `.config/herdr/scripts/` に置き、
 いずれも `make rebuild PROFILE=...` で `~/.config/herdr/` へ配置される。
 
@@ -173,10 +178,9 @@ tmux の操作を次のように移行している。
 `projects.json` は tmux と共用する。tmux の session/window/pane を Herdr が直接復元する
 機能はないため、既存の tmux セッションはそのまま残り、Herdr 側で同じディレクトリの
 workspace を新規作成する。Git worktree、`.env` の同期、コマンド自体は multiplexer に
-依存しないので引き続き利用できる。`.env` の同期は、従来どおり shell の
-`new-worktree` または `~/.tmux/worktree_sync.sh` を使う（Herdr native の worktree 作成は
-このリポジトリ固有の同期処理を自動では呼ばない）。Herdr の native worktree は
-`~/.herdr/worktrees/<repo>/<branch-slug>` を使い、削除時にブランチは消さない。
+依存しないので引き続き利用できる。`prefix + Shift-g` は native 作成ではなく `gwt new` を popup
+で開くため、作成後にローカル設定も同期する。Herdr native の open/remove はそのまま使い、作成先は
+`~/worktrees/<repo>/<branch-slug>` で共通化している。削除時にブランチは消さない。
 
 tmux の `prefix=C-p` と `prefix+C-p` の組み合わせは、Herdr が prefix 二度押しを
 literal `Ctrl-P` の転送用に予約しているため登録できない。プロジェクト picker だけ
@@ -201,7 +205,7 @@ literal `Ctrl-P` の転送用に予約しているため登録できない。プ
 ### worktree ランチャー
 
 一覧は `git worktree list` から作る。git 自身が登録済み worktree の実パスを持っているので、
-`<repo>/.claude/worktrees/` でも `../<repo>.worktrees/` でも置き場所を問わず出てくる
+`~/worktrees/` でも任意の既存配置でも置き場所を問わず出てくる
 (ディレクトリを走査しないので探索パスの設定は要らない)。
 
 - セッション名は メイン worktree が `<repo>`、それ以外が `<repo>@<ブランチ名>`。
@@ -209,7 +213,7 @@ literal `Ctrl-P` の転送用に予約しているため登録できない。プ
 - worktree との対応はセッションオプション `@worktree_path` で保持する。名前ではなく
   パスで突き合わせるので、セッションをリネームしても同じ worktree を開き直せる
 - 一覧は `<マーク> <ブランチ名> │ <パス>` の 3 列。`*` は「そのセッションが既にある」印。
-  ブランチ名の列幅はその場の最長ブランチ名に合わせて決める (固定幅だと溢れる)。
+  ブランチ名は 60 文字固定で、超過分は末尾を `…` に置き換える。パス列は残りの端末幅を使う。
   パスはメイン worktree からの相対 (`./`, `../`) で見せ、メイン worktree の行だけ
   相対表示の基準として絶対パスを出す
 - ウィンドウ構成は `defaults.windows` (無ければ `shell` 1 枚)。`projects[]` は同じ `path` に
@@ -223,31 +227,42 @@ untracked ファイルがあると git が止めるので、その場合だけ�
 選択に戻るので、続けて消せる。**ブランチは消さない** (別の worktree で作業を続けることがあるため)
 ので、要らなければ表示されるコマンドで消す。
 
+シェル上では `gwt` も同じ目的の fzf picker を開く。表示はメイン worktree からの相対パスで、
+`Enter` で選択先をカレントにした新しいシェルを開き、`Ctrl-d` で確認付き削除を行う。引数付きの
+`gwt` は `git worktree` にそのまま委譲する。`make link` により `~/.local/bin/gwt` へリンクされ、
+どの Git リポジトリからも実行できる。
+
+`gwt new` は fzf で既存ローカルブランチを選択する。`gwt new <branch> [dir]` は旧
+`new-worktree` の後継で、指定名の既存ブランチを checkout、無ければブランチと worktree を作成する。
+`dir` の既定値は `~/worktrees/<repo>/<branch>` で、作成後にローカル設定の同期を行い、その worktree
+をカレントにした子シェルを開く。
+
 `+ 新規 worktree を作成` を選ぶとブランチ名を聞き、`git worktree add` してからセッションを開く
 (既存ブランチならそれを checkout、無ければ新規ブランチを作る)。置き場所は上から順に:
 
-1. `git config tmux.worktreeRoot` (リポジトリごとに設定できる。相対指定はメイン worktree からの相対)
-2. 環境変数 `TMUX_WORKTREE_ROOT`
-3. `<repo>/.claude/worktrees`
+1. `git config worktree.root` (リポジトリごとに設定できる。相対指定はメイン worktree からの相対)
+2. 環境変数 `WORKTREE_ROOT`
+3. `~/worktrees`
 
-リポジトリの作業ツリー内に置く場合は、untracked として見えないよう置き場所を
-`.git/info/exclude` に登録する (共有される `.gitignore` は触らない)。
+いずれの場合も、その下に `<repo>/<branch>` を作る。Herdr の `[worktrees].directory` も
+`~/worktrees` に合わせている。リポジトリ内への配置は検索・ファイル監視へ別 worktree が混ざるため
+推奨しない。
 
 ```sh
-# 例: このリポジトリでは兄弟ディレクトリに置く
-git config tmux.worktreeRoot ../dotfiles.worktrees
+# 例: リポジトリごとに別の共通ルートを使う
+git config worktree.root ~/Developer/worktrees
 ```
 
 ### worktree を作った直後から動く状態にする (worktree_sync.sh)
 
 新しい worktree は「gitignore されたファイルが付いてこない」「パスが変わるので direnv /
-mise の許可が引き継がれない」の 2 点でそのままでは動かない。`.tmux/worktree_sync.sh` が
-その 2 つを埋める。新規 worktree 作成時に `worktree_session.sh` と `.zshrc` の `new-worktree`
-の両方から呼ばれる。どちらの処理も冪等なので、後から `.env` が増えたときなどは手で叩き直せばよい。
+mise の許可が引き継がれない」の 2 点でそのままでは動かない。`worktree-sync` がその 2 つを埋める。
+新規 worktree 作成時に `gwt` から呼ばれる。処理は冪等なので、後から `.env` が増えたときなどは
+手で叩き直せばよい。
 
 ```sh
-~/.tmux/worktree_sync.sh              # カレント worktree を対象にする
-~/.tmux/worktree_sync.sh --dry-run    # 何をするか見るだけ
+worktree-sync              # カレント worktree を対象にする
+worktree-sync --dry-run    # 何をするか見るだけ
 ```
 
 #### 1. ローカル設定のリンク
@@ -262,7 +277,7 @@ ignore 判定は `git ls-files --others --ignored` に任せるのでグロー�
 畳まれるため中まで走査しない。
 
 - デフォルト: `.env` / `*.env` / `.claude/settings.local.json`
-- 追加は `git config --add tmux.worktreeSync '<パターン>'` (複数指定可。グローバルにも書ける)
+- 追加は `git config --add worktree.sync '<パターン>'` (複数指定可。グローバルにも書ける)
 
 パターンはリポジトリルートからの相対パスに対する glob。`*` は `/` も跨ぐので `*.env` は
 `apps/web/.env` にも当たる。`/` を含むパターンは `*/<パターン>` でも照合する。

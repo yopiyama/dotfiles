@@ -6,10 +6,26 @@
 #
 # approval_policy、sandbox_mode、default_permissions のようなトップレベルの
 # permission 設定も、意図を決めたらここへ追加できる。ここに明示した table だけを共有する。
-model = "gpt-6-sol"
+model = "gpt-5.6-terra"
 model_reasoning_effort = "medium"
 personality = "pragmatic"
 service_tier = "default"
+default_permissions = "protected-workspace"
+
+[features]
+# 過去の Codex セッションから生成したローカルメモリを、以後のセッションで利用する。
+memories = true
+
+# workspace-write 相当の作業範囲と外向き通信を保ち、機密ファイルの読み取りを拒否する。
+[permissions.protected-workspace]
+extends = ":workspace"
+
+[permissions.protected-workspace.network]
+enabled = true
+
+# Claude Code の Read/Edit deny と同じファイル群を、workspace root 配下で保護する。
+[permissions.protected-workspace.filesystem]
+":workspace_roots" = { ".env*" = "deny", "**/.env*" = "deny", "*.env" = "deny", "**/*.env" = "deny", "id_*" = "deny", "**/id_*" = "deny", "*.pem" = "deny", "**/*.pem" = "deny", "*.key" = "deny", "**/*.key" = "deny" }
 
 # ctxpack-mcp は ctxpack を stdio MCP server として公開する。Apple Silicon Mac の
 # Homebrew prefix を明示し、Desktop がログイン shell の PATH を継承しない場合にも備える。

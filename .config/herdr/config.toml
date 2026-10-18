@@ -7,8 +7,8 @@ default_shell = "/bin/zsh"
 new_cwd = "follow"
 
 [worktrees]
-# Herdr の native worktree 操作が作る checkout のルート。
-directory = "~/.herdr/worktrees"
+# Herdr と gwt で共有する checkout のルート。各リポジトリ名の下に worktree を作る。
+directory = "~/worktrees"
 
 [keys]
 # tmux: prefix C-p
@@ -54,7 +54,6 @@ focus_agent = "prefix+alt+1..9"
 
 # tmux: prefix C-w。既存 worktree の選択は Herdr の native picker を使う。
 open_worktree = "prefix+ctrl+w"
-new_worktree = "prefix+shift+g"
 remove_worktree = "prefix+ctrl+d"
 
 # tmux の copy-mode / zoom / detach に相当する操作
@@ -102,5 +101,14 @@ key = "prefix+ctrl+o"
 type = "popup"
 command = "~/.config/herdr/scripts/launch_project.sh"
 description = "open project profile"
+width = "80%"
+height = "60%"
+
+# native 作成には作成後フックがないため、gwt で作成してローカル設定も同期する。
+[[keys.command]]
+key = "prefix+shift+g"
+type = "popup"
+command = "~/.local/bin/gwt new"
+description = "create Git worktree"
 width = "80%"
 height = "60%"
