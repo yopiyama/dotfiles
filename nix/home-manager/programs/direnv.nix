@@ -5,6 +5,12 @@
   # .envrc は各リポジトリ側に置く前提なので、ここには個別のパスを書かない。
   programs.direnv = {
     enable = true;
+    silent = true;
+
+    # .envrc を読むたびの環境変数差分を表示しない。
+    config.global = {
+      hide_env_diff = true;
+    };
 
     # devShell の評価結果をキャッシュし、nix store gc で消えないようにする
     nix-direnv.enable = true;

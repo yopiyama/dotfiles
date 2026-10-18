@@ -54,6 +54,7 @@
       ".idea/"
       ".claude/worktrees/"
       "mise.local.toml"
+      ".pnpm-store/*"
     ];
 
     attributes = [
