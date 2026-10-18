@@ -16,12 +16,12 @@
 #   node_modules のような ignore 済みディレクトリは --directory でまとめて 1 エントリになる
 #   ので中まで走査しない。
 # - 既に同名のファイル/リンクが worktree 側にあれば触らない (上書きしない)。
-# - 新規 worktree 作成時に worktree_session.sh / new-worktree から呼ばれるほか、後から
+# - 新規 worktree 作成時に gwt / worktree_session.sh から呼ばれるほか、後から
 #   .env が増えたときに手で叩き直してもよい (べき等)。
 #
 # 対象パターンは下記のデフォルトに加え、git config で追加できる (複数指定可):
 #
-#   git config --add tmux.worktreeSync '.mise.local.toml'
+#   git config --add worktree.sync '.mise.local.toml'
 #
 # パターンはリポジトリルートからの相対パスに対する glob。'*' は '/' も跨ぐので '*.env' は
 # 深い階層の .env にも当たる。'/' を含むパターンは '*/<パターン>' でも照合するため、
@@ -54,7 +54,7 @@ main="$(cd "$main" && pwd -P)"
 [ "$main" = "$target" ] && exit 0
 
 patterns="$DEFAULT_PATTERNS
-$(git -C "$main" config --get-all tmux.worktreeSync 2>/dev/null || true)"
+$(git -C "$main" config --get-all worktree.sync 2>/dev/null || true)"
 
 # core.quotePath=false: 日本語などを \xxx にエスケープさせない。
 ignored="$(git -C "$main" -c core.quotePath=false \

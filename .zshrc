@@ -109,6 +109,7 @@ SAVEHIST=100000
 HISTTIMEFORMAT='%Y/%m/%d %H:%M:%S '
 
 export PATH="$HOME/.rd/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 
 # Prompt を画面下へ固定
 tput cup $LINES
@@ -307,27 +308,6 @@ case ${OSTYPE} in
       ;;
 esac
 
-new-worktree() {
-  local branch=$1
-  local repo=$(basename $(git rev-parse --show-toplevel))
-  local dir="${2:-../${repo}.worktrees/${branch//\//-}}"
-
-  # 既存ブランチかどうかで分岐
-  if git show-ref --verify --quiet "refs/heads/$branch"; then
-    git worktree add "$dir" "$branch"
-  else
-    git worktree add "$dir" -b "$branch"
-  fi
-
-  cd "$dir"
-
-  # ローカル設定のリンク、direnv allow / mise trust + install、serena MCP の登録
-  # (Herdr の worktree 操作、および旧 tmux ランチャーと共有している)
-  [[ -x "$HOME/.tmux/worktree_sync.sh" ]] && "$HOME/.tmux/worktree_sync.sh" "$PWD"
-
-  echo "✅ Worktree + Serena ready at $(pwd)"
-}
-
 # 実行コマンドを tmux の pane_title にセット
 if [[ -n "$TMUX" ]]; then
   autoload -Uz add-zsh-hook
@@ -349,5 +329,23 @@ fi
 
 [[ "$TERM_PROGRAM" == "kiro" ]] && . "$(kiro --locate-shell-integration-path zsh)"
 eval "$(mise activate zsh)"
+
+# Taskfile があるディレクトリで `task <Tab>` を使えるようにする。
+# mise のディレクトリ別 PATH 更新後に初期化し、シェル起動時に task がまだ
+# 利用できない場合（Task を mise で管理している場合など）は cd 後に再試行する。
+typeset -g __TASK_COMPLETION_LOADED=0
+_load_task_completion() {
+  (( __TASK_COMPLETION_LOADED )) && return 0
+  (( $+commands[task] )) || return 0
+
+  local completion
+  completion="$(command task --completion zsh 2>/dev/null)" || return 0
+  [[ -n "$completion" ]] || return 0
+  eval "$completion"
+  __TASK_COMPLETION_LOADED=1
+}
+_load_task_completion
+add-zsh-hook chpwd _load_task_completion
+
 # direnv は mise activate の後に hook する (PATH の前に direnv の変更を載せる)
 command -v direnv >/dev/null && eval "$(direnv hook zsh)"
