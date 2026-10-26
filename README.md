@@ -232,10 +232,15 @@ untracked ファイルがあると git が止めるので、その場合だけ�
 `gwt` は `git worktree` にそのまま委譲する。`make link` により `~/.local/bin/gwt` へリンクされ、
 どの Git リポジトリからも実行できる。
 
+`gwt` の一覧の左端には、ブランチに紐づく最新の GitHub PR を表示する。
+Open は `#1234`、Closed は `Closed`、Merged は `Merged`、PR なし・detached HEAD は `-`。
+`gh` の未導入・認証エラー・通信エラーなどで取得できない場合は `?` を表示する。
+PR 情報は起動時に対象ブランチをまとめて取得する。
+
 `gwt new` は fzf で既存ローカルブランチを選択する。`gwt new <branch> [dir]` は旧
 `new-worktree` の後継で、指定名の既存ブランチを checkout、無ければブランチと worktree を作成する。
-`dir` の既定値は `~/worktrees/<repo>/<branch>` で、作成後にローカル設定の同期を行い、その worktree
-をカレントにした子シェルを開く。
+`dir` の既定値は `~/worktrees/<repo>/<branch>` で、作成後にローカル設定の同期を行って終了する。
+実行後のカレントディレクトリは元の位置のまま変わらない。
 
 `+ 新規 worktree を作成` を選ぶとブランチ名を聞き、`git worktree add` してからセッションを開く
 (既存ブランチならそれを checkout、無ければ新規ブランチを作る)。置き場所は上から順に:
