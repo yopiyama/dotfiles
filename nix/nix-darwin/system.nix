@@ -4,6 +4,15 @@
   # Nix 自体の設定
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  # 古い世代と未参照の store パスを自動で回収する。rebuild は世代を積むだけで
+  # 消さないため、パッケージを外してもバイナリが旧世代に掴まれて残り続ける。
+  # 毎週日曜 3:00 に実行する (Weekday: 0 = 日曜)。
+  nix.gc = {
+    automatic = true;
+    interval = { Weekday = 0; Hour = 3; Minute = 0; };
+    options = "--delete-older-than 30d";
+  };
+
   # nixpkgs の設定
   nixpkgs.config.allowUnfree = true;
 
