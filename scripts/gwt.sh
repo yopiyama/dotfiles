@@ -46,13 +46,14 @@ if [ "${1:-}" = new ]; then
   # ローカル設定のリンク、direnv allow / mise trust + install、serena MCP の登録。
   [ -x "$HOME/.local/bin/worktree-sync" ] && "$HOME/.local/bin/worktree-sync" "$PWD"
   printf 'Worktree ready at %s\n' "$PWD"
-  exec "${SHELL:-/bin/sh}"
+  exit 0
 fi
 
 command -v fzf >/dev/null || { echo 'gwt: fzf が必要です' >&2; exit 1; }
 
 TAB=$'\t'
 BRANCH_WIDTH=60
+PR_WIDTH=8
 
 # ブランチ列を一定幅にして、区切りとパス列を常に同じ位置から始める。
 format_branch() {
@@ -70,7 +71,7 @@ collect_worktrees() {
     function flush() { if (path != "") print path "\t" branch "\t" flag; path = "" }
     /^worktree / { flush(); path = substr($0, 10); branch = ""; flag = "" }
     /^branch /   { branch = substr($0, 8); sub(/^refs\/heads\//, "", branch) }
-    /^detached$/ { flag = "detached" }
+    /^detached$/ { branch = "(detached)"; flag = "detached" }
     END          { flush() }
   '
 }
@@ -81,6 +82,53 @@ main_path="${wt_list%%$'\n'*}"
 main_path="${main_path%%$TAB*}"
 main_parent="$(dirname "$main_path")"
 repo_label="$(basename "$main_path")"
+
+# 対象ブランチの最新 PR を 1 リクエストで取得する。未取得と PR なしは区別する。
+pr_list=''
+pr_available=false
+collect_prs() {
+  command -v gh >/dev/null || return 1
+  local path branch flag index=0 fields='' variables='' query
+  local args=()
+  while IFS="$TAB" read -r path branch flag; do
+    [ -n "$branch" ] && [ "$flag" != detached ] || continue
+    variables="$variables, \$branch$index: String!"
+    fields="$fields pr$index: pullRequests(headRefName: \$branch$index, first: 1, orderBy: {field: CREATED_AT, direction: DESC}) { nodes { headRefName number state } }"
+    args+=(-f "branch$index=$branch")
+    index=$((index + 1))
+  done <<EOF
+$wt_list
+EOF
+  [ "$index" -gt 0 ] || return 0
+  query="query(\$owner: String!, \$name: String!$variables) { repository(owner: \$owner, name: \$name) { $fields } }"
+  gh api graphql -F owner='{owner}' -F name='{repo}' -f "query=$query" "${args[@]}" \
+    --jq '.data.repository | to_entries[] | .value.nodes[] | [.headRefName, .state, (.number | tostring)] | @tsv' 2>/dev/null
+}
+
+if pr_list="$(collect_prs)"; then
+  pr_available=true
+else
+  pr_list=''
+  echo 'gwt: PR 情報を取得できませんでした (gh の導入・認証・接続を確認してください)' >&2
+fi
+
+pr_label() {
+  local branch="$1" flag="$2" head state number
+  [ "$flag" != detached ] || { printf '-'; return; }
+  [ "$pr_available" = true ] || { printf '?'; return; }
+  while IFS="$TAB" read -r head state number; do
+    [ "$head" = "$branch" ] || continue
+    case "$state" in
+      OPEN) printf '#%s' "$number" ;;
+      CLOSED) printf 'Closed' ;;
+      MERGED) printf 'Merged' ;;
+    esac
+    return
+  done <<EOF
+$pr_list
+EOF
+  printf '-'
+}
 
 build_list() {
   local path branch flag display note
@@ -99,7 +147,8 @@ build_list() {
       display="$path"; note=''
     fi
     [ "$flag" = detached ] && note="${note:+$note, }detached"
-    printf '%s │ %s%s\t%s\n' "$(format_branch "$branch")" "$display" "${note:+  ($note)}" "$path"
+    printf '%-*s │ %s │ %s%s\t%s\n' "$PR_WIDTH" "$(pr_label "$branch" "$flag")" \
+      "$(format_branch "$branch")" "$display" "${note:+  ($note)}" "$path"
   done <<EOF
 $wt_list
 EOF

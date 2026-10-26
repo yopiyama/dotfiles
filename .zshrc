@@ -349,3 +349,6 @@ add-zsh-hook chpwd _load_task_completion
 
 # direnv は mise activate の後に hook する (PATH の前に direnv の変更を載せる)
 command -v direnv >/dev/null && eval "$(direnv hook zsh)"
+
+export PATH=/opt/homebrew/opt/curl/bin:$PATH
+

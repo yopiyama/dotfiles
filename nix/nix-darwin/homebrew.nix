@@ -28,6 +28,7 @@
       "crit"
       "daipeihust/tap/im-select"
       "hiro-o918/tap/rinkaku"
+      "curl"
     ];
     # nixpkgs と Homebrew の切り分けは CLAUDE.md「パッケージを nixpkgs で入れるか
     # Homebrew で入れるか」を参照。以下は個別の理由。

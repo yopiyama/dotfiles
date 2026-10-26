@@ -25,6 +25,8 @@ enabled = true
 
 # Claude Code の Read/Edit deny と同じファイル群を、workspace root 配下で保護する。
 [permissions.protected-workspace.filesystem]
+# sync-codex-config.sh が同期時に ${HOME} を各端末のホームディレクトリへ展開する。
+"${HOME}/Library/Caches/go-build" = "write"
 ":workspace_roots" = { ".env*" = "deny", "**/.env*" = "deny", "*.env" = "deny", "**/*.env" = "deny", "id_*" = "deny", "**/id_*" = "deny", "*.pem" = "deny", "**/*.pem" = "deny", "*.key" = "deny", "**/*.key" = "deny" }
 
 # ctxpack-mcp は ctxpack を stdio MCP server として公開する。Apple Silicon Mac の

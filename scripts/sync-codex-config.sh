@@ -24,7 +24,8 @@ Usage: sync-codex-config.sh [--dry-run] [--source PATH] [--target PATH]
 
 Synchronize top-level, single-line TOML assignments and tables from the source
 file into the target Codex config. Managed source values and tables are
-authoritative; every other target setting is preserved.
+authoritative; every other target setting is preserved. The literal ${HOME} in
+the source is expanded to the local home directory before synchronization.
 EOF
 }
 
@@ -65,15 +66,30 @@ done
 # 管理用ソースは、トップレベルの単一行 key = value と通常の table（その子 table を
 # 含む）だけを受け付ける。これにより任意の TOML を雑に書き換えず、同期範囲を明示的
 # に保つ。MCP は他の server を巻き込まないよう [mcp_servers.<name>] 単位で管理する。
+EXPANDED_SOURCE="$(mktemp "${TMPDIR:-/tmp}/codex-expanded-source.XXXXXX")"
 MANAGED_VALUES="$(mktemp "${TMPDIR:-/tmp}/codex-managed-values.XXXXXX")"
 MANAGED_TABLES="$(mktemp "${TMPDIR:-/tmp}/codex-managed-tables.XXXXXX")"
 MANAGED_TABLE_ROOTS="$(mktemp "${TMPDIR:-/tmp}/codex-managed-table-roots.XXXXXX")"
 cleanup() {
-  rm -f "$MANAGED_VALUES" "$MANAGED_TABLES" "$MANAGED_TABLE_ROOTS" \
+  rm -f "$EXPANDED_SOURCE" "$MANAGED_VALUES" "$MANAGED_TABLES" "$MANAGED_TABLE_ROOTS" \
     "${TUI_LOCAL_VALUES:-}" "${MANAGED_TABLES_WITH_TUI:-}" \
     "${WITHOUT_MANAGED_TABLES:-}" "${WORK_FILE:-}"
 }
 trap cleanup EXIT HUP INT TERM
+
+# Codex の設定で writable root は絶対パスを要求する。共有テンプレート内では
+# ${HOME} だけを許可し、同期する端末自身の home に展開する。
+awk -v home="$HOME" '
+  function expand_home(line, token, pos) {
+    token = "${HOME}"
+    while ((pos = index(line, token)) != 0) {
+      line = substr(line, 1, pos - 1) home substr(line, pos + length(token))
+    }
+    return line
+  }
+  /^[[:space:]]*#/ { print; next }
+  { print expand_home($0) }
+' "$SOURCE" >"$EXPANDED_SOURCE"
 
 awk -v managed_tables="$MANAGED_TABLES" -v managed_table_roots="$MANAGED_TABLE_ROOTS" '
   function invalid(message) {
@@ -126,7 +142,7 @@ awk -v managed_tables="$MANAGED_TABLES" -v managed_table_roots="$MANAGED_TABLE_R
     sub(/^[A-Za-z0-9_-]+[[:space:]]*=[[:space:]]*/, "", value)
     print key "\t" key " = " value
   }
-' "$SOURCE" >"$MANAGED_VALUES"
+' "$EXPANDED_SOURCE" >"$MANAGED_VALUES"
 
 [ -s "$MANAGED_VALUES" ] || [ -s "$MANAGED_TABLES" ] || {
   echo "共有設定に同期対象がありません: $SOURCE" >&2
