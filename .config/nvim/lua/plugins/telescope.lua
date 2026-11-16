@@ -5,11 +5,56 @@ return {
         dependencies = {
             "nvim-lua/plenary.nvim",
             { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
+            "nvim-treesitter/nvim-treesitter-context",
         },
         config = function()
             local telescope = require("telescope")
             local actions = require("telescope.actions")
             local action_state = require("telescope.actions.state")
+
+            local preview_windows = {}
+            local function update_preview_context(winid)
+                vim.schedule(function()
+                    if not vim.api.nvim_win_is_valid(winid) then
+                        preview_windows[winid] = nil
+                        return
+                    end
+                    -- 検索入力にフォーカスを残したまま、プレビュー側を更新する。
+                    vim.api.nvim_win_call(winid, function()
+                        vim.api.nvim_exec_autocmds("CursorMoved", {
+                            group = "treesitter_context_update",
+                        })
+                    end)
+                end)
+            end
+
+            local preview_group = vim.api.nvim_create_augroup("TelescopePreview", { clear = true })
+            vim.api.nvim_create_autocmd("User", {
+                group = preview_group,
+                pattern = "TelescopePreviewerLoaded",
+                callback = function()
+                    vim.wo.number = true
+                    vim.wo.relativenumber = false
+                    local winid = vim.api.nvim_get_current_win()
+                    preview_windows[winid] = true
+                    update_preview_context(winid)
+                end,
+            })
+            vim.api.nvim_create_autocmd("WinScrolled", {
+                group = preview_group,
+                callback = function(ev)
+                    local winid = tonumber(ev.match)
+                    if preview_windows[winid] then
+                        update_preview_context(winid)
+                    end
+                end,
+            })
+            vim.api.nvim_create_autocmd("WinClosed", {
+                group = preview_group,
+                callback = function(ev)
+                    preview_windows[tonumber(ev.match)] = nil
+                end,
+            })
 
             local function feed(keys)
                 return function()
@@ -29,6 +74,18 @@ return {
 
             telescope.setup({
                 defaults = {
+                    preview = {
+                        filetype_hook = function(_, bufnr, opts)
+                            -- Telescope は FileType を通常発火しないため、明示的に設定する。
+                            if opts.ft and opts.ft ~= "" and vim.bo[bufnr].filetype ~= opts.ft then
+                                vim.bo[bufnr].filetype = opts.ft
+                            end
+                            if opts.winid then
+                                update_preview_context(opts.winid)
+                            end
+                            return true
+                        end,
+                    },
                     path_display = { "truncate" },
                     file_ignore_patterns = ignore_patterns,
                     vimgrep_arguments = {
