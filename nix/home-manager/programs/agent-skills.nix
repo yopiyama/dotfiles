@@ -44,8 +44,8 @@
 
     sources.kepano-obsidian = {
       input = "kepano-obsidian-skills";
-      # 配布リポジトリの skills/ 直下に各スキルがある。
-      subdir = "skills";
+      # 配布リポジトリの plugins/obsidian/skills/ 直下に各スキルがある。
+      subdir = "plugins/obsidian/skills";
     };
 
     skills.enable = [
