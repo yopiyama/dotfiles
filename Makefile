@@ -39,6 +39,7 @@ help:
 	@echo ""
 	@echo "  make setup       - 初回セットアップ (install-nix → link → rebuild) *PROFILE 必須"
 	@echo "  make apply       - 通常の設定反映 (rebuild → link → Codex 同期) *PROFILE 必須"
+	@echo "                     UPDATE=1 で先に flake.lock も更新 (update-lock → apply)"
 	@echo "  make install-nix - nix 本体をインストール (導入済みなら何もしない)"
 	@echo "  make link        - symlink 作成 + Homebrew 準備 (scripts/link.sh)"
 	@echo "  make link-dry    - link の内容を表示するだけ (何も変更しない)"
@@ -64,8 +65,10 @@ setup:
 	@$(MAKE) rebuild PROFILE=$(PROFILE)
 
 # 通常の設定反映。link の末尾で Codex の共有設定も同期される。
+# UPDATE=1 を付けると先に update-lock で flake.lock を進める (INPUT で input を絞れる)。
 apply:
 	@$(CHECK_PROFILE)
+	@if [ "$(UPDATE)" = 1 ]; then $(MAKE) update-lock; fi
 	@$(MAKE) rebuild PROFILE=$(PROFILE)
 	@$(MAKE) link
 
