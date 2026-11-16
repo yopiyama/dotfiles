@@ -6,6 +6,10 @@ local M = {}
 -- (If you already set mapleader in another file, you can remove this line.)
 vim.g.mapleader = vim.g.mapleader or " "
 
+-- Marks: ma で設定、<leader>Ma でマーク a の行・桁へ移動
+-- <leader>m の一覧からの選択は which-key.lua で設定する。
+vim.keymap.set({ "n", "x", "o" }, "<leader>M", "`", { desc = "Marks: jump to mark" })
+
 -- Diagnostics (works even without an attached LSP)
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Diagnostic: previous" })
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Diagnostic: next" })

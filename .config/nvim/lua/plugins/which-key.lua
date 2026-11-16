@@ -32,6 +32,13 @@ return {
     },
     keys = {
         {
+            "<leader>m",
+            function()
+                require("which-key").show({ keys = "`", mode = "n" })
+            end,
+            desc = "Marks: select and jump",
+        },
+        {
             "<leader>?",
             function()
                 require("which-key").show({ global = true })
