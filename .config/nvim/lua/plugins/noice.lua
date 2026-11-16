@@ -4,7 +4,36 @@ return {
         event = "VeryLazy",
         dependencies = {
             "MunifTanjim/nui.nvim",
-            "rcarriga/nvim-notify",
+            {
+                "rcarriga/nvim-notify",
+                opts = {
+                    max_width = function()
+                        return math.min(80, math.max(20, math.floor(vim.o.columns * 0.6)))
+                    end,
+                    -- 標準の wrapped-default はバイト単位で切るため、日本語も表示幅で折り返す。
+                    render = function(buf, notification, highlights, config)
+                        local lines = {}
+                        local width = config.max_width()
+                        for _, line in ipairs(notification.message) do
+                            local wrapped = ""
+                            for _, char in ipairs(vim.fn.split(line, "\\zs")) do
+                                if wrapped ~= "" and vim.fn.strdisplaywidth(wrapped .. char) > width then
+                                    table.insert(lines, wrapped)
+                                    wrapped = ""
+                                end
+                                wrapped = wrapped .. char
+                            end
+                            table.insert(lines, wrapped)
+                        end
+                        require("notify.render.default")(
+                            buf,
+                            vim.tbl_extend("force", notification, { message = lines }),
+                            highlights,
+                            config
+                        )
+                    end,
+                },
+            },
         },
         opts = {
             -- : の入力欄と補完候補だけを浮動 UI にする。

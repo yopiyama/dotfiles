@@ -15,7 +15,7 @@ local options = {
 	number=true,
 	relativenumber = false,
 	numberwidth = 4,
-	signcolumn = "yes",
+	signcolumn = "yes:2", -- Git の変更表示とマーク名を並べる
 	list = true,
 	listchars = {
 		-- space は指定しない: 行頭の空白が全部ドットで埋まり

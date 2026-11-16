@@ -24,6 +24,7 @@
   system.stateVersion = 6;
   security.pam.services.sudo_local = {
     touchIdAuth = true;
+    reattach = true;
   };
 
   # Dock は使わないので実質的に画面へ出さない。完全に無効化する手段は無いため

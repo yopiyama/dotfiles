@@ -56,6 +56,7 @@
       ".claude/worktrees/"
       "mise.local.toml"
       ".pnpm-store/*"
+      "node_modules"
     ];
 
     attributes = [

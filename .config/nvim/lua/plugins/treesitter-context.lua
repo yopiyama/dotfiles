@@ -27,6 +27,9 @@ return {
         config = function()
             require("treesitter-context").setup({
                 max_lines = 5,
+                multiwindow = true,
+                -- Telescope の浮動ウィンドウより手前に表示する。
+                zindex = 60,
             })
         end,
     },
