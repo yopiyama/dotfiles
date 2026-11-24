@@ -24,6 +24,8 @@ vim.keymap.set("n", "<leader>l", "<cmd>lclose<CR>", { desc = "Close loclist" })
 -- Diff unsaved buffer against the file on disk
 vim.keymap.set("n", "<leader>do", "<cmd>DiffOrig<CR>", { desc = "Diff: buffer vs saved file" })
 
+vim.keymap.set({ "n", "x" }, "<leader>d", '"_d', { desc = "Delete without yanking" })
+
 -- IME切り替え(Ctrl+Shift+S)が端末のフロー制御解除により生の^Sとして
 -- コマンドライン(検索含む)に紛れ込むのを防ぐ
 vim.keymap.set("c", "<C-s>", "<Nop>", { desc = "Ignore stray ^S in cmdline" })

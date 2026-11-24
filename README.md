@@ -126,6 +126,12 @@ raycast/               自作 Raycast 拡張 (extensions/) と script command (s
 いずれも `scripts/link.sh` の `LINKS` 経由で `$HOME` にリンクされる。
 `*.sample` は untracked な実ファイルの雛形 (`.zshenv.sample`, `.tmux/projects.json.sample`)。
 
+### Neovim のキーバインド
+
+`<Space>d` は、レジスタやクリップボードを上書きせずに削除する。
+ノーマルモードでは後ろにモーションを続ける。`<Space>d40G` なら現在行から40行目まで、`<Space>dd` なら現在行、`3<Space>dd` なら現在行から3行を削除する。
+ビジュアルモードでは `<Space>d` で選択範囲を削除する。
+
 ## Packages (Nix)
 
 Packages are declared in Nix and applied with `darwin-rebuild`.
