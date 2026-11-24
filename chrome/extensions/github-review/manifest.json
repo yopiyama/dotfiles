@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "GitHub Review Groups",
+  "version": "0.1.0",
+  "description": "PR の変更ファイルを定義・実装・テストに分類し、生成ファイルを初期非表示にします。",
+  "permissions": ["storage"],
+  "background": { "service_worker": "background.js" },
+  "options_ui": { "page": "options.html", "open_in_tab": true },
+  "content_scripts": [{
+    "matches": ["https://github.com/*"],
+    "js": ["rules.js", "github-dom.js", "content.js"],
+    "css": ["content.css"],
+    "run_at": "document_idle"
+  }]
+}
