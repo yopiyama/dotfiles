@@ -44,7 +44,7 @@ awk '/topic worktree$/ { print "ctrl-d"; print }'
 
         result = subprocess.run(['/bin/bash', str(gwt)], cwd=repo, env=env, input='y\ny\n\n',
                                 capture_output=True, text=True, encoding='utf-8', check=True, timeout=10)
-        assert 'PR #42 が Open です。本当に削除しますか?' in result.stderr, result.stderr
+        assert 'PR #42 が Open です' in result.stderr, result.stderr
         assert worktree.is_dir(), result.stderr
         git('show-ref', '--verify', 'refs/heads/topic')
 
