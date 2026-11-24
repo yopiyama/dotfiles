@@ -8,7 +8,7 @@
 #   scripts/link.sh --dry-run
 #
 # - リンク元はこのスクリプト自身の場所 (scripts/) の親から解決するので、clone 先パスに依存しない。
-# - 一部はディレクトリ単位のリンク (.claude/skills, .config/nvim/lua) なので注意。
+# - 一部はディレクトリ単位のリンク (.claude/hooks, .config/nvim/lua) なので注意。
 # - $HOME/.claude, $HOME/.config, $HOME/.tmux 自体は実ディレクトリのまま、中身を選択的にリンクする。
 # - macOS 標準の bash 3.2 でも動くように書いている。
 set -euo pipefail
@@ -34,7 +34,8 @@ scripts/worktree-sync.sh|.local/bin/worktree-sync
 .claude/keybindings.json|.claude/keybindings.json
 .claude/.mcp.json|.claude/.mcp.json
 .claude/settings.json|.claude/settings.json
-.claude/skills|.claude/skills
+# Codex 側を基準に整理中。スキルの実体は保持し、Claude 側への公開だけ止める。
+#.claude/skills|.claude/skills
 .claude/agents|.claude/agents
 .claude/hooks|.claude/hooks
 .codex/rules/default.rules|.codex/rules/default.rules
@@ -114,7 +115,7 @@ fi
 echo "--- symlinks ---"
 
 while IFS='|' read -r src dest; do
-  [ -n "$src" ] || continue
+  case "$src" in ''|\#*) continue ;; esac
   link_one "$src" "$dest"
 done <<EOF
 $LINKS

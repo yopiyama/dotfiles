@@ -26,7 +26,7 @@ CHECK_PROFILE = \
 	fi
 
 .DEFAULT_GOAL := help
-.PHONY: help setup apply install-nix link link-dry codex-sync codex-sync-dry rebuild dry-run update update-lock doctor
+.PHONY: help setup apply install-nix link link-dry codex-sync codex-sync-dry rebuild dry-run update update-lock doctor omp-check
 
 # setup は install-nix → link → rebuild の順序に意味がある (link が Homebrew 本体を
 # 用意し、rebuild がその上に cask/brew を宣言的に入れる) ため並列実行させない。
@@ -50,6 +50,7 @@ help:
 	@echo "  make update      - パッケージ更新 (update-lock → rebuild) *PROFILE 必須"
 	@echo "  make update-lock - flake.lock だけ更新 (activate しない)"
 	@echo "  make doctor      - 前提コマンドと symlink の状態を確認"
+	@echo "  make omp-check   - OMP の安全設定を検証 (通常のターミナルで実行)"
 	@echo ""
 	@echo "  PROFILE にデフォルトは無い。指定可能: $(PROFILES)"
 	@echo "  例: make rebuild PROFILE=work"
@@ -151,3 +152,7 @@ doctor:
 	done
 	@echo "--- symlink (未反映のものがあれば下に出ます) ---"
 	@$(LINK_SH) --dry-run | grep -v '^  \[OK\]' || true
+
+omp-check:
+	cd "$(DOTFILES_DIR)" && node --test .config/omp/safety.test.mjs
+	cd "$(DOTFILES_DIR)" && node .config/omp/check-sandbox.mjs

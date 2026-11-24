@@ -1,0 +1,40 @@
+
+; secrets.sb に連結する。読み取りを維持し、子プロセスを含む書き込み先だけを絞る。
+; 依存キャッシュだけの例外。シークレットの deny の後、workspace の境界より前に置く。
+(define go-mod-cache (subpath (string-append (param "STATE") "/cache/go-mod")))
+(define protected-parent
+  (regex #"/([.]env[^/]*|[^/]*[.]env|id_[^/]*|[^/]*[.](pem|key))/"))
+; Go はパッケージの全 Go ソースを読み込むため、id_test.go などを除外しない。
+(allow file-read-data
+  (require-all go-mod-cache (regex #"/id_[^/]*[.]go$") (require-not protected-parent)))
+; モジュール ZIP は任意の名前・階層のファイルを展開する。使い捨てキャッシュ内の
+; 書き込みだけ例外にし、.env や鍵などの読み取りは secrets.sb に従う。
+(allow file-write* go-mod-cache)
+; 部分展開の再帰削除にはディレクトリの列挙が必要。ファイルの読み取りは許可しない。
+(allow file-read-data (require-all go-mod-cache (vnode-type DIRECTORY)))
+
+(deny file-write*
+  (require-not
+    (require-any
+      (subpath (param "WORKSPACE"))
+      (subpath (param "STATE"))
+      (subpath (param "TEMP"))
+      (subpath "/tmp")
+      (subpath "/private/tmp")
+      (regex (param "COMMIT_WRITE"))
+      (regex (param "COMMIT_PARENTS"))
+      (regex #"^/dev/(null|tty|ttys[0-9]+|fd/[0-9]+)$"))))
+
+; 起動位置や例外ディレクトリそのものの削除・改名は許可しない。
+(deny file-write-unlink
+  (literal (param "WORKSPACE"))
+  (literal (param "STATE"))
+  (literal (param "TEMP"))
+  (literal "/tmp")
+  (literal "/private/tmp"))
+
+; コミットで新設する ref/reflog の親ディレクトリ自体は削除させない。
+(deny file-write-unlink (regex (param "COMMIT_PARENTS")))
+
+; OMP とその子プロセスに許可リストを書き換えさせない。
+(deny file-write* (subpath (param "POLICIES")))
