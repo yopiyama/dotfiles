@@ -5,6 +5,9 @@
   programs.lazygit = {
     enable = true;
     settings = {
+      # ハンク単位だと最後のハンク内を j/k で読み進められないため、行単位で開く。
+      # ハンク単位の選択は a で切り替える。
+      gui.useHunkModeInDiffView = false;
       os.editPreset = "nvim-remote";
       git = {
         autocommit = false;
