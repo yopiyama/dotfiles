@@ -83,7 +83,7 @@ main_path="${main_path%%$TAB*}"
 main_parent="$(dirname "$main_path")"
 repo_label="$(basename "$main_path")"
 
-# 対象ブランチの最新 PR を 1 リクエストで取得する。未取得と PR なしは区別する。
+# 最新 PR をまとめて取得する。未取得と PR なしは区別する。
 pr_list=''
 pr_available=false
 collect_prs() {
@@ -93,41 +93,45 @@ collect_prs() {
   while IFS="$TAB" read -r path branch flag; do
     [ -n "$branch" ] && [ "$flag" != detached ] || continue
     variables="$variables, \$branch$index: String!"
-    fields="$fields pr$index: pullRequests(headRefName: \$branch$index, first: 1, orderBy: {field: CREATED_AT, direction: DESC}) { nodes { headRefName number state } }"
+    fields="$fields pr$index: pullRequests(headRefName: \$branch$index, first: 1, orderBy: {field: CREATED_AT, direction: DESC}) { nodes { headRefName number state isDraft } }"
     args+=(-f "branch$index=$branch")
     index=$((index + 1))
   done <<EOF
-$wt_list
+$1
 EOF
   [ "$index" -gt 0 ] || return 0
   query="query(\$owner: String!, \$name: String!$variables) { repository(owner: \$owner, name: \$name) { $fields } }"
-  gh api graphql -F owner='{owner}' -F name='{repo}' -f "query=$query" "${args[@]}" \
-    --jq '.data.repository | to_entries[] | .value.nodes[] | [.headRefName, .state, (.number | tostring)] | @tsv' 2>/dev/null
+  (cd "$main_path" && gh api graphql -F owner='{owner}' -F name='{repo}' -f "query=$query" "${args[@]}" \
+    --jq '.data.repository | to_entries[] | .value.nodes[] | [.headRefName, (if .state == "OPEN" and .isDraft then "DRAFT" else .state end), .number] | @tsv' 2>/dev/null)
 }
 
-if pr_list="$(collect_prs)"; then
+if pr_list="$(collect_prs "$wt_list")"; then
   pr_available=true
 else
   pr_list=''
   echo 'gwt: PR 情報を取得できませんでした (gh の導入・認証・接続を確認してください)' >&2
 fi
 
-pr_label() {
-  local branch="$1" flag="$2" head state number
-  [ "$flag" != detached ] || { printf '-'; return; }
-  [ "$pr_available" = true ] || { printf '?'; return; }
+find_pr() {
+  local branch="$1" head state number
   while IFS="$TAB" read -r head state number; do
     [ "$head" = "$branch" ] || continue
-    case "$state" in
-      OPEN) printf '#%s' "$number" ;;
-      CLOSED) printf 'Closed' ;;
-      MERGED) printf 'Merged' ;;
-    esac
+    printf '%s\t%s\n' "$state" "$number"
     return
-  done <<EOF
-$pr_list
-EOF
-  printf '-'
+  done <<< "$2"
+}
+
+pr_label() {
+  local branch="$1" flag="$2" state number
+  [ "$flag" != detached ] || { printf '-'; return; }
+  [ "$pr_available" = true ] || { printf '?'; return; }
+  IFS="$TAB" read -r state number <<< "$(find_pr "$branch" "$pr_list")"
+  case "$state" in
+    OPEN|DRAFT) printf '#%s' "$number" ;;
+    CLOSED) printf 'Closed' ;;
+    MERGED) printf 'Merged' ;;
+    *) printf '-' ;;
+  esac
 }
 
 build_list() {
@@ -154,6 +158,13 @@ $wt_list
 EOF
 }
 
+confirm() {
+  local answer
+  printf '%s [y/N]: ' "$1" >&2
+  read -r answer || exit 0
+  [[ "$answer" =~ ^[yY]([eE][sS])?$ ]]
+}
+
 while :; do
   fzf_out="$(build_list | fzf --delimiter="$TAB" --with-nth=1 --expect=ctrl-d \
     --prompt='worktree> ' \
@@ -173,13 +184,49 @@ while :; do
     echo 'gwt: メイン worktree は削除できません' >&2
     continue
   fi
-  printf '削除しますか? %s [y/N]: ' "$(basename "$target")" >&2
-  read -r answer
-  case "$answer" in [yY]*) ;; *) continue ;; esac
-  if ! git -C "$main_path" worktree remove "$target"; then
-    printf '変更を破棄して強制削除しますか? [y/N]: ' >&2
-    read -r answer
-    case "$answer" in [yY]*) git -C "$main_path" worktree remove --force "$target" ;; esac
+  confirm "worktree を削除しますか? $target" || continue
+
+  # 一覧を開いている間に checkout が変わっていることがある。
+  wt_list="$(collect_worktrees "$main_path")"
+  while IFS="$TAB" read -r path branch flag; do
+    [ "$path" = "$target" ] && break
+  done <<< "$wt_list"
+  if [ "$path" != "$target" ]; then
+    echo 'gwt: 対象の worktree は一覧にありません' >&2
+    continue
+  fi
+
+  remove_branch=false
+  if [ -n "$branch" ] && [ "$flag" != detached ]; then
+    if confirm "ローカルブランチも削除しますか? $branch"; then
+      remove_branch=true
+    fi
+
+    if latest_pr="$(collect_prs "$path$TAB$branch")"; then
+      IFS="$TAB" read -r state number <<< "$(find_pr "$branch" "$latest_pr")"
+      case "$state" in
+        MERGED|CLOSED) reason='' ;;
+        OPEN) reason="PR #$number が Open です" ;;
+        DRAFT) reason="PR #$number が Draft です" ;;
+        '') reason='PR がまだありません' ;;
+        *) reason='PR の状態を確認できませんでした' ;;
+      esac
+    else
+      reason='PR の状態を確認できませんでした'
+    fi
+    if [ -n "$reason" ]; then
+      confirm "${reason}。本当に削除しますか?" || continue
+    fi
+  fi
+
+  if ! git -C "$main_path" worktree remove -- "$target"; then
+    confirm '変更を破棄して worktree を強制削除しますか?' || continue
+    git -C "$main_path" worktree remove --force -- "$target" || continue
+  fi
+  if [ "$remove_branch" = true ] && ! git -C "$main_path" branch -d -- "$branch"; then
+    if confirm "未マージのコミットがあってもローカルブランチを強制削除しますか? $branch"; then
+      git -C "$main_path" branch -D -- "$branch"
+    fi
   fi
   wt_list="$(collect_worktrees "$main_path")"
 done

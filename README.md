@@ -233,9 +233,15 @@ untracked ファイルがあると git が止めるので、その場合だけ�
 どの Git リポジトリからも実行できる。
 
 `gwt` の一覧の左端には、ブランチに紐づく最新の GitHub PR を表示する。
-Open は `#1234`、Closed は `Closed`、Merged は `Merged`、PR なし・detached HEAD は `-`。
+Open と Draft は `#1234`、Closed は `Closed`、Merged は `Merged`、PR なしおよび detached HEAD は `-`。
 `gh` の未導入・認証エラー・通信エラーなどで取得できない場合は `?` を表示する。
 PR 情報は起動時に対象ブランチをまとめて取得する。
+
+`Ctrl-d` で worktree の削除を確認した後、ローカルブランチも削除するかを選べる。既定ではブランチを残す。
+削除前に対象ブランチの PR を再取得し、未作成、Open、Draft、または取得できない場合は、理由を表示して削除を続けるか確認する。
+ここで続行しなければ、worktree もブランチも残る。
+ブランチを削除するのは worktree の削除に成功した後だけで、Git が通常のブランチ削除を拒否した場合は、強制削除するかを別に確認する。
+リモートブランチは削除しない。
 
 `gwt new` は fzf で既存ローカルブランチを選択する。`gwt new <branch> [dir]` は旧
 `new-worktree` の後継で、指定名の既存ブランチを checkout、無ければブランチと worktree を作成する。
