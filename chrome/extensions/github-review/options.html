@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GitHub Review Groups — 分類設定</title>
+  <link rel="stylesheet" href="options.css">
+  <script src="rules.js" defer></script>
+  <script src="options.js" defer></script>
+</head>
+<body>
+  <main>
+    <h1>分類設定</h1>
+    <p id="repository"></p>
+    <p>ルールは 1 行に 1 つ。<code>*</code> は同じ階層内、<code>**</code> は階層をまたいで一致します。
+      例: <code>**/*.pb.go</code>、<code>backend/gen/**</code>。</p>
+    <p>判定の優先順: 生成ファイル → 定義 → テスト → 実装 → その他。空欄の分類はパスでの判定を行いません。</p>
+    <form>
+      <label>生成ファイル<textarea name="generated" rows="8" spellcheck="false"></textarea></label>
+      <label>定義<textarea name="definitions" rows="5" spellcheck="false"></textarea></label>
+      <label>テスト<textarea name="tests" rows="7" spellcheck="false"></textarea></label>
+      <label>実装<textarea name="implementation" rows="8" spellcheck="false"></textarea></label>
+      <div class="actions"><button type="submit">保存</button><button id="reset" type="button">標準ルールを入力</button></div>
+    </form>
+    <p id="status" role="status"></p>
+    <p>設定はこの Chrome のローカルに保存され、このリポジトリの PR に適用されます。標準ルールに戻す場合も「保存」を押してください。</p>
+  </main>
+</body>
+</html>

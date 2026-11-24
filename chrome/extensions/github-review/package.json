@@ -1,0 +1,7 @@
+{
+  "name": "github-review-groups",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": { "test": "node --test test/*.test.cjs" },
+  "devDependencies": { "jsdom": "26.1.0" }
+}
