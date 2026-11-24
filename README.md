@@ -74,6 +74,11 @@ table と子 table を丸ごと置換し、それ以外の table は保持する
 `default_permissions` などの permission 設定もここで管理できる。意図しない上書きを
 避けるため、このファイルに明示した値と table 以外は同期先で保持する。
 
+共有 permission 設定は `:workspace` を継承し、`.git` は読み取り専用のままにする。
+worktree の `.git` はディレクトリではなく参照ファイルなので、`.git/index` などを
+workspace root 配下の書き込み先として一律に追加すると、Seatbelt の初期化に失敗する。
+`git add` / `git commit` などの書き込み操作はサンドボックス外で、次のコマンドルールに従う。
+
 `.codex/rules/default.rules` は、サンドボックス外で実行するコマンドの共有ルールであり、
 `make link` が `~/.codex/rules/default.rules` へ symlink する。既存の実ファイルは link
 スクリプトの通常どおりバックアップして置き換える。Codex の UI から許可ルールを追加すると
