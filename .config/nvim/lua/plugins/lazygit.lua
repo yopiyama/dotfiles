@@ -4,6 +4,22 @@ return {
     cmd = { "LazyGit" },
     dependencies = { "nvim-lua/plenary.nvim" },
     config = function()
+        -- Telescope 向けの TreesitterContext (zindex 60) より LazyGit を手前に出す。
+        vim.api.nvim_create_autocmd("FileType", {
+            group = vim.api.nvim_create_augroup("LazyGitWindow", { clear = true }),
+            pattern = "lazygit",
+            callback = function(args)
+                local win = vim.api.nvim_get_current_win()
+                if vim.api.nvim_win_get_buf(win) == args.buf
+                    and vim.api.nvim_win_get_config(win).relative ~= ""
+                then
+                    -- 初回描画でウィンドウを配置してから重ね順を変える。
+                    vim.cmd.redraw()
+                    vim.api.nvim_win_set_config(win, { zindex = 70 })
+                end
+            end,
+        })
+
         local edited_buffer
         local edited_window
 
