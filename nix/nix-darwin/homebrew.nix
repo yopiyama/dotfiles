@@ -44,6 +44,8 @@
       "1password-cli"
       "alt-tab"
       "codex"
+      # nixpkgs にパッケージが無く、公式も Homebrew での導入を案内している。
+      "devutils"
       "karabiner-elements"
       "linearmouse"
       # ドライバ/常駐エージェントを sudo で入れる installer 形式の cask。
