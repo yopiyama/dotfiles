@@ -198,7 +198,7 @@ while :; do
 
   remove_branch=false
   if [ -n "$branch" ] && [ "$flag" != detached ]; then
-    if confirm "ローカルブランチも削除しますか? $branch"; then
+    if confirm "ローカルブランチも削除しますか? $branch (n: ブランチを残す)"; then
       remove_branch=true
     fi
 
@@ -215,7 +215,12 @@ while :; do
       reason='PR の状態を確認できませんでした'
     fi
     if [ -n "$reason" ]; then
-      confirm "${reason}。本当に削除しますか?" || continue
+      if [ "$remove_branch" = true ]; then
+        removal_prompt='worktree とローカルブランチの削除を続けますか?'
+      else
+        removal_prompt='ローカルブランチは残します。worktree の削除を続けますか?'
+      fi
+      confirm "${reason}。$removal_prompt" || continue
     fi
   fi
 
