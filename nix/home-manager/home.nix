@@ -12,6 +12,7 @@
     ./programs/karabiner.nix
     ./programs/lazygit.nix
     ./programs/mise.nix
+    ./programs/omp.nix
   ];
 
   home.stateVersion = "25.05";

@@ -50,12 +50,17 @@ symlink 作成の実体は `scripts/link.sh`。単体実行 (`scripts/link.sh`,
 解決するので、リポジトリはどこに clone してもよい。既存の実ファイルは
 `*.backup-<timestamp>` にバックアップし、別の場所を指す symlink は張り替える。
 
-リンク対象はファイル単位とディレクトリ単位が混在する (`.claude/skills` や
+リンク対象はファイル単位とディレクトリ単位が混在する (`.claude/hooks` や
 `.config/nvim/lua` はディレクトリ丸ごと) ので、管理対象を増やすときは
 `scripts/link.sh` の `LINKS` を編集する。
 `*.sample` から untracked な実ファイルを bootstrap する仕組みもあり
 (`~/.tmux/projects.json` ← `.tmux/projects.json.sample`、`~/.zshenv` ←
 `.zshenv.sample`)、既存の場合は触らない — `COPIES` を参照。
+
+Claude 用スキルの実体は `.claude/skills/` に保管しているが、`~/.claude/skills` への
+リンクは現在コメントアウトしている。OMP は `~/.codex/skills/` を再利用し、選択した
+モデルが Claude でも Codex でも同じスキルを使う。Codex 側が共有するスクリプトの
+source はリポジトリ内の実体を直接参照しており、このリンクの有無には依存しない。
 
 ### Codex
 
@@ -104,6 +109,117 @@ target は `nix/home-manager/programs/agent-skills.nix`、固定リビジョン�
 `obsidian-safe-ops`、`handoff`、`resume-handoff`、`pr-comments` は Claude 側の検証済み
 スクリプトを必要に応じて共有し、外部の Obsidian 形式スキルとは I/O と記法の責務を分ける。
 
+### Oh My Pi (omp)
+
+本体と公式 Home Manager module は `nix/nix-darwin/flake.nix` の `omp` input で
+リリースを固定する。設定の source of truth は `nix/home-manager/programs/omp.nix`、
+メイン・Advisor・task subagent 共通の指示は `.config/omp/RULES.md`。
+
+```sh
+# このリポジトリで実行。私用 Mac は PROFILE=personal にする。
+make rebuild PROFILE=work
+# 以降は作業対象のプロジェクトで実行
+omp
+```
+
+起動後、`/login` から利用するプロバイダーへ認証し、`/model` のモデル hub で
+default（実装担当）や advisor（レビュー担当）を割り当てる。
+Advisor はモデル割り当て後に `/advisor on` で有効化する。`work` の既定モデルは
+`settings.modelRoles.default` で管理する。認証情報は共有設定に含めない。
+
+- Claude / Codex の user-level discovery を明示的に有効化し、既存の指示・Skills・MCP
+  設定を利用する。各ツールの permission や hooks が同じ意味で動く保証はない。
+- 通常の `omp` は macOS `sandbox-exec` を通す。`.env*`、`*.env`、`id_*`、`*.pem`、
+  `*.key` の内容の読み取り・変更を OMP 本体と子プロセスで拒否する。
+  起動時の dotenv 読み込みも対象。sandbox を開始できなければ OMP も起動しない。
+  ファイル名による保護のため、既に環境変数へ読み込まれた値や別名コピーは保護対象外。
+- 書き込み先は起動ディレクトリ配下、`/tmp`（`/private/tmp`）、macOS のユーザー別
+  `$TMPDIR`、OMP の動作に必要な `~/.omp` に制限する。Bash や `eval` にも適用し、
+  起動ディレクトリ自体は削除・移動できない。ホームやその親からは起動しない。
+  `--cwd` や `cd` は書き込み範囲を広げない。範囲外への書き込みは通常のターミナルで行う。
+  コミットは公式 OMP の公開 API で登録した `commit` 拡張で行う。本体にはパッチを当てない。
+  差分を確認し、依頼されたファイルを `paths` に列挙する。行単位の切り分けはせず、
+  ステージ済みと未ステージの変更が混在するファイルや、保護対象は拒否する。
+  選択外のステージ内容は維持する。専用ツールは自動承認し、一般の `eval` は都度確認する。
+  公式の `/commit` と `eval` のコミット機能は無効化する。amend・フックのスキップ・push は対象外。
+  Lefthook は、非対話のパイプ実行に対応した Nix 管理版を OMP の起動時に指定する。
+  選択コミットでは Lefthook のチェックを実行するが、自動再ステージと共有 stash は使わない。
+  フックが検知対象のファイルを変更した場合はコミットを止め、結果を残す。
+  差分を確認し、意図した整形・生成結果だけを含めて再実行する。変更検知のために
+  `.envrc` などの保護対象や、シンボリックリンクのリンク先は読み取らない。
+- `tools.approvalMode = "yolo"` で、個別ポリシーのない Bash、`write`、MCP 呼び出しは自動承認する。
+  通常の `git push` や MCP 経由の外部サービスへの変更も、個別ポリシーがなければツール側では確認しない。
+  `git show` などの単純な Git コマンドは `bash` で直接実行する。
+  `eval` と `bash.patterns` の明示的な `prompt` は、`--auto-approve` を付けても引き続き確認する。
+  `rm`、force push、hard reset、PR の merge/close などは引き続き拒否する。
+  ファイルごとの削除と移動には `file_change` を使う。起動ディレクトリ配下では対象パスを
+  表示して都度確認する。一時領域内だけで完結する操作は承認不要。
+  `mktemp` で作った一時ディレクトリも、シェルの `trap` ではなく `file_change` で後片付けする。
+  移動先の上書きやシンボリックリンク経由の操作は拒否する。
+- OMP のサブエージェントは、並列数の上限が 4。非隔離で追加ツールの指定がない
+  `scout` のみ自動承認し、ほかの起動は確認する。task・Advisor・非対話セッションでは
+  編集・shell・eval・MCP・LSP を拒否する。セッション一覧は worktree 単位に分ける。
+- Herdr の公式 OMP 連携拡張も Home Manager で配置する。Herdr 内で起動した OMP の
+  作業中・入力待ち・待機状態と会話の復元情報を Herdr に通知する。
+  `herdr integration status` で導入状態を確認できる。拡張は Herdr と同じ revision に
+  固定するため、`herdr integration install omp` での個別更新は不要。
+  保護と Herdr の拡張は起動時に明示的に読み込むため、ほかの拡張は自動検出しない。
+- モデル切り替えは `F6`（次）／`Shift+F6`（前）に変更し、Herdr の prefix `Ctrl+P`
+  との衝突を避ける。役割の割り当ては従来どおり `Alt+M` または `/model`。
+  キー設定は `~/.omp/agent/keybindings.yml` へ配置し、変更後は OMP を再起動する。
+- 暗色テーマは同梱の `dark-terminal` をベースに、補助テキストのグレーを明るくした
+  `dark-terminal-readable`。明色テーマと端末側の配色は変更しない。入力欄は `claude`、記号は `ascii`。
+- 公式 module は `~/.omp/agent/config.yml` を書き込み可能な実ファイルとして配置する。
+  `/settings`・`/model`・`/advisor` 等で保存したグローバル設定は、次回 rebuild で
+  宣言内容に置き換わる。継続使用するモデルの割り当ては `settings.modelRoles` に、
+  Advisor の常時有効化は `settings.advisor.enabled` に反映する。
+- 認証・セッション・キャッシュは `~/.omp/` のローカルデータとして保持する。
+  ディレクトリ全体を Git 管理・symlink 管理しない。
+
+プロジェクト固有の許可リストは、リポジトリや dotfiles に入れず、
+`~/.omp/permissions.d$(pwd -P).yml`（対象プロジェクトのルートで `pwd -P` を評価）
+に置く。`bash.patterns` に `{ match: "task package:lint", approval: allow }` のように
+引数込みの完全一致を登録する。許可・確認ルールは、その物理パスからの起動にのみ適用する。
+リンク済み worktree では、元リポジトリの `bash.patterns` にある拒否ルールだけを継承し、
+worktree の許可ルールより先に判定する。継承用の設定は起動時に `permissions.d` 内に生成し、
+元の設定と同様に OMP からは書き換えられない。起動パス固有の設定または継承した拒否ルールを
+使う場合、Bash の `cwd` は起動ディレクトリに固定する。
+元リポジトリの設定を継承したリンク済み worktree では、起動時のブランチへの専用コミットツールも
+利用できる。許可するのは、その worktree の index とコミット用一時ファイル、起動時の
+ブランチの ref・reflog と loose object の書き込み。共有 Git 設定、他ブランチと他 worktree
+の管理領域には書き込めない。ブランチを切り替えた場合は OMP を起動し直す。
+
+Go のビルド・依存・チェックサム検証（`GOPATH/pkg/sumdb`）、golangci-lint、mise、Deno と XDG
+のキャッシュは、OMP 起動時に `~/.omp/cache/` 配下へ向ける。`GOPROXY` が未設定、空、または
+区切り文字だけの場合は `https://proxy.golang.org,direct` を使う。プロキシを指定する場合は
+起動環境に設定する。
+Go の依存を展開する `~/.omp/cache/go-mod` 内では、ZIP 内の名前や階層にかかわらず
+作成と部分展開の回収ができる。ほかの場所への書き込み禁止や `.env` と鍵ファイルの内容の
+読み取り禁止は維持する。`id_test.go` などの Go ソースは、保護対象の親ディレクトリがない
+場合に限り、このキャッシュ内で読める。保護対象のファイルを読む `go mod verify` や
+`go:embed` は通常のターミナルで実行する。
+Docker や外部サービスの接続・認証に秘密ファイルが必要な Task は通常のターミナルで実行する。
+
+OMP の起動や `make rebuild` ごとに検証を実行する必要はない。安全設定を変えたときや、
+別の Mac で初めて適用するときは、通常のターミナルで `make omp-check` を実行する。
+一時ファイルだけを使い、実際の秘密ファイルは読まない。
+
+削除・移動の承認も OMP 本体で確認する場合:
+
+```sh
+# rebuild 後、既定モデルを選択済みの状態で実行。モデルにはリクエストしない。
+omp --no-session --mode rpc --trusted-extension "$PWD/.config/omp/workspace-safety.test.mjs" </dev/null
+```
+
+`check-sandbox.mjs` が `Sandbox could not start` なら、その起動環境では保護付き OMP も起動できない。
+既存の sandbox 内から実行すると macOS が二重 sandbox を拒否することがあるため、
+通常の Herdr ペインでも検証してから適用する。`--yolo` や拡張無効化による運用はしない。
+
+更新時は `omp` input の URL のリリース番号を変更してから
+`make update-lock INPUT=omp` → `make rebuild PROFILE=...`。アプリ内の自己更新は使わない。
+公式資料：[設定](https://github.com/can1357/oh-my-pi/blob/v19.0.0/docs/settings.md)、
+[モデル](https://github.com/can1357/oh-my-pi/blob/v19.0.0/docs/models.md)。
+
 ## Directory Structure
 
 全ファイルは列挙しない。迷いやすい場所と、置き場所の判断が要るものだけ書く。
@@ -118,7 +234,7 @@ scripts/
   link.sh              symlink 作成 + Homebrew 本体の準備 (make link の実体)
 .config/nvim/          Neovim。init.lua + lua/ を丸ごと symlink (Nix 管理下に置かない)
 .config/herdr/         Herdr の設定とプロジェクトランチャー。Home Manager の xdg.configFile で管理
-.claude/               Claude Code 設定。skills/ agents/ hooks/ はディレクトリ丸ごと symlink
+.claude/               Claude Code 設定。agents/ hooks/ は symlink、skills/ は実体のみ保管
 .codex/                Codex 設定。AGENTS.md・rules/ は symlink、config.shared.toml は部分同期の source
 .tmux/                 tmux から呼ぶヘルパー。launch_project.sh = prefix + C-p のプロジェクトランチャー、
                        worktree_session.sh = prefix + C-w の git worktree ランチャー、lib/ は両者の共通部品、

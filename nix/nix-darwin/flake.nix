@@ -19,6 +19,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # 本体と Home Manager module を同じリリースに固定する。
+    omp.url = "github:can1357/oh-my-pi/v19.0.0";
+
     # Agent Skills を Nix store に固定し、Home Manager から Codex へ配置する。
     agent-skills = {
       url = "github:Kyure-A/agent-skills-nix";
@@ -61,6 +64,7 @@
             home-manager.useUserPackages = true;
             home-manager.sharedModules = [
               agent-skills.homeManagerModules.default
+              inputs.omp.homeManagerModules.default
             ];
             # scripts/link.sh の symlink 等、既存ファイルと衝突した場合はエラーで止めず
             # *.bak にリネームしてから home-manager 管理下に置き換える
