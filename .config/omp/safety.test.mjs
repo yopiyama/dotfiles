@@ -43,19 +43,22 @@ test("headless or unknown contexts fail closed for mutations", async () => {
   assert.equal((await call("write", {}, { hasUI: true }))?.block, true);
 });
 
-test("scout-only batches skip confirmation, but other delegations do not", async () => {
+test("interactive main can delegate any task without a hook confirmation", async () => {
   let approvalGuard;
   approvalSafety({ on(_event, handler) { approvalGuard = handler; } });
-  let prompted = 0;
-  const ctx = { ...main, ui: { confirm() { prompted++; return false; } } };
-  const delegate = input => approvalGuard({ toolName: "task", input }, ctx);
+  const ctx = { ...main, ui: { confirm() { assert.fail("task should not prompt"); } } };
   const scout = { agent: "scout", task: "Find references", solutionSpace: "read-only" };
-  assert.equal(await delegate({ tasks: [scout] }), undefined);
-  assert.equal(prompted, 0);
-  for (const item of [{ ...scout, agent: "task" }, { ...scout, isolated: true }, { ...scout, tools: ["custom"] }]) {
-    assert.equal((await delegate({ tasks: [scout, item] }))?.block, true);
+  const reviewer = { ...scout, agent: "reviewer" };
+  for (const input of [
+    reviewer,
+    { tasks: [scout, reviewer] },
+    { tasks: [{ ...scout, isolated: true }] },
+    { tasks: [{ ...scout, tools: ["custom"] }] },
+    { tasks: [{ ...scout, model: "provider/model" }] },
+  ]) {
+    assert.equal(await call("task", input, ctx), undefined);
+    assert.equal(await approvalGuard({ toolName: "task", input }, ctx), undefined);
   }
-  assert.equal(prompted, 3);
 });
 
 test("Bash cannot carry a project-scoped approval to another cwd", async t => {
