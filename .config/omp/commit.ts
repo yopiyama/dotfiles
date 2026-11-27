@@ -1,7 +1,8 @@
 import { execFile } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { closeSync, constants, copyFileSync, existsSync, lstatSync, openSync, realpathSync, renameSync, rmSync } from "node:fs";
+import { closeSync, createReadStream, createWriteStream, lstatSync, openSync, realpathSync, renameSync, rmSync, statSync } from "node:fs";
 import { dirname, isAbsolute, join } from "node:path";
+import { pipeline } from "node:stream/promises";
 import { promisify } from "node:util";
 import type { ExtensionAPI } from "@oh-my-pi/pi-coding-agent";
 
@@ -62,8 +63,13 @@ export default function commitExtension(pi: ExtensionAPI) {
       let indexWarning = "";
       try {
         const privateEnv = { ...env, GIT_INDEX_FILE: temporary, DOTFILES_OMP_SELECTIVE_COMMIT: "1" };
-        if (existsSync(index)) copyFileSync(index, temporary, constants.COPYFILE_EXCL);
-        else await runGit(["read-tree", "--empty"], privateEnv);
+        const indexStat = statSync(index, { throwIfNoEntry: false });
+        if (indexStat) {
+          // Bun's large-file copy on macOS attempts cloning/ACL writes that Seatbelt can deny.
+          await pipeline(createReadStream(index), createWriteStream(temporary, { flags: "wx", mode: indexStat.mode & 0o777 }));
+        } else {
+          await runGit(["read-tree", "--empty"], privateEnv);
+        }
 
         const status = await runGit(["status", "--porcelain=v1", "-z", "--untracked-files=all", "--no-renames", "--", ...paths], privateEnv);
         const changed = status.split("\0").filter(Boolean);

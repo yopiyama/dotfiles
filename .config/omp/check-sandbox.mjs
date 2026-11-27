@@ -10,9 +10,10 @@ const source = name => fs.readFileSync(fileURLToPath(new URL(name, import.meta.u
 const profile = source("./secrets.sb") + source("./workspace.sb");
 const root = fs.realpathSync(process.cwd());
 const temp = fs.realpathSync(os.tmpdir());
-const sandbox = (command, args, workspace = root, state = path.join(root, "omp-probe-state"), commit = {}) =>
+const sandbox = (command, args, workspace = root, state = path.join(root, "omp-probe-state"), vault = workspace, commit = {}) =>
   spawnSync("/usr/bin/sandbox-exec", [
     "-D", `WORKSPACE=${workspace}`, "-D", `STATE=${state}`, "-D", `TEMP=${temp}`,
+    "-D", `OBSIDIAN_VAULT=${vault}`,
     "-D", `POLICIES=${path.join(state, "permissions.d")}`,
     "-D", `COMMIT_WRITE=${commit.write ?? "^$"}`, "-D", `COMMIT_PARENTS=${commit.parents ?? "^$"}`,
     "-p", profile, command, ...args,
@@ -30,8 +31,9 @@ try {
   const workspace = path.join(directory, "project");
   const outside = path.join(directory, "project-other");
   const state = path.join(directory, "state");
-  for (const dir of [workspace, outside, state]) fs.mkdirSync(dir);
-  const run = (command, args) => sandbox(command, args, workspace, state);
+  const vault = path.join(directory, "vault");
+  for (const dir of [workspace, outside, state, vault]) fs.mkdirSync(dir);
+  const run = (command, args) => sandbox(command, args, workspace, state, vault);
   const childFs = (script, ...args) => run(process.execPath, ["-e", script, ...args]);
   const touch = file => childFs('require("node:fs").appendFileSync(process.argv[1], "fixture")', file);
   const remove = file => childFs('require("node:fs").unlinkSync(process.argv[1])', file);
@@ -50,6 +52,21 @@ try {
   denied(touch(path.join(link, "outside.txt")));
   assert.equal(fs.readFileSync(outsideFile, "utf8"), "unchanged");
   denied(childFs('require("node:fs").renameSync(process.argv[1], process.argv[2])', workspace, path.join(temporary, "moved")));
+  // obs.sh と同じく、Vault 内の一時ファイルから rename でノートを保存できる。
+  const note = path.join(vault, "Notes", "note.md");
+  allowed(childFs(`
+    const fs = require("node:fs");
+    const note = process.argv[1];
+    fs.mkdirSync(require("node:path").dirname(note));
+    fs.writeFileSync(note + ".obs-tmp", "fixture");
+    fs.renameSync(note + ".obs-tmp", note);
+  `, note));
+  assert.equal(fs.readFileSync(note, "utf8"), "fixture");
+  denied(childFs('require("node:fs").renameSync(process.argv[1], process.argv[2])', vault, path.join(temporary, "moved-vault")));
+  denied(touch(path.join(vault, "fixture.key")));
+  const vaultLink = path.join(vault, "other");
+  fs.symlinkSync(outside, vaultLink);
+  denied(touch(path.join(vaultLink, "outside.txt")));
   const tempFile = path.join(temporary, "tmp-file.txt");
   allowed(touch(tempFile.replace("/private/tmp/", "/tmp/")));
   allowed(remove(tempFile));
@@ -109,7 +126,7 @@ try {
   const branch = path.join(refs, "feature");
   const literalRegex = name => `^${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`;
   const commit = { write: literalRegex(branch), parents: literalRegex(refs) };
-  const gitWrite = (script, file) => sandbox(process.execPath, ["-e", script, file], workspace, state, commit);
+  const gitWrite = (script, file) => sandbox(process.execPath, ["-e", script, file], workspace, state, vault, commit);
   allowed(gitWrite('require("node:fs").mkdirSync(process.argv[1])', refs));
   denied(gitWrite('require("node:fs").rmdirSync(process.argv[1])', refs));
   const updateRef = 'require("node:fs").writeFileSync(process.argv[1], "fixture")';
@@ -117,7 +134,7 @@ try {
   denied(gitWrite(updateRef, path.join(refs, "main")));
 
   allowed(remove(ordinary));
-  console.log("Sandbox verified: workspace, state, and temporary writes allowed; outside writes/deletions, workspace removal, and secret reads denied.");
+  console.log("Sandbox verified: workspace, Obsidian vault, state, and temporary writes allowed; outside writes/deletions, protected root removal, and secret reads denied.");
 } finally {
   fs.rmSync(directory, { recursive: true, force: true });
   fs.rmSync(temporary, { recursive: true, force: true });

@@ -17,6 +17,7 @@
   (require-not
     (require-any
       (subpath (param "WORKSPACE"))
+      (subpath (param "OBSIDIAN_VAULT"))
       (subpath (param "STATE"))
       (subpath (param "TEMP"))
       (subpath "/tmp")
@@ -28,6 +29,7 @@
 ; 起動位置や例外ディレクトリそのものの削除・改名は許可しない。
 (deny file-write-unlink
   (literal (param "WORKSPACE"))
+  (literal (param "OBSIDIAN_VAULT"))
   (literal (param "STATE"))
   (literal (param "TEMP"))
   (literal "/tmp")

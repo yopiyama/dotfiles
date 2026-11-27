@@ -13,7 +13,10 @@ local options = {
 	winblend = 0,
 	pumblend = 5,
 	number=true,
-	relativenumber = false,
+	relativenumber = true,
+	-- 絶対行番号と相対行数を並べて表示する (:N 移動と dNj 等の両方で使う)
+	-- 折り返し行 (v:virtnum > 0) は空欄。&nu / &rnu を見るので、片方を切ったウィンドウはそちらだけ消える
+	statuscolumn = '%C%s%=%{v:virtnum||!&nu?"":v:lnum}%{v:virtnum||!&rnu?"":printf(" %3s",v:relnum?v:relnum:"")} ',
 	numberwidth = 4,
 	signcolumn = "yes:2", -- Git の変更表示とマーク名を並べる
 	list = true,

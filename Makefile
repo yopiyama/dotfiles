@@ -156,3 +156,4 @@ doctor:
 omp-check:
 	cd "$(DOTFILES_DIR)" && node --test .config/omp/safety.test.mjs
 	cd "$(DOTFILES_DIR)" && node .config/omp/check-sandbox.mjs
+	cd "$(DOTFILES_DIR)" && node .config/omp/check-worktree-commit.mjs

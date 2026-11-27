@@ -102,6 +102,21 @@ let
       echo "omp: unsafe temporary or state directory" >&2
       exit 1
     fi
+    vault="$workspace"
+    vault_config="$policies/obsidian-vault"
+    if [[ -L "$vault_config" || ( -e "$vault_config" && ! -f "$vault_config" ) ]]; then
+      echo "omp: $vault_config must be a regular file, not a symbolic link" >&2
+      exit 1
+    fi
+    if [[ -f "$vault_config" ]]; then
+      vault="$(<"$vault_config")"
+      if [[ "$vault" != /* || "$vault" == / || "$home/" == "$vault/"* ||
+            "$vault" == *$'\n'* || ! -d "$vault" ||
+            "$(${pkgs.coreutils}/bin/realpath -e -- "$vault")" != "$vault" ]]; then
+        echo "omp: $vault_config must contain one physical vault path, not HOME or its ancestor" >&2
+        exit 1
+      fi
+    fi
     go_mod_cache="$state/cache/go-mod"
     if [[ "$(${pkgs.coreutils}/bin/realpath -m -- "$go_mod_cache")" != "$go_mod_cache" ]]; then
       echo "omp: Go module cache must be a physical path: $go_mod_cache" >&2
@@ -148,9 +163,14 @@ let
       objects="$(regex_literal "$common_dir/objects")"
       ref="$(regex_literal "$common_dir/$branch")"
       reflog="$(regex_literal "$common_dir/logs/$branch")"
-      local admin_files='index([.]lock)?|HEAD[.]lock|logs/HEAD([.]lock)?|COMMIT_EDITMSG|omp-commit-[[:alnum:]-]+[.]index([.]lock)?|next-index-[0-9]+[.]lock([.]lock)?'
-      local tmp_object='[.]tmp[[:alnum:]]+|tmp_obj_[[:alnum:]]+'
-      commit_write="^($admin/($admin_files)|$ref([.]lock)?|$reflog([.]lock)?|$objects/($tmp_object|[0-9a-f]{2}(/([0-9a-f]{38}|[0-9a-f]{62}|$tmp_object))?))$"
+      # Seatbelt の regex には POSIX 文字クラスや {n} を使わない。
+      local admin_files='index([.]lock)?|HEAD[.]lock|logs/HEAD([.]lock)?|COMMIT_EDITMSG|omp-commit-[0-9a-f-]+[.]index([.]lock)?|next-index-[0-9]+[.]lock([.]lock)?'
+      local tmp_object='[.]tmp[A-Za-z0-9]+|tmp_obj_[A-Za-z0-9]+'
+      local hex='[0-9a-f]' sha1 sha256_tail
+      # loose object の先頭 2 桁はディレクトリ名。ファイル名は 38 桁か 62 桁。
+      printf -v sha1 "%.0s$hex" {1..38}
+      printf -v sha256_tail "%.0s$hex" {1..24}
+      commit_write="^($admin/($admin_files)|$ref([.]lock)?|$reflog([.]lock)?|$objects/($tmp_object|$hex$hex(/($sha1($sha256_tail)?|$tmp_object))?))$"
       # packed refs や新規 reflog に必要な親ディレクトリだけ作成可能にする。
       for path in "$common_dir/$branch" "$common_dir/logs/$branch" "$git_dir/logs/HEAD"; do
         parents="''${path%/*}"
@@ -197,6 +217,7 @@ let
     export DOTFILES_OMP_WORKSPACE="$workspace" TMPDIR="$temp"
     exec /usr/bin/sandbox-exec \
       -D "WORKSPACE=$workspace" -D "STATE=$state" -D "TEMP=$temp" \
+      -D "OBSIDIAN_VAULT=$vault" \
       -D "POLICIES=$policies" -D "COMMIT_WRITE=$commit_write" -D "COMMIT_PARENTS=$commit_parents" \
       -f ${sandboxProfile} ${upstreamOmp}/bin/omp \
       --trusted-extension ${safetyExtension} --trusted-extension ${workspaceExtension} \
@@ -228,7 +249,7 @@ in
         edit = "allow";
         eval = "prompt";
         commit = "allow";
-        task = "allow"; # approval-safety.ts は scout 以外を都度確認する。
+        task = "allow";
         mcp__awslabs_aws_documentation_mcp_server_search_documentation = "allow";
         mcp__awslabs_aws_documentation_mcp_server_read_documentation = "allow";
         mcp__awslabs_aws_documentation_mcp_server_read_sections = "allow";
@@ -318,6 +339,7 @@ in
       # work で選択済みのモデルと完了済みの初期セットアップを保持する。
       modelRoles.default = "openai-codex/gpt-6.2-sol";
       setupVersion = 3;
+      disabledExtensions = [ "context-file:project:copilot-instructions.md" ];
     };
   };
 

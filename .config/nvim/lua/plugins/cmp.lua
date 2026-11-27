@@ -22,7 +22,6 @@ return {
           end,
         },
         mapping = cmp.mapping.preset.insert({
-          ["<C-Space>"] = cmp.mapping.complete(),      -- 補完を開く
           ["<C-e>"] = cmp.mapping.abort(),             -- 閉じる
           ["<CR>"] = cmp.mapping.confirm({ select = true }), -- 確定
           ["<Tab>"] = cmp.mapping(function(fallback)
@@ -55,7 +54,9 @@ return {
       -- :Mason のような Ex コマンドも、入力中に候補を絞り込む。
       -- 表示は noice.nvim の popupmenu に任せる。
       cmp.setup.cmdline(":", {
-        mapping = cmp.mapping.preset.cmdline(),
+        mapping = cmp.mapping.preset.cmdline({
+          ["<C-e>"] = vim.NIL, -- コマンドラインの行末移動に譲る
+        }),
         sources = cmp.config.sources({
           { name = "path" },
         }, {

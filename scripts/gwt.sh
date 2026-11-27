@@ -43,7 +43,7 @@ if [ "${1:-}" = new ]; then
   fi
 
   cd "$dir"
-  # ローカル設定のリンク、direnv allow / mise trust + install、serena MCP の登録。
+  # ローカル設定のリンク、direnv allow / mise trust + install。
   [ -x "$HOME/.local/bin/worktree-sync" ] && "$HOME/.local/bin/worktree-sync" "$PWD"
   printf 'Worktree ready at %s\n' "$PWD"
   exit 0
