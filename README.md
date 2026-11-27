@@ -129,13 +129,18 @@ Advisor はモデル割り当て後に `/advisor on` で有効化する。`work`
 
 - Claude / Codex の user-level discovery を明示的に有効化し、既存の指示・Skills・MCP
   設定を利用する。各ツールの permission や hooks が同じ意味で動く保証はない。
+- 対象サービスの MCP が設定されていれば、未接続でも別の手段へ自動では切り替えない。
+  認証が必要なら、まず `/mcp reauth <server>` などの手順を案内する。
+  これはエージェントへの作業指示であり、`eval` などの実行権限は変更しない。
 - 通常の `omp` は macOS `sandbox-exec` を通す。`.env*`、`*.env`、`id_*`、`*.pem`、
   `*.key` の内容の読み取り・変更を OMP 本体と子プロセスで拒否する。
   起動時の dotenv 読み込みも対象。sandbox を開始できなければ OMP も起動しない。
   ファイル名による保護のため、既に環境変数へ読み込まれた値や別名コピーは保護対象外。
 - 書き込み先は起動ディレクトリ配下、`/tmp`（`/private/tmp`）、macOS のユーザー別
-  `$TMPDIR`、OMP の動作に必要な `~/.omp` に制限する。Bash や `eval` にも適用し、
-  起動ディレクトリ自体は削除・移動できない。ホームやその親からは起動しない。
+  `$TMPDIR`、OMP の動作に必要な `~/.omp` に制限する。
+  `~/.omp/permissions.d/obsidian-vault` を設定した場合は、指定した Vault にも書き込める。
+  この許可は `obs.sh` に限らず Bash や `eval` にも適用するが、機密ファイル保護は維持する。
+  起動ディレクトリと Vault のルート自体は削除・移動できない。ホームやその親からは起動しない。
   `--cwd` や `cd` は書き込み範囲を広げない。範囲外への書き込みは通常のターミナルで行う。
   コミットは公式 OMP の公開 API で登録した `commit` 拡張で行う。本体にはパッチを当てない。
   差分を確認し、依頼されたファイルを `paths` に列挙する。行単位の切り分けはせず、
@@ -156,9 +161,9 @@ Advisor はモデル割り当て後に `/advisor on` で有効化する。`work`
   表示して都度確認する。一時領域内だけで完結する操作は承認不要。
   `mktemp` で作った一時ディレクトリも、シェルの `trap` ではなく `file_change` で後片付けする。
   移動先の上書きやシンボリックリンク経由の操作は拒否する。
-- OMP のサブエージェントは、並列数の上限が 4。非隔離で追加ツールの指定がない
-  `scout` のみ自動承認し、ほかの起動は確認する。task・Advisor・非対話セッションでは
-  編集・shell・eval・MCP・LSP を拒否する。セッション一覧は worktree 単位に分ける。
+- OMP のサブエージェントは、並列数の上限が 4。対話型の親セッションからの起動は
+  すべて自動承認する。子・Advisor・非対話セッションでは編集・shell・eval・MCP・LSP を拒否する。
+  セッション一覧は worktree 単位に分ける。
 - Herdr の公式 OMP 連携拡張も Home Manager で配置する。Herdr 内で起動した OMP の
   作業中・入力待ち・待機状態と会話の復元情報を Herdr に通知する。
   `herdr integration status` で導入状態を確認できる。拡張は Herdr と同じ revision に
@@ -176,10 +181,31 @@ Advisor はモデル割り当て後に `/advisor on` で有効化する。`work`
 - 認証・セッション・キャッシュは `~/.omp/` のローカルデータとして保持する。
   ディレクトリ全体を Git 管理・symlink 管理しない。
 
-プロジェクト固有の許可リストは、リポジトリや dotfiles に入れず、
-`~/.omp/permissions.d$(pwd -P).yml`（対象プロジェクトのルートで `pwd -P` を評価）
-に置く。`bash.patterns` に `{ match: "task package:lint", approval: allow }` のように
-引数込みの完全一致を登録する。許可・確認ルールは、その物理パスからの起動にのみ適用する。
+ローカル権限設定は `~/.omp/permissions.d/` に置き、Git には入れない。
+設定は OMP の起動時に読み込むため、通常のターミナルで編集してから OMP を起動し直す。
+
+Vault への書き込みを許可するには、`~/.omp/permissions.d/obsidian-vault` に Vault ルートの実パスを 1 行で書く。
+`~` やシンボリックリンクを含まない絶対パスを使う。
+ホームとその親は指定できない。
+ファイルがなければ Vault への書き込み許可は追加せず、不正な設定があれば起動を拒否する。
+
+```text
+/Users/alice/Documents/My Vault
+```
+
+プロジェクト固有の Bash ルールは、対象プロジェクトのルートで `pwd -P` を評価し、その結果を使って `~/.omp/permissions.d$(pwd -P).yml` に置く。
+たとえば、プロジェクトが `/Users/alice/src/my-app` なら `~/.omp/permissions.d/Users/alice/src/my-app.yml` に次のように書く。
+
+```yaml
+bash:
+  patterns:
+    - match: "task package:lint"
+      approval: allow
+    - match: "task package:deploy"
+      approval: deny
+```
+
+`match` は引数を含む完全一致で、許可と確認のルールはその実パスからの起動にのみ適用する。
 リンク済み worktree では、元リポジトリの `bash.patterns` にある拒否ルールだけを継承し、
 worktree の許可ルールより先に判定する。継承用の設定は起動時に `permissions.d` 内に生成し、
 元の設定と同様に OMP からは書き換えられない。起動パス固有の設定または継承した拒否ルールを
@@ -200,9 +226,12 @@ Go の依存を展開する `~/.omp/cache/go-mod` 内では、ZIP 内の名前�
 `go:embed` は通常のターミナルで実行する。
 Docker や外部サービスの接続・認証に秘密ファイルが必要な Task は通常のターミナルで実行する。
 
-OMP の起動や `make rebuild` ごとに検証を実行する必要はない。安全設定を変えたときや、
-別の Mac で初めて適用するときは、通常のターミナルで `make omp-check` を実行する。
+OMP の起動や `make rebuild` ごとに検証を実行する必要はない。OMP の安全設定を変えたときや
+別の Mac で初めて適用するときは、設定を反映してから通常のターミナルで `make omp-check` を実行する。
 一時ファイルだけを使い、実際の秘密ファイルは読まない。
+リンク済み worktree の検証では、インストール済みの OMP を起動し、一時 index の作成と
+大きな index での選択コミットを試す。フックが実行されること、対象外のステージ済み変更が
+残ること、共有 Git 設定に書き込めないことも確認する。
 
 削除・移動の承認も OMP 本体で確認する場合:
 
@@ -251,7 +280,20 @@ raycast/               自作 Raycast 拡張 (extensions/) と script command (s
 
 `<Space>d` は、レジスタやクリップボードを上書きせずに削除する。
 ノーマルモードでは後ろにモーションを続ける。`<Space>d40G` なら現在行から40行目まで、`<Space>dd` なら現在行、`3<Space>dd` なら現在行から3行を削除する。
+`<Space>d` のあと少し待つと、which-key に `d`（現在行）と `w`（次の単語まで）の候補が出る。
 ビジュアルモードでは `<Space>d` で選択範囲を削除する。
+
+検索欄（`/`、`?`）とコマンドライン（`:`）では、`Ctrl+A` で入力の先頭に、`Ctrl+E` で末尾に移動する。
+
+挿入モードで `Ctrl-N` を押すと `nvim-cmp` の補完候補が開く。候補が表示済みなら次の候補へ進む。
+
+### Karabiner の右⌘レイヤー
+
+内蔵キーボードの右 `⌘` を押している間は、`;` が `←`、`[` が `↑`、`'` が `↓`、`Enter` が `→` になる。
+`Backspace` は `Delete`（カーソルの右側を削除）になる。
+右 `⌘` はレイヤー専用で、ほかの修飾キーは変換後も残る。たとえば `左Ctrl + 左Option + 右⌘ + [` は `左Ctrl + 左Option + ↑` になる。
+内蔵の右 `⌘` では通常のショートカットは発動しない。左 `⌘` と外付けキーボードの `⌘` は通常どおり使える。
+設定は [`karabiner.nix`](nix/home-manager/programs/karabiner.nix) で管理し、`make rebuild PROFILE=...` で反映する。
 
 ## Packages (Nix)
 
