@@ -26,6 +26,9 @@ vim.keymap.set("n", "<leader>do", "<cmd>DiffOrig<CR>", { desc = "Diff: buffer vs
 
 vim.keymap.set({ "n", "x" }, "<leader>d", '"_d', { desc = "Delete without yanking" })
 
+vim.keymap.set("c", "<C-a>", "<Home>", { desc = "Cmdline: move to start" })
+vim.keymap.set("c", "<C-e>", "<End>", { desc = "Cmdline: move to end" })
+
 -- IME切り替え(Ctrl+Shift+S)が端末のフロー制御解除により生の^Sとして
 -- コマンドライン(検索含む)に紛れ込むのを防ぐ
 vim.keymap.set("c", "<C-s>", "<Nop>", { desc = "Ignore stray ^S in cmdline" })

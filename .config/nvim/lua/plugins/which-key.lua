@@ -20,8 +20,19 @@ return {
             { "<auto>", mode = "nxso" },
             { "g", mode = "n" },
         },
+        -- 二打目の d が現在行を削除するのは、d のモーション待ちに限る。
+        filter = function(mapping)
+            if mapping.mode == "o" and mapping.lhs == "d" and mapping.desc == "Delete current line" then
+                return vim.v.operator == "d"
+            end
+            return true
+        end,
         -- プレフィックスにグループ名を付けると一覧が見やすくなる
         spec = {
+            -- <leader>do と接頭辞を共有するため、サブメニューにも削除候補を出す。
+            { "<leader>dd", desc = "Delete current line" },
+            { "<leader>dw", desc = "Delete to next word" },
+            { "d", mode = "o", desc = "Delete current line" },
             { "<leader>f", group = "find" },
             { "<leader>g", group = "git / diffview" },
             { "<leader>o", group = "octo (GitHub)" },

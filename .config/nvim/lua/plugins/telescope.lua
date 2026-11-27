@@ -130,6 +130,7 @@ return {
 
             local builtin = require("telescope.builtin")
             local sorters = require("telescope.sorters")
+            local p_window = require("telescope.pickers.window")
 
             -- find_files 用: 単語境界で一致するソーター
             local function get_word_sorter()
@@ -211,6 +212,18 @@ return {
                 end
                 if #info > 0 then
                     opts.prompt_title = table.concat(info, "  ")
+                end
+
+                -- 検索欄の下枠にキーヒントを出す。get_window_options はリサイズ時にも呼ばれるので消えない
+                opts.get_window_options = function(picker, max_columns, max_lines)
+                    local win_opts = p_window.get_window_options(picker, max_columns, max_lines)
+                    local title = win_opts.prompt.title
+                    if type(title) == "string" then
+                        title = { { pos = "N", text = title } }
+                    end
+                    table.insert(title, { pos = "S", text = "^L Fixed  ^W Word  ^S Dir  ^G Exclude" })
+                    win_opts.prompt.title = title
+                    return win_opts
                 end
 
                 if #excludes > 0 then
