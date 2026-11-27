@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 
 let
   imSelect = "/opt/homebrew/bin/im-select";
@@ -31,6 +31,60 @@ in
           virtual_hid_keyboard.keyboard_type_v2 = "ansi";
 
           complex_modifications.rules = [
+            (
+              let
+                builtInKeyboard = {
+                  type = "device_if";
+                  identifiers = [ { is_built_in_keyboard = true; } ];
+                };
+                layer = "built_in_right_command_held";
+              in
+              {
+                description = "Built-in keyboard: right Command for arrows and forward delete";
+                manipulators = [
+                  {
+                    type = "basic";
+                    from = {
+                      key_code = "right_command";
+                      modifiers.optional = [ "any" ];
+                    };
+                    conditions = [ builtInKeyboard ];
+                    to = [
+                      {
+                        set_variable = {
+                          name = layer;
+                          value = true;
+                          key_up_value = false;
+                        };
+                      }
+                    ];
+                  }
+                ]
+                ++ lib.mapAttrsToList (key: outputKey: {
+                  type = "basic";
+                  from = {
+                    key_code = key;
+                    modifiers.optional = [ "any" ];
+                  };
+                  conditions = [
+                    builtInKeyboard
+                    {
+                      type = "variable_if";
+                      name = layer;
+                      value = true;
+                    }
+                  ];
+                  to = [ { key_code = outputKey; } ];
+                }) {
+                  semicolon = "left_arrow";
+                  open_bracket = "up_arrow";
+                  quote = "down_arrow";
+                  return_or_enter = "right_arrow";
+                  delete_or_backspace = "delete_forward";
+                };
+              }
+            )
+
             {
               description = "Convert Ctrl+Space to Ctrl+Shift+S";
               manipulators = [
