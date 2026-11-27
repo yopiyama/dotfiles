@@ -140,17 +140,17 @@ fi
 # --- serena MCP の登録 --------------------------------------------------------
 # claude mcp add の既定スコープ (local) は「そのディレクトリ」に紐づくので worktree ごとに要る。
 # 既に登録済みなら claude mcp add も no-op だが、余計な出力を避けるため get で先に見る。
-if command -v claude >/dev/null 2>&1; then
-  if ! (cd "$target" && claude mcp get serena >/dev/null 2>&1); then
-    if [ "$DRY_RUN" -eq 1 ]; then
-      echo "  DRY: claude mcp add serena (cwd: $target)"
-    elif (cd "$target" && claude mcp add serena -- uvx --from git+https://github.com/oraios/serena \
-            serena start-mcp-server --context claude-code --project "$target" >/dev/null 2>&1); then
-      echo "  claude mcp add: serena"
-    else
-      echo "  [FAIL] claude mcp add serena" >&2
-    fi
-  fi
-fi
+# if command -v claude >/dev/null 2>&1; then
+#   if ! (cd "$target" && claude mcp get serena >/dev/null 2>&1); then
+#     if [ "$DRY_RUN" -eq 1 ]; then
+#       echo "  DRY: claude mcp add serena (cwd: $target)"
+#     elif (cd "$target" && claude mcp add serena -- uvx --from git+https://github.com/oraios/serena \
+#             serena start-mcp-server --context claude-code --project "$target" >/dev/null 2>&1); then
+#       echo "  claude mcp add: serena"
+#     else
+#       echo "  [FAIL] claude mcp add serena" >&2
+#     fi
+#   fi
+# fi
 
 exit 0
